@@ -318,7 +318,7 @@ Postman 을 키자.
 
 [L_1]: https://vertx.io/docs/vertx-mysql-client/java/
 [L_2]: https://docs.oracle.com/javase/tutorial/reflect/index.html
-[L_3]: https://github.com/rntlqvnf/Vertx_Examples/tree/master/src/main/java/com/yshajae/vertx/example3
+[L_3]: https://github.com/githajae/Vertx_Examples/tree/master/src/main/java/com/yshajae/vertx/example3
 
 [P_1]: {% post_url profession/Programming/Back-End/2020-08-29-vertx-restful-1-routing %}
 [P_2]: {% post_url profession/Programming/Back-End/2020-08-30-vertx-restful-2-jwt %}

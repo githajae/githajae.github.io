@@ -167,7 +167,7 @@ vertx.eventBus().consumer("mysql", message -> {
 [조대협 님 블로그][5]
 
 [1]: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Vert.x_Logo.svg/1200px-Vert.x_Logo.svg.png
-[2]: https://github.com/rntlqvnf/ClearApp_BE "clearApp_BE"
+[2]: https://github.com/githajae/ClearApp_BE "clearApp_BE"
 [3]: /assets/vertx/verticle_desc.png
 [4]: /assets/vertx/vertx_arch.jpg
 [5]: https://bcho.tistory.com/860

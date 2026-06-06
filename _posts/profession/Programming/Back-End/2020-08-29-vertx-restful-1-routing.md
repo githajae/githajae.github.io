@@ -292,7 +292,7 @@ private void getById(RoutingContext context) {
 이 글에 사용한 소스들은 [github 프로젝트][10]에 확인할 수 있다.
 
 [1]: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Vert.x_Logo.svg/1200px-Vert.x_Logo.svg.png
-[2]: https://github.com/rntlqvnf/ClearApp_BE "clearApp_BE"
+[2]: https://github.com/githajae/ClearApp_BE "clearApp_BE"
 [3]: https://mangkyu.tistory.com/46
 [4]: https://brainbackdoor.tistory.com/53
 [5]: https://www.postman.com/
@@ -300,7 +300,7 @@ private void getById(RoutingContext context) {
 [7]: /assets/vertx/example1/2.PNG
 [8]: /assets/vertx/example1/3.PNG
 [9]: /assets/vertx/example1/4.PNG
-[10]: https://github.com/rntlqvnf/Vertx_Examples/tree/master/src/main/java/com/yshajae/vertx/example1
+[10]: https://github.com/githajae/Vertx_Examples/tree/master/src/main/java/com/yshajae/vertx/example1
 
 [p1]: {% post_url profession/Programming/Back-End/2020-08-29-vertx-restful-1-routing %}
 [p2]: {% post_url profession/Programming/Back-End/2020-08-30-vertx-restful-2-jwt %}

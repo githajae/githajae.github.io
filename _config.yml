@@ -21,9 +21,9 @@ title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Jaehyun Ha"
 description              : "Personal Homepage"
-url                      : "https://rntlqvnf.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : "https://githajae.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : rntlqvnf/blog_comment # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+repository               : githajae/blog_comment # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
@@ -32,7 +32,7 @@ words_per_minute         : 200
 comments:
   provider               : "utterances" # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "custom"
   disqus:
-    shortname            : rntlqvnf # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : githajae # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   discourse:
     server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
   facebook:
@@ -63,7 +63,7 @@ google:
   search_engine_id       : # YOUR_SEARCH_ENGINE_ID
   instant_search         : # false (default), true
 # SEO Related
-google-site-verification : google2b64f7b81ec304a9.html
+google_site_verification : S1FjN08abrD2znx5jlj39WpubCaGmwHocsDbXiJsoSk
 bing_site_verification   :
 yandex_site_verification :
 naver_site_verification  :
@@ -83,13 +83,13 @@ social:
   name                   : # If the user or organization name differs from the site's name
   links: # An array of links to social media profiles
     - "https://www.facebook.com/profile.php?id=100006371353751"
-    - "https://github.com/rntlqvnf"
+    - "https://github.com/githajae"
 
 # Analytics
 analytics:
   provider               : google-gtag # false (default), "google", "google-universal", "google-gtag", "custom"
   google:
-    tracking_id          : UA-176290246-1
+    tracking_id          : G-468ZHH1HBJ
     anonymize_ip         : # true, false (default)
 
 
@@ -103,7 +103,7 @@ author:
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/rntlqvnf"
+      url: "https://github.com/githajae"
     - label: "Instagram"
       icon: "fab fa-fw fa-instagram"
       url: "https://www.instagram.com/insta_hajae/"
