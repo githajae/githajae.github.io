@@ -100,10 +100,55 @@ layout: full-width
 
   <div class="pub-entry">
     <p class="pub-venue">
+      SIGMOD 2027
+    </p>
+    <h3 class="pub-title">
+      CADENZA: Compiling Natural-Language Intent into Task-Specific Operator DAGs for Semantic Query Processing
+    </h3>
+    <p class="pub-authors">
+      <strong>Jaehyun Ha</strong>, Yongjoo Park, and Wook-Shin Han
+    </p>
+    <div class="pub-role">
+      First Author
+    </div>
+  </div>
+
+  <div class="pub-entry">
+    <p class="pub-venue">
+      VLDB 2026 <span class="note">Demo</span>
+    </p>
+    <h3 class="pub-title">
+      CADENZA in Action: Breaking the Monolith with Intent-Dependent Plan Spaces for Semantic Queries
+    </h3>
+    <p class="pub-authors">
+      <strong>Jaehyun Ha</strong>, Yongjoo Park, and Wook-Shin Han
+    </p>
+    <div class="pub-role">
+      First Author
+    </div>
+  </div>
+
+  <div class="pub-entry">
+    <p class="pub-venue">
       VLDB 2026
     </p>
     <h3 class="pub-title">
       TurboLynx: Schemaless Graph Engine Strikes Back for General-Purpose Analytics
+    </h3>
+    <p class="pub-authors">
+      Taesung Lee, <strong>Jaehyun Ha</strong>, Byungchul Tak, and Wook-Shin Han
+    </p>
+    <div class="pub-role">
+      2nd Author
+    </div>
+  </div>
+
+  <div class="pub-entry">
+    <p class="pub-venue">
+      VLDB 2026 <span class="note">Demo</span>
+    </p>
+    <h3 class="pub-title">
+      TurboLynx in Action: A Schemaless Graph Engine for General-Purpose Analytics
     </h3>
     <p class="pub-authors">
       Taesung Lee, <strong>Jaehyun Ha</strong>, Byungchul Tak, and Wook-Shin Han
