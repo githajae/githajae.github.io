@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CADENZA — Bayesian Optimization Walkthrough</title>
+<style>
+  :root{
+    --ink:#1d1d1f; --muted:#6e6e73; --hint:#86868b; --line:#e8e8ed;
+    --bg:#fbfbfd; --card:#ffffff; --surf:#f5f5f7; --surf2:#eeeef1;
+    --blue:#0071e3; --bluebg:#eaf3fd;
+    --teal:#0a7a5c; --tealbg:#e4f5ee;
+    --amber:#9a6212; --amberbg:#fbf0dc;
+    --red:#c4342f; --redbg:#fdecec; --gray:#52525a; --graybg:#f0f0f2;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+  sub{font-size:.7em}
+  header{display:flex;align-items:center;gap:16px;padding:22px 30px 14px}
+  header h1{font-size:17px;font-weight:600;letter-spacing:-.02em;margin:0}
+  header .sub{font-size:12.5px;color:var(--hint);margin-top:1px}
+  .nav{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .rbtn{width:38px;height:38px;border-radius:50%;border:none;background:var(--surf);
+    color:var(--ink);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .1s}
+  .rbtn:hover{background:var(--surf2)} .rbtn:active{transform:scale(.94)} .rbtn:disabled{opacity:.35;cursor:default}
+  .counter{font-size:12.5px;color:var(--hint);min-width:58px;text-align:center;letter-spacing:.02em}
+  .dots{display:flex;gap:7px;flex-wrap:wrap;padding:6px 30px 2px;justify-content:center}
+  .dot{width:7px;height:7px;border-radius:50%;background:#d2d2d7;cursor:pointer;transition:all .25s}
+  .dot.on{background:var(--ink);width:22px;border-radius:4px}
+  .stage{position:relative;height:610px;overflow:hidden;margin-top:8px}
+  .deck{position:absolute;inset:0}
+  .card{position:absolute;top:50%;left:50%;width:680px;min-height:516px;background:var(--card);border-radius:24px;padding:30px 34px;
+    box-shadow:0 18px 50px rgba(0,0,0,.09),0 3px 10px rgba(0,0,0,.04);
+    transition:transform .5s cubic-bezier(.22,.61,.36,1),opacity .5s ease;will-change:transform,opacity;overflow:hidden}
+  .stage-label{font-size:11px;letter-spacing:.09em;color:var(--blue);text-transform:uppercase;font-weight:600;margin-bottom:4px}
+  .card h2{font-size:25px;font-weight:600;letter-spacing:-.025em;margin:0 0 16px}
+  .card h2 .meta{font-size:14px;font-weight:500;letter-spacing:0}
+  .lede{font-size:14.5px;color:var(--muted);line-height:1.6}
+  .codeblock{background:var(--surf);border-radius:14px;padding:14px 16px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.6;color:#3a3a3f;white-space:pre-wrap}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .prodgrid{display:flex;gap:12px;margin-top:14px}
+  .prod{flex:1;background:var(--surf);border-radius:16px;padding:12px 10px 10px;text-align:center}
+  .prod svg{display:block;margin:0 auto 8px}
+  .prod .nm{font-size:11px;font-weight:500;color:var(--ink);line-height:1.25;min-height:26px}
+  .prod .fl{display:inline-block;margin-top:5px;font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .fl.yes{background:var(--tealbg);color:var(--teal)} .fl.no{background:var(--graybg);color:var(--hint)}
+  .op{border-radius:12px;padding:9px 12px;font-size:12px;text-align:center}
+  .op.task{background:var(--tealbg);color:var(--teal);font-weight:500}
+  .op.rel{background:var(--surf);color:var(--gray)}
+  .up{text-align:center;color:#c7c7cc;font-size:13px;line-height:1}
+  .planhint{font-size:12px;color:var(--hint);text-align:center}
+  .op.clk{cursor:pointer;transition:box-shadow .15s,transform .1s}
+  .op.clk:hover{box-shadow:0 0 0 2px #5dcaa5 inset} .op.clk:active{transform:scale(.99)}
+  .mag{opacity:.45;font-size:11px;margin-left:4px}
+  .prow2{display:flex;align-items:center;gap:10px;margin:11px 0;flex-wrap:wrap}
+  .opbox{font-family:ui-monospace,monospace;font-size:13.5px;background:var(--tealbg);color:var(--teal);padding:8px 14px;border-radius:11px;font-weight:600}
+  .opbox.rel{background:var(--graybg);color:var(--gray)}
+  .conn{color:var(--hint)}
+  .chips2{display:flex;gap:7px;flex-wrap:wrap}
+  .pchip2{font-family:ui-monospace,monospace;font-size:13px;background:var(--surf);border:0.5px solid var(--line);padding:6px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
+  .pchip2:hover{background:var(--bluebg);color:var(--blue)}
+  .pchip2.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .pdesc{margin-top:20px;background:var(--surf);border-radius:13px;padding:16px 18px;font-size:14px;color:var(--muted);min-height:50px;line-height:1.55}
+  .kv{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--line)}
+  .kv b{font-weight:600}
+  .zt{font-size:10px;letter-spacing:.06em;color:var(--hint);text-transform:uppercase;font-weight:600;margin-bottom:6px}
+  .bar{height:8px;border-radius:6px;display:inline-block;vertical-align:middle}
+  .rrow{font-size:11px;margin:5px 0;display:flex;align-items:center;gap:7px}
+  .chip{font-family:ui-monospace,monospace;font-size:9.5px;padding:2px 7px;border-radius:20px;font-weight:500}
+  .tup{display:grid;grid-template-columns:14px 1fr 60px 14px;align-items:center;gap:7px;font-size:11.5px;margin:5px 0}
+  .sw{width:12px;height:12px;border-radius:4px}
+  .tup5{display:grid;grid-template-columns:1fr 66px 16px;align-items:center;gap:8px;font-size:12.5px;margin:6px 0}
+  .meaning{background:var(--bluebg);border-radius:10px;padding:10px 15px;font-size:13px;color:var(--ink);line-height:1.45;margin-top:12px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+  .tile{background:var(--surf);border-radius:13px;padding:9px 6px;text-align:center}
+  .tile .l{font-size:9.5px;color:var(--muted)} .tile .v{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .tile.u{background:var(--tealbg)} .tile.u .l,.tile.u .v{color:var(--teal)}
+  .pboard{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}
+  .prow{display:grid;grid-template-columns:62px 1fr;align-items:center;gap:8px;margin:2px 0}
+  .pname{font-family:ui-monospace,monospace;font-size:10px;color:var(--muted);text-align:right}
+  .track{position:relative;height:11px;background:var(--surf);border-radius:6px}
+  .pdot{position:absolute;top:2.5px;width:6px;height:6px;border-radius:50%;transform:translateX(-50%)}
+  .pring{position:absolute;top:0.5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--teal);transform:translateX(-50%)}
+  .bigblock{background:var(--surf);border-radius:14px;padding:16px 18px}
+  .bl-h{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:10px}
+  .bl-sub{font-size:12.5px;font-weight:400;color:var(--hint)}
+  .bl-eq{font-size:20px;color:var(--teal);margin:2px 0 9px;letter-spacing:.01em}
+  .bl-note{font-size:13px;color:var(--muted);line-height:1.5}
+  .spgrp{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .spop{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--hint);min-width:96px}
+  .spchip{font-family:ui-monospace,monospace;font-size:13px;background:var(--surf);border:0.5px solid var(--line);padding:6px 12px;border-radius:20px}
+  .dom{color:var(--hint);font-size:11.5px}
+  .setrow{display:grid;grid-template-columns:118px 1fr;gap:16px;padding:14px 0;border-bottom:0.5px solid var(--line)}
+  .setk{font-weight:600;font-size:14.5px}
+  .setv{font-size:14px;color:var(--muted);line-height:1.5}
+  .eqn{color:var(--blue);font-size:11.5px}
+  .note{font-size:10.5px;margin-top:5px}
+  .mbg{position:fixed;inset:0;background:rgba(20,20,22,.45);display:none;align-items:center;justify-content:center;z-index:100}
+  .mbg.show{display:flex}
+  .mcard{background:#fff;border-radius:22px;padding:26px 30px 30px;width:min(640px,92%);max-height:88vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.32);position:relative}
+  .mcard h3{font-size:20px;font-weight:600;margin:0;letter-spacing:-.01em}
+  .mx{position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;border:none;background:var(--surf);font-size:15px;cursor:pointer;color:var(--muted)}
+  .mx:hover{background:var(--surf2)}
+  .msub{font-size:13.5px;color:var(--muted);margin-top:4px}
+  .mcard .zt{font-size:11.5px;margin-bottom:8px}
+  .pli{font-size:13px;margin:8px 0;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>CADENZA · Multi-Objective Tuning</h1>
+    <div class="sub">Bayesian optimization, walked through on the paper's running example</div>
+  </div>
+  <div class="nav">
+    <button class="rbtn" id="prev" aria-label="previous">&#8249;</button>
+    <span class="counter mono" id="counter"></span>
+    <button class="rbtn" id="next" aria-label="next">&#8250;</button>
+  </div>
+</header>
+<div class="dots" id="dots"></div>
+<div class="stage"><div class="deck" id="deck"></div></div>
+
+<div class="mbg" id="modal"><div class="mcard"><button class="mx" id="mx" aria-label="close">&#10005;</button><div id="mbody"></div></div></div>
+
+<script>
+"use strict";
+/* ---------- subscript formatters (LaTeX-like) ---------- */
+function subHTML(s){return s.replace(/([λτθ])_([a-z]+)(\d*)/g,(_,g,a,d)=>g+'<sub>'+a+(d?','+d:'')+'</sub>');}
+function subSVG(s){return s.replace(/([λτθ])_([a-z]+)(\d*)/g,(_,g,a,d)=>g+'<tspan baseline-shift="sub" font-size="70%">'+a+(d?','+d:'')+'</tspan>');}
+
+/* ---------- math helpers ---------- */
+function erf(x){const t=1/(1+0.3275911*Math.abs(x));
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return x>=0?y:-y;}
+const Phi=z=>0.5*(1+erf(z/Math.SQRT2));
+const phi=z=>Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);
+function matInv(A){const n=A.length,M=A.map((r,i)=>r.concat(Array.from({length:n},(_,j)=>i===j?1:0)));
+  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
+    [M[c],M[p]]=[M[p],M[c]];const pv=M[c][c]||1e-9;for(let j=0;j<2*n;j++)M[c][j]/=pv;
+    for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c];for(let j=0;j<2*n;j++)M[r][j]-=f*M[c][j];}}
+  return M.map(r=>r.slice(n));}
+function matVec(A,v){return A.map(r=>r.reduce((s,x,j)=>s+x*v[j],0));}
+
+/* ---------- GP (1-D projection) ---------- */
+const S2=0.06,L=0.16,SN2=0.0015;
+const rbf=(a,b)=>S2*Math.exp(-((a-b)*(a-b))/(2*L*L));
+function gp(X,Y,grid){
+  const n=X.length,K=X.map((xi,i)=>X.map((xj,j)=>rbf(xi,xj)+(i===j?SN2:0)));
+  const Ki=matInv(K),my=Y.reduce((s,v)=>s+v,0)/n,yc=Y.map(v=>v-my),al=matVec(Ki,yc);
+  return grid.map(g=>{const ks=X.map(xi=>rbf(g,xi));
+    const mean=my+ks.reduce((s,k,i)=>s+k*al[i],0);
+    const v=S2-ks.reduce((s,k,i)=>s+k*matVec(Ki,ks)[i],0);
+    return {x:g,mean,sd:Math.sqrt(Math.max(v,1e-5))};});}
+
+/* ---------- evaluation model (5 validation tuples) ---------- */
+const SAMPLES=[
+  {label:'clear "FDA approved" label',d:0.15},
+  {label:'standard printed label',d:0.32},
+  {label:'small print',d:0.55},
+  {label:'curved-package text',d:0.78},
+  {label:'low-light photo',d:0.92}
+];
+const CAP={rule:0.34,local:0.70,llm:1.0};
+const COST={rule:0.02,local:0.08,llm:0.50};
+const LAT={rule:0.1,local:0.6,llm:3.0};
+const LMAX=4.0,CMAX=0.7;
+function routeOf(d,c1,c2){return d<c1?'rule':d<c2?'local':'llm';}
+function evalAt(c1,c2){
+  let ok=0,cost=0,lat=0;const route={rule:0,local:0,llm:0};const tuples=[];
+  SAMPLES.forEach(s=>{const b=routeOf(s.d,c1,c2);route[b]++;cost+=COST[b];lat+=LAT[b];
+    const good=s.d<=CAP[b];if(good)ok++;tuples.push({label:s.label,backend:b,ok:good});});
+  const n=SAMPLES.length,Q=ok/n,C=cost/n,Lv=lat/n,U=Q-0.4*(Lv/LMAX)-0.3*(C/CMAX);
+  return {Q,L:Lv,C,U,route,tuples};
+}
+/* 10 trials, each with milestone:detail + meaning. c1,c2 = OpTxtQA router breakpoints. */
+const TRIALS=[
+  {m:1,d:1,c1:0.70,c2:0.85,meaning:'Too-cheap split — a medium and a hard tuple fail.'},
+  {m:1,d:2,c1:0.02,c2:0.05,meaning:'All to GPT-4 — perfect quality, maximal cost.'},
+  {m:1,d:3,c1:0.60,c2:0.95,meaning:'Almost all pushed cheap — three tuples fail (worst quality).'},
+  {m:2,d:1,c1:0.10,c2:0.40,meaning:'First Q=1, but nothing on rule — three GPT-4 calls.'},
+  {m:2,d:2,c1:0.25,c2:0.55,meaning:'Easy tuple to rule; quality stays 1, cost edges down.'},
+  {m:3,d:1,c1:0.25,c2:0.60,meaning:'Medium tuple to local — only two GPT-4 calls. Big jump.'},
+  {m:3,d:2,c1:0.45,c2:0.85,meaning:'Overreach — curved tuple fails off GPT-4. Quality drops.'},
+  {m:3,d:3,c1:0.45,c2:0.60,meaning:'Two easy on rule, medium on local — Q=1, low cost. New best.'},
+  {m:4,d:1,c1:0.45,c2:0.55,meaning:'Probing the boundary — medium back to GPT-4; dips slightly.'},
+  {m:4,d:2,c1:0.45,c2:0.65,meaning:'Converged — rule / local / GPT-4 split. Q=1 at minimum cost.'}
+];
+const MET=TRIALS.map(t=>evalAt(t.c1,t.c2));
+const BEST=MET.map((_,i)=>Math.max(...MET.slice(0,i+1).map(m=>m.U)));
+const Uarr=MET.map(m=>m.U), Xarr=TRIALS.map(t=>t.c2);
+function colU(u){const t=Math.max(0,Math.min(1,u/0.72));const a=[210,210,215],b=[10,122,92];
+  return 'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')+')';}
+/* candidate view: GP over c2 of past trials predicts U for candidate configs; EI ranks them */
+function candidates(ti){
+  const X=Xarr.slice(0,ti+1),Y=Uarr.slice(0,ti+1);
+  const grid=[0.12,0.25,0.40,0.55,0.70,0.82,0.93];
+  const post=gp(X,Y,grid),yb=Math.max(...Y);
+  const c=post.map(p=>{const z=(p.mean-yb-0.005)/p.sd;const ei=p.sd>1e-5?Math.max(0,(p.mean-yb-0.005)*Phi(z)+p.sd*phi(z)):0;
+    return {mean:p.mean,sd:p.sd,ei};});
+  c.sort((a,b)=>b.ei-a.ei);return c;
+}
+
+/* ---------- operator definitions ---------- */
+const OPDEF={
+  OpImgObj:{title:'OpImgObj(Image)',out:'Score (object present)',input:'product image (RGB)',
+    features:['resolution','scene clutter'],
+    backends:[{f:'rule-based',s:'HSV heuristic',p:'—'},
+      {f:'local model',s:'YOLO-World',p:'θ_obj (min_score)'},
+      {f:'LLM',s:'GPT-4V',p:'—'}],
+    out_thr:'σ:  Score ≥ λ_obj',
+    params:[{n:'τ_obj1',d:'rule | local boundary (percentile). Easier tuples go to the rule-based backend.'},
+      {n:'τ_obj2',d:'local | LLM boundary. Harder tuples escalate to GPT-4V.'},
+      {n:'θ_obj',d:'YOLO-World detection-confidence threshold (min_score).'},
+      {n:'λ_obj',d:'output threshold — keep objects with Score ≥ λ_obj (σ filter).'}]},
+  OpImgOCR:{title:'OpImgOCR(BBox)',out:'Text + legibility',input:'label region crop (bbox)',
+    features:['sharpness (blur)','region size'],
+    backends:[{f:'rule-based',s:'Tesseract',p:'—'},
+      {f:'local model',s:'TrOCR',p:'θ_ocr (conf_threshold)'},
+      {f:'LLM',s:'GPT-4V OCR',p:'—'}],
+    out_thr:'→ passed to OpTxtQA (no σ)',
+    params:[{n:'τ_ocr1',d:'rule | local boundary. Clean printed text goes to Tesseract.'},
+      {n:'τ_ocr2',d:'local | LLM boundary. Blurry / curved text escalates to GPT-4V.'},
+      {n:'θ_ocr',d:'TrOCR character-confidence threshold (conf_threshold).'}]},
+  OpTxtQA:{title:'OpTxtQA(OCRTxt, q)',out:'Answer + Score',input:'extracted text + question q',
+    features:['text length','keyword hit'],
+    backends:[{f:'rule-based',s:'regex',p:'—'},
+      {f:'local model',s:'DistilBERT',p:'θ_qa (min_qa_score)'},
+      {f:'LLM',s:'GPT-4',p:'—'}],
+    out_thr:'σ:  Answer = Yes ∧ Score ≥ λ_vqa',
+    params:[{n:'τ_qa1',d:'rule | local boundary. Clear labels match by regex (near-free).'},
+      {n:'τ_qa2',d:'local | LLM boundary. Ambiguous / negated text escalates to GPT-4.'},
+      {n:'θ_qa',d:'DistilBERT answer-confidence threshold (min_qa_score).'},
+      {n:'λ_vqa',d:'output threshold — keep rows with Answer=Yes & Score ≥ λ_vqa (σ filter).'}]}
+};
+const PARAM_DESC={};Object.keys(OPDEF).forEach(k=>OPDEF[k].params.forEach(p=>PARAM_DESC[p.n]=p.d));
+const PARAM_ROWS=[
+  {op:'σ (Answer=Yes ∧ Score ≥ λ_vqa)',ps:['λ_vqa'],rel:true},
+  {op:'OpTxtQA(OCRTxt, q)',ps:['τ_qa1','τ_qa2','θ_qa']},
+  {op:'OpImgOCR(BBox)',ps:['τ_ocr1','τ_ocr2','θ_ocr']},
+  {op:'σ (Score ≥ λ_obj)',ps:['λ_obj'],rel:true},
+  {op:'OpImgObj(Image)',ps:['τ_obj1','τ_obj2','θ_obj']}
+];
+const DOMAIN={'τ_obj1':'[0,1]','τ_obj2':'[0,1]','θ_obj':'[0.1, 0.9]','λ_obj':'[0,1]','τ_ocr1':'[0,1]','τ_ocr2':'[0,1]','θ_ocr':'[0,1]','τ_qa1':'[0,1]','τ_qa2':'[0,1]','θ_qa':'[0,1]','λ_vqa':'[0,1]'};
+
+/* ---------- router popup diagram ---------- */
+function routerFlowSVG(op){
+  const W=560,feats=op.features,n=feats.length,slot=500/n,cxR=280;
+  let fchips='',farrows='';
+  for(let i=0;i<n;i++){const c=30+slot*(i+0.5),w=Math.min(slot-16,200);
+    fchips+='<rect x="'+(c-w/2)+'" y="10" width="'+w+'" height="34" rx="9" fill="#f5f5f7"/>'
+      +'<text x="'+c+'" y="32" text-anchor="middle" style="font-size:12.5px;fill:#52525a">'+feats[i]+'</text>';
+    farrows+='<path d="M'+c+' 44 C '+c+' 56, '+cxR+' 54, '+cxR+' 66" fill="none" stroke="#c7c7cc" stroke-width="1.4" marker-end="url(#mar)"/>';}
+  const router='<rect x="180" y="66" width="200" height="50" rx="12" fill="#eaf3fd"/>'
+    +'<text x="'+cxR+'" y="88" text-anchor="middle" style="font-size:14px;fill:#185fa5;font-weight:600">router</text>'
+    +'<text x="'+cxR+'" y="106" text-anchor="middle" style="font-size:11px;fill:#185fa5" class="mono">&#8594; percentile u &#8712; [0,1]</text>'
+    +'<path d="M'+cxR+' 116 L'+cxR+' 170" stroke="#c7c7cc" stroke-width="1.4" marker-end="url(#mar)"/>';
+  const x0=28,bw=504,y=178,h=36,t1=0.40,t2=0.74,x1=x0+bw*t1,x2=x0+bw*t2;
+  const zl=(cx,top,impl,col)=>'<text x="'+cx+'" y="'+(y+23)+'" text-anchor="middle" style="font-size:12px;fill:'+col+';font-weight:600">'+top+'</text>'
+    +'<text x="'+cx+'" y="'+(y+h+20)+'" text-anchor="middle" style="font-size:11.5px;fill:#3a3a3f" class="mono">'+impl+'</text>';
+  const cut=(x,label)=>'<line x1="'+x+'" y1="'+(y-16)+'" x2="'+x+'" y2="'+(y+h+5)+'" stroke="#c4342f" stroke-width="1.5" stroke-dasharray="4 2"/>'
+    +'<rect x="'+(x-37)+'" y="'+(y-40)+'" width="74" height="23" rx="11" fill="#fdecec" stroke="#c4342f" stroke-width="1"/>'
+    +'<text x="'+x+'" y="'+(y-24)+'" text-anchor="middle" style="font-size:12.5px;fill:#c4342f;font-weight:600">'+label+'</text>';
+  const loc=op.backends[1].s+' ('+subSVG(op.backends[1].p.split(' ')[0])+')';
+  const bar='<text x="'+x0+'" y="'+(y-6)+'" style="font-size:10px;fill:#86868b">easy</text>'
+    +'<text x="'+(x0+bw)+'" y="'+(y-6)+'" text-anchor="end" style="font-size:10px;fill:#86868b">hard</text>'
+    +'<rect x="'+x0+'" y="'+y+'" width="'+(bw*t1)+'" height="'+h+'" fill="#f0f0f2"/>'
+    +'<rect x="'+x1+'" y="'+y+'" width="'+(bw*(t2-t1))+'" height="'+h+'" fill="#e4f5ee"/>'
+    +'<rect x="'+x2+'" y="'+y+'" width="'+(bw*(1-t2))+'" height="'+h+'" fill="#eaf3fd"/>'
+    +'<rect x="'+x0+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="6" fill="none" stroke="#d2d2d7"/>'
+    +zl(x0+bw*t1/2,'rule-based',op.backends[0].s,'#52525a')
+    +zl((x1+x2)/2,'local model',loc,'#0a7a5c')
+    +zl(x2+bw*(1-t2)/2,'LLM',op.backends[2].s,'#185fa5')
+    +cut(x1,subSVG(op.params[0].n))+cut(x2,subSVG(op.params[1].n));
+  const oy=y+h+42;
+  const out='<path d="M'+cxR+' '+(y+h+28)+' L'+cxR+' '+oy+'" stroke="#c7c7cc" stroke-width="1.4" marker-end="url(#mar)"/>'
+    +'<rect x="135" y="'+oy+'" width="290" height="30" rx="9" fill="#fbf0dc"/>'
+    +'<text x="'+cxR+'" y="'+(oy+20)+'" text-anchor="middle" style="font-size:11.5px;fill:#9a6212" class="mono">'+subSVG(op.out_thr)+'</text>';
+  const Hh=oy+48;
+  return '<svg viewBox="0 0 '+W+' '+Hh+'" width="100%"><defs><marker id="mar" markerWidth="8" markerHeight="8" refX="5" refY="3.5" orient="auto"><path d="M1,1 L6,3.5 L1,6 Z" fill="#c7c7cc"/></marker></defs>'+fchips+farrows+router+bar+out+'</svg>';
+}
+function modalContent(k){const op=OPDEF[k];
+  const plist=op.params.map(p=>'<div class="pli"><span class="mono" style="color:#185fa5;font-weight:600">'+subHTML(p.n)+'</span> <span style="color:#6e6e73">'+subHTML(p.d)+'</span></div>').join('');
+  return '<h3 class="mono">'+op.title+' <span style="color:#86868b;font-weight:400">&#8594; '+op.out+'</span></h3>'
+    +'<div class="msub">Input · '+op.input+'</div>'
+    +'<div style="margin-top:14px">'+routerFlowSVG(op)+'</div>'
+    +'<div class="zt" style="margin-top:10px">Tunable parameters</div>'+plist;
+}
+
+/* ---------- charts (2-D GP contour over the two router breakpoints) ---------- */
+const L2D=0.28;
+function gp2d(P,Y,grid){
+  const n=P.length;
+  const k=(a,b)=>{const dx=a[0]-b[0],dy=a[1]-b[1];return S2*Math.exp(-(dx*dx+dy*dy)/(2*L2D*L2D));};
+  const K=P.map((pi,i)=>P.map((pj,j)=>k(pi,pj)+(i===j?SN2:0)));
+  const Ki=matInv(K),my=Y.reduce((s,v)=>s+v,0)/n,yc=Y.map(v=>v-my),al=matVec(Ki,yc);
+  return grid.map(g=>{const ks=P.map(pi=>k(g,pi));const Kiks=matVec(Ki,ks);
+    const mean=my+ks.reduce((s,kk,i)=>s+kk*al[i],0);
+    const v=S2-ks.reduce((s,kk,i)=>s+kk*Kiks[i],0);
+    return {mean,sd:Math.sqrt(Math.max(v,1e-5))};});
+}
+function ramp(t,S){t=Math.max(0,Math.min(1,t));
+  for(let i=1;i<S.length;i++){if(t<=S[i][0]){const p=S[i-1],q=S[i],u=(t-p[0])/((q[0]-p[0])||1);
+    return 'rgb('+[0,1,2].map(k=>Math.round(p[1][k]+(q[1][k]-p[1][k])*u)).join(',')+')';}}
+  return 'rgb('+S[S.length-1][1].join(',')+')';}
+const U_STOPS=[[0,[239,243,241]],[0.30,[160,216,193]],[0.60,[58,178,135]],[0.82,[19,140,103]],[1,[7,82,60]]];
+const EI_STOPS=[[0,[253,247,233]],[0.35,[247,206,128]],[0.65,[224,150,46]],[0.85,[183,113,22]],[1,[120,68,8]]];
+function eiColor(t){return ramp(t,EI_STOPS);}
+function uColor(t){return ramp(t,U_STOPS);}
+function contourSVG(ti,mode,sz){
+  const W=sz,H=sz,pl=42,pr=8,pt=24,pb=34,G=18;
+  const P=TRIALS.slice(0,ti+1).map(t=>[t.c1,t.c2]),Y=Uarr.slice(0,ti+1);
+  const gc=[];for(let i=0;i<G;i++)gc.push((i+0.5)/G);
+  const pts=[];gc.forEach(b=>gc.forEach(a=>pts.push([a,b])));
+  const post=gp2d(P,Y,pts);
+  let vals;if(mode==='EI'){const yb=Math.max(...Y);vals=post.map(p=>{const z=(p.mean-yb-0.01)/p.sd;return p.sd>1e-5?Math.max(0,(p.mean-yb-0.01)*Phi(z)+p.sd*phi(z)):0;});}else vals=post.map(p=>p.mean);
+  const vmax=Math.max(...vals),vmin=Math.min(...vals),rng=(vmax-vmin)||1;
+  const sx=a=>pl+a*(W-pl-pr),sy=b=>(H-pb)-b*(H-pt-pb);
+  const cw=(W-pl-pr)/G,ch=(H-pt-pb)/G;
+  let g='';pts.forEach((p,idx)=>{const tn=mode==='EI'?(vmax>1e-9?vals[idx]/vmax:0):(vals[idx]-vmin)/rng;
+    const col=mode==='EI'?eiColor(tn):uColor(tn);
+    g+='<rect x="'+(sx(p[0])-cw/2)+'" y="'+(sy(p[1])-ch/2)+'" width="'+(cw+0.7)+'" height="'+(ch+0.7)+'" fill="'+col+'"/>';});
+  let dots='';TRIALS.slice(0,ti+1).forEach((t,i)=>{dots+='<circle cx="'+sx(t.c1)+'" cy="'+sy(t.c2)+'" r="'+(i===ti?5.5:3.4)+'" fill="#fff" stroke="#1d1d1f" stroke-width="'+(i===ti?2.2:1.3)+'"/>';});
+  const next=nextEI(ti);
+  let nx='';if(next){const x=sx(next[0]),y=sy(next[1]);nx='<polygon points="'+x+','+(y-7)+' '+(x+7)+','+y+' '+x+','+(y+7)+' '+(x-7)+','+y+'" fill="#c4342f" stroke="#fff" stroke-width="1.5"/>';}
+  let ax='<rect x="'+pl+'" y="'+pt+'" width="'+(W-pl-pr)+'" height="'+(H-pt-pb)+'" fill="none" stroke="#b8b8bd"/>';
+  [0,0.5,1].forEach(v=>{ax+='<text x="'+sx(v)+'" y="'+(H-pb+16)+'" font-size="12" fill="#86868b" text-anchor="middle">'+v+'</text>'
+    +'<text x="'+(pl-6)+'" y="'+(sy(v)+4)+'" font-size="12" fill="#86868b" text-anchor="end">'+v+'</text>';});
+  const title=mode==='EI'?'EI &nbsp;(◇ next)':'predicted U &nbsp;(◇ next)';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;display:block">'
+    +'<text x="'+pl+'" y="'+(pt-9)+'" font-size="12.5" fill="#6e6e73">'+title+'</text>'+g+ax+dots+nx
+    +'<text x="'+((pl+W-pr)/2)+'" y="'+(H-4)+'" font-size="12.5" fill="#6e6e73" text-anchor="middle">x = '+subSVG('τ_qa1')+'</text>'
+    +'<text x="13" y="'+((pt+H-pb)/2)+'" font-size="12.5" fill="#6e6e73" transform="rotate(-90 13 '+((pt+H-pb)/2)+')" text-anchor="middle">y = '+subSVG('τ_qa2')+'</text></svg>';
+}
+function svgConv(ti){
+  const W=600,H=138,pl=38,pr=16,pt=20,pb=28,n=TRIALS.length;
+  const sx=i=>pl+(n>1?i/(n-1):0)*(W-pl-pr),sy=u=>pt+(1-u/0.85)*(H-pt-pb);
+  let axes='<line x1="'+pl+'" y1="'+sy(0)+'" x2="'+(W-pr)+'" y2="'+sy(0)+'" stroke="#b8b8bd"/><line x1="'+pl+'" y1="'+pt+'" x2="'+pl+'" y2="'+sy(0)+'" stroke="#b8b8bd"/>';
+  [0,0.4,0.8].forEach(u=>{axes+='<line x1="'+pl+'" y1="'+sy(u)+'" x2="'+(W-pr)+'" y2="'+sy(u)+'" stroke="#f2f2f4"/><text x="'+(pl-6)+'" y="'+(sy(u)+4)+'" font-size="12.5" fill="#86868b" text-anchor="end">'+u.toFixed(1)+'</text>';});
+  [1,3,5,7,10].forEach(tk=>{axes+='<text x="'+sx(tk-1)+'" y="'+(sy(0)+18)+'" font-size="12.5" fill="#86868b" text-anchor="middle">'+tk+'</text>';});
+  const pts=BEST.slice(0,ti+1).map((u,i)=>sx(i)+','+sy(u)).join(' ');
+  const dots=Uarr.slice(0,ti+1).map((u,i)=>'<circle cx="'+sx(i)+'" cy="'+sy(u)+'" r="3.4" fill="#cfcfd4"/>').join('');
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+axes+dots
+    +'<polyline points="'+pts+'" fill="none" stroke="#0a7a5c" stroke-width="2.4"/>'
+    +'<circle cx="'+sx(ti)+'" cy="'+sy(BEST[ti])+'" r="5" fill="#0a7a5c"/>'
+    +'<text x="'+pl+'" y="'+(pt-9)+'" font-size="12.5" fill="#6e6e73">y = U · green = best-so-far · gray dots = each trial</text>'
+    +'<text x="'+((pl+W-pr)/2)+'" y="'+(H-5)+'" font-size="12.5" fill="#6e6e73" text-anchor="middle">x = trial</text></svg>';
+}
+function nextEI(ti){
+  const P=TRIALS.slice(0,ti+1).map(t=>[t.c1,t.c2]),Y=Uarr.slice(0,ti+1);
+  const G=18,gc=[];for(let i=0;i<G;i++)gc.push((i+0.5)/G);
+  const pts=[];gc.forEach(b=>gc.forEach(a=>pts.push([a,b])));
+  const post=gp2d(P,Y,pts),yb=Math.max(...Y);
+  let best=-1,bi=0;post.forEach((p,i)=>{const z=(p.mean-yb-0.01)/p.sd;const ei=p.sd>1e-5?Math.max(0,(p.mean-yb-0.01)*Phi(z)+p.sd*phi(z)):0;if(ei>best){best=ei;bi=i;}});
+  return pts[bi];
+}
+function svgSurrogate1D(ti,axis){
+  const W=300,H=140,pl=40,pr=12,pt=18,pb=30;
+  const X=TRIALS.slice(0,ti+1).map(t=>axis===0?t.c1:t.c2),Y=Uarr.slice(0,ti+1);
+  const grid=Array.from({length:70},(_,i)=>i/69);const post=gp(X,Y,grid);
+  const sx=x=>pl+x*(W-pl-pr),sy=u=>pt+(1-u/0.85)*(H-pt-pb);
+  const up=post.map(p=>sx(p.x)+','+sy(Math.min(0.85,p.mean+2*p.sd))).join(' ');
+  const lo=post.map(p=>sx(p.x)+','+sy(Math.max(0,p.mean-2*p.sd))).reverse().join(' ');
+  const mean=post.map(p=>sx(p.x)+','+sy(Math.max(0,Math.min(0.85,p.mean)))).join(' ');
+  const dots=X.map((x,i)=>'<circle cx="'+sx(x)+'" cy="'+sy(Y[i])+'" r="'+(i===ti?6:3.8)+'" fill="#0a7a5c"'+(i===ti?' stroke="#073b2c" stroke-width="1.8"':'')+'/>').join('');
+  const nc=nextEI(ti)[axis];
+  let axes='<line x1="'+pl+'" y1="'+sy(0)+'" x2="'+(W-pr)+'" y2="'+sy(0)+'" stroke="#b8b8bd"/><line x1="'+pl+'" y1="'+pt+'" x2="'+pl+'" y2="'+sy(0)+'" stroke="#b8b8bd"/>';
+  [0,0.4,0.8].forEach(u=>{axes+='<text x="'+(pl-7)+'" y="'+(sy(u)+4)+'" font-size="12.5" fill="#86868b" text-anchor="end">'+u.toFixed(1)+'</text>';});
+  [0,0.5,1].forEach(v=>{axes+='<text x="'+sx(v)+'" y="'+(sy(0)+19)+'" font-size="12.5" fill="#86868b" text-anchor="middle">'+v+'</text>';});
+  const redline='<line x1="'+sx(nc)+'" y1="'+pt+'" x2="'+sx(nc)+'" y2="'+sy(0)+'" stroke="#c4342f" stroke-width="2" stroke-dasharray="4 3"/><text x="'+sx(nc)+'" y="'+(pt-6)+'" font-size="12" fill="#c4342f" text-anchor="middle">next</text>';
+  const name=axis===0?'τ_qa1':'τ_qa2';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'
+    +'<polygon points="'+up+' '+lo+'" fill="rgba(10,122,92,0.14)"/>'
+    +'<polyline points="'+mean+'" fill="none" stroke="#0a7a5c" stroke-width="2.4"/>'+axes+redline+dots
+    +'<text x="'+(pl-4)+'" y="'+(pt-6)+'" font-size="12.5" fill="#6e6e73">U</text>'
+    +'<text x="'+(W-pr)+'" y="'+(H-5)+'" font-size="13" fill="#6e6e73" text-anchor="end">x = '+subSVG(name)+'</text></svg>';
+}
+function tuples5(mt){
+  const cmap={rule:['#52525a','#f0f0f2','rule'],local:['#0a7a5c','#e4f5ee','local'],llm:['#185fa5','#eaf3fd','GPT-4']};
+  return mt.tuples.map(t=>{const c=cmap[t.backend];
+    return '<div class="tup5"><span>'+t.label+'</span><span class="chip" style="background:'+c[1]+';color:'+c[0]+'">'+c[2]+'</span>'
+      +'<span style="color:'+(t.ok?'#0a7a5c':'#c4342f')+';font-weight:600">'+(t.ok?'✓':'✗')+'</span></div>';}).join('');
+}
+
+/* ---------- cards ---------- */
+function productSVG(p){
+  const cap=p.cap||'#bdbdc4',c=p.color;
+  let body='';
+  if(p.type==='jar'){body='<rect x="14" y="20" width="36" height="12" rx="4" fill="'+cap+'"/><rect x="11" y="30" width="42" height="46" rx="10" fill="'+c+'"/><rect x="16" y="42" width="32" height="24" rx="5" fill="#fff"/>';}
+  else if(p.type==='dropper'){body='<rect x="26" y="8" width="12" height="14" rx="3" fill="'+cap+'"/><rect x="28" y="2" width="8" height="8" rx="3" fill="#d8d8de"/><rect x="18" y="22" width="28" height="54" rx="9" fill="'+c+'"/><rect x="22" y="34" width="20" height="30" rx="4" fill="#fff"/>';}
+  else if(p.type==='tube'){body='<rect x="20" y="10" width="24" height="8" rx="3" fill="'+cap+'"/><path d="M20 18 H44 L40 76 H24 Z" fill="'+c+'"/><rect x="24" y="34" width="16" height="26" rx="4" fill="#fff"/>';}
+  else{body='<rect x="24" y="6" width="16" height="12" rx="3" fill="'+cap+'"/><rect x="14" y="18" width="36" height="58" rx="9" fill="'+c+'"/><rect x="18" y="34" width="28" height="34" rx="5" fill="#fff"/>';}
+  return '<svg viewBox="0 0 64 84" width="58" height="78">'+body+'</svg>';
+}
+function cardQuery(){
+  const prods=[
+    {name:'Daily Multivitamin',type:'bottle',color:'#cf9248',cap:'#a9712f',flagged:true},
+    {name:'Vitamin C Serum',type:'dropper',color:'#e6bd5a',flagged:false},
+    {name:'Hydrating Cream',type:'jar',color:'#d9cfe9',cap:'#b7a8d6',flagged:true},
+    {name:'Omega-3 Caps',type:'bottle',color:'#5f9a7c',cap:'#3f6e58',flagged:false},
+    {name:'Retinol Lotion',type:'tube',color:'#e7e0d2',cap:'#c9bfa9',flagged:false}
+  ];
+  const tiles=prods.map(p=>'<div class="prod">'+productSVG(p)+'<div class="nm">'+p.name+'</div>'
+    +'<span class="fl '+(p.flagged?'yes':'no')+'">'+(p.flagged?'FDA approved':'no claim')+'</span></div>').join('');
+  return '<div class="stage-label">Card 1 · Input</div><h2>Query &amp; Data</h2>'
+    +'<p class="lede">Flag products whose package-label image contains a compliance-sensitive claim (e.g., "FDA approved"), counted per brand. The color and wording live only in the image, so plain SQL cannot express it — a semantic operator is needed.</p>'
+    +'<div class="codeblock" style="margin-top:14px">SELECT b.BrandName, COUNT(*) AS NumFlagged\nFROM Products p JOIN Brands b ON p.BrandId = b.BrandId\nWHERE p.Category IN (\'Supplements\',\'Cosmetics\')\n  AND <b style="color:#0a7a5c">SemFilter</b>(\'Compliance-sensitive claims (e.g.,\n      "FDA approved") appear on the package labels in {p.Image}.\')\nGROUP BY b.BrandName;</div>'
+    +'<div class="zt" style="margin-top:16px">Sample products · validation set</div><div class="prodgrid">'+tiles+'</div>';
+}
+function cardPlan(){
+  const plan=[
+    {l:'σ_cnt&gt;0',k:'rel'},
+    {l:'γ ProdID, count(*) AS cnt',k:'rel'},
+    {l:'σ Answer=Yes ∧ Score≥λ_vqa',k:'rel'},
+    {l:'OpTxtQA(OCRTxt, q)',k:'task',op:'OpTxtQA'},
+    {l:'OpImgOCR(BBox)',k:'task',op:'OpImgOCR'},
+    {l:'σ Score≥λ_obj',k:'rel'},
+    {l:'OpImgObj(Image)',k:'task',op:'OpImgObj'}
+  ];
+  let ops='';plan.forEach((o,i)=>{
+    ops+='<div class="op '+o.k+(o.op?' clk" data-op="'+o.op+'"':'"')+'>'+subHTML(o.l)+(o.op?'<span class="mag">⌕</span>':'')+'</div>';
+    if(i<plan.length-1)ops+='<div class="up">↑</div>';});
+  return '<div class="stage-label">Card 2 · Physical Plan</div><h2>Plan A&#8242;</h2>'
+    +'<div class="planhint" style="margin-bottom:14px">Click a task operator (green) to open its router structure</div>'
+    +'<div style="display:flex;flex-direction:column;gap:5px;max-width:430px;margin-left:auto;margin-right:auto">'+ops+'</div>';
+}
+function cardParams(){
+  const rows=PARAM_ROWS.map(r=>{
+    const chips=r.ps.map(n=>'<span class="pchip2" data-p="'+n+'">'+subHTML(n)+'</span>').join('');
+    return '<div class="prow2"><span class="opbox'+(r.rel?' rel':'')+'">'+subHTML(r.op)+'</span><span class="conn">—</span><span class="chips2">'+chips+'</span></div>';
+  }).join('');
+  return '<div class="stage-label">Card 3 · Search space</div><h2>Operator — Parameters</h2>'
+    +'<p class="lede">Each operator compiles into a router + 3 backends. The only tunable knobs are breakpoints <b>τ</b>, the local-model threshold <b>θ</b>, and the output threshold <b>λ</b> (LLM and rule-based expose none). Relational σ filters carry their own λ. Click a chip for its description.</p>'
+    +'<div style="margin-top:18px">'+rows+'</div>'
+    +'<div id="pdesc" class="pdesc">Click a parameter chip to see its description.</div>';
+}
+function cardSpace(){
+  const rows=PARAM_ROWS.map(r=>{
+    const chips=r.ps.map(n=>'<span class="spchip">'+subHTML(n)+' <span class="dom">∈ '+DOMAIN[n]+'</span></span>').join('');
+    return '<div class="prow2"><span class="opbox'+(r.rel?' rel':'')+'">'+subHTML(r.op)+'</span><span class="conn">—</span><span class="chips2">'+chips+'</span></div>';
+  }).join('');
+  return '<div class="stage-label">Card 4 · What BO optimizes</div><h2>Search space &amp; objective</h2>'
+    +'<div class="bl-h" style="margin-top:2px">X · Parameter space &nbsp;θ ∈ ℝ¹¹ <span class="bl-sub">— breakpoints τ are percentiles with τ&#8321; &lt; τ&#8322;</span></div>'
+    +'<div style="margin-top:8px">'+rows+'</div>'
+    +'<div class="bigblock" style="margin-top:16px"><div class="bl-h">Y · Objective &nbsp;U <span class="bl-sub">— BO maximizes this</span></div>'
+      +'<div class="bl-eq mono">U = Q − 0.4·L&#770; − 0.3·C&#770;</div>'
+      +'<div class="bl-note">Q = quality (↑) &nbsp;·&nbsp; L&#770; = latency, log-normalized (↓) &nbsp;·&nbsp; C&#770; = cost, log-normalized (↓)</div></div>';
+}
+function cardSettings(){
+  const row=(k,v)=>'<div class="setrow"><span class="setk">'+k+'</span><span class="setv">'+v+'</span></div>';
+  return '<div class="stage-label">Card 5 · BO settings</div><h2>How BO runs</h2>'
+    +'<div style="margin-top:8px">'
+    +row('Surrogate','Gaussian Process — predicts U and its uncertainty at any θ <span class="eqn">(Eq. 8–9)</span>')
+    +row('Acquisition','q-Expected Improvement — balances mean (exploit) vs uncertainty (explore) to pick the next θ <span class="eqn">(Eq. 20)</span>')
+    +row('Sample size','5-tuple validation set; each trial = one noisy observation <span class="eqn">(§5.2)</span>')
+    +row('Loop','fit GP → maximize qEI → evaluate U → update, repeated over a 10-trial budget <span class="eqn">(Algorithm 1)</span>')
+    +'</div>';
+}
+function cardOverview(){
+  const ms=[
+    ['M1','Explore','Probe the extremes — all-cheap vs all-GPT-4 — and learn which tuples truly need which backend.'],
+    ['M2','Lock Q = 1','Find a configuration where every tuple is answered correctly (still costly).'],
+    ['M3','Cut cost','Keep Q = 1 while moving easy / medium tuples to cheaper backends, trial by trial.'],
+    ['M4','Converge','Settle at Q = 1 with minimum cost — only the genuinely hard tuples use GPT-4.']
+  ];
+  const rows=ms.map(x=>'<div class="setrow"><span class="setk"><span style="color:var(--blue)">'+x[0]+'</span> · '+x[1]+'</span><span class="setv">'+x[2]+'</span></div>').join('');
+  return '<div class="stage-label">Card 6 · BO milestones</div><h2>How the 10-trial run unfolds</h2>'
+    +'<p class="lede">The next cards step through 10 trials, each labelled <b>M{milestone} : {detail}</b>. <b>For clarity, from here on we focus on the single most important operator (OpTxtQA) and its two key parameters — the router breakpoints τ<sub>qa,1</sub> and τ<sub>qa,2</sub></b> — evaluated over the 5 validation tuples. The full system tunes all 11 parameters across the plan.</p>'
+    +'<div style="margin-top:10px">'+rows+'</div>';
+}
+function cardTrial(ti){
+  const t=TRIALS[ti],m=MET[ti],isBest=Math.abs(m.U-BEST[ti])<1e-9;
+  const vt=(l,v,u)=>'<div class="tile'+(u?' u':'')+'" style="display:flex;justify-content:space-between;align-items:center;padding:7px 11px"><span class="l" style="font-size:11px">'+l+'</span><span class="v" style="font-size:14.5px">'+v+'</span></div>';
+  const lg=(sw,tx)=>'<div style="display:flex;align-items:center;gap:6px">'+sw+'<span>'+tx+'</span></div>';
+  const legend='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;font-size:11px;color:var(--muted)">'
+    +lg('<span style="flex:0 0 20px;height:0;border-top:2.5px solid #0a7a5c"></span>','surrogate mean')
+    +lg('<span style="flex:0 0 20px;height:10px;border-radius:3px;background:rgba(10,122,92,0.18)"></span>','uncertainty band')
+    +lg('<span style="flex:0 0 20px;text-align:center"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#0a7a5c"></span></span>','evaluated trial')
+    +lg('<span style="flex:0 0 20px;height:10px;border-radius:3px;background:linear-gradient(90deg,#fdf7e9,#e0962e,#784408)"></span>','EI (low → high)')
+    +lg('<span style="flex:0 0 20px;text-align:center"><span style="display:inline-block;width:9px;height:9px;background:#c4342f;transform:rotate(45deg)"></span></span>','next (EI argmax)')
+    +lg('<span style="flex:0 0 20px;text-align:center"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #c4342f"></span></span>','next, on surrogate')
+    +'</div>';
+  return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px">'
+      +'<div><div class="stage-label">Card '+(7+ti)+' · M'+t.m+' : '+t.d+'</div><h2 style="margin-bottom:2px">BO Trial '+(ti+1)+'</h2></div>'
+      +'<div style="flex:0 0 290px;margin-top:-10px"><div class="zt">How to read</div>'+legend+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:16px;align-items:flex-start;margin-top:8px">'
+      +'<div style="flex:1"><div class="zt">① Surrogate — mean ± uncertainty</div>'
+        +svgSurrogate1D(ti,0)+'<div style="height:6px"></div>'+svgSurrogate1D(ti,1)+'</div>'
+      +'<div style="flex:1"><div class="zt">② Acquisition (EI)</div>'+contourSVG(ti,'EI',225)+'</div>'
+      +'<div style="flex:0 0 124px"><div class="zt">③ This trial</div>'
+        +'<div style="display:flex;flex-direction:column;gap:7px">'
+          +vt('Quality',m.Q.toFixed(2))+vt('Latency',m.L.toFixed(1))+vt('Cost',m.C.toFixed(2))+vt('Utility',m.U.toFixed(2),true)
+        +'</div></div>'
+    +'</div>'
+    +'<div class="zt" style="margin-top:12px">④ Utility — best-so-far</div>'+svgConv(ti)
+    +'<div class="zt" style="margin-top:12px">⑤ Per-data result · 5 tuples</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 24px">'+tuples5(m)+'</div>'
+    +'<div class="meaning"><b>⑥ Meaning</b> — '+t.meaning+'</div>';
+}
+
+/* ---------- deck + nav ---------- */
+const cards=[cardQuery,cardPlan,cardParams,cardSpace,cardSettings,cardOverview];
+for(let i=0;i<TRIALS.length;i++)cards.push(()=>cardTrial(i));
+const deck=document.getElementById('deck');
+const els=cards.map(fn=>{const d=document.createElement('div');d.className='card';d.innerHTML=fn();deck.appendChild(d);return d;});
+let cur=0;
+function layout(){
+  els.forEach((el,i)=>{const dx=i-cur,ax=Math.abs(dx);let tx,sc,op,z;
+    if(dx===0){tx=0;sc=1;op=1;z=5;}else if(ax===1){tx=dx*580;sc=0.84;op=0.32;z=3;}else{tx=dx*580;sc=0.72;op=0;z=1;}
+    el.style.transform='translate(-50%,-50%) translateX('+tx+'px) scale('+sc+')';
+    el.style.opacity=op;el.style.pointerEvents=dx===0?'auto':'none';el.style.zIndex=z;});
+  document.getElementById('counter').textContent=(cur+1)+' / '+cards.length;
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').disabled=cur===cards.length-1;
+  [...document.querySelectorAll('.dot')].forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+const dots=document.getElementById('dots');
+cards.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>{cur=i;layout();fitStage();};dots.appendChild(d);});
+document.getElementById('next').onclick=()=>{if(cur<cards.length-1){cur++;layout();fitStage();}};
+document.getElementById('prev').onclick=()=>{if(cur>0){cur--;layout();fitStage();}};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click();});
+
+const modal=document.getElementById('modal'),mbody=document.getElementById('mbody');
+function openModal(k){mbody.innerHTML=modalContent(k);modal.classList.add('show');}
+function closeModal(){modal.classList.remove('show');}
+document.getElementById('mx').onclick=closeModal;
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+deck.addEventListener('click',e=>{
+  const opEl=e.target.closest('[data-op]');if(opEl){openModal(opEl.getAttribute('data-op'));return;}
+  const ch=e.target.closest('.pchip2');if(ch){
+    [...document.querySelectorAll('.pchip2')].forEach(c=>c.classList.remove('on'));ch.classList.add('on');
+    const n=ch.getAttribute('data-p');document.getElementById('pdesc').innerHTML='<b>'+subHTML(n)+'</b> — '+subHTML(PARAM_DESC[n]);return;}
+});
+const stageEl=document.querySelector('.stage');
+function fitStage(){let mh=0;els.forEach(el=>{mh=Math.max(mh,el.offsetHeight);});stageEl.style.height=(mh+44)+'px';}
+window.addEventListener('resize',fitStage);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+layout();fitStage();
+</script>
+</body>
+</html>
