@@ -107,6 +107,39 @@
   .msub{font-size:13.5px;color:var(--muted);margin-top:4px}
   .mcard .zt{font-size:11.5px;margin-bottom:8px}
   .pli{font-size:13px;margin:8px 0;line-height:1.5}
+  /* interaction card */
+  .iax{margin:4px 0 2px}
+  .iact-wrap{display:flex;gap:14px;margin-top:8px}
+  .iact-list{flex:1;display:flex;flex-direction:column;gap:5px}
+  .iitem{display:grid;grid-template-columns:20px 1fr 56px 14px;align-items:center;gap:8px;font-size:12px;padding:6px 9px;border-radius:10px;background:var(--surf);cursor:pointer;transition:box-shadow .12s,background .12s}
+  .iitem:hover{background:var(--surf2)}
+  .iitem.on{background:#fff;box-shadow:0 0 0 2px var(--blue) inset}
+  .ibadge{width:18px;height:18px;border-radius:50%;background:#e6e6ea;color:#52525a;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .idet{flex:0 0 266px;background:var(--surf);border-radius:14px;padding:12px 14px}
+  .idet .dh{font-size:12px;font-weight:600;margin-bottom:8px;line-height:1.35;color:var(--ink)}
+  .frow{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--line);font-size:11.5px}
+  .frow .fk{color:var(--hint)} .frow .fv{color:var(--ink);text-align:right;font-weight:500}
+  .iflow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;font-size:11.5px}
+  .ipill{padding:3px 9px;border-radius:20px;font-weight:600;font-size:11px}
+  .iwhy{margin-top:9px;font-size:11.5px;color:var(--muted);line-height:1.45}
+  /* card-1 label carousel */
+  .qcar{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .qnav{width:34px;height:34px;border-radius:50%;border:none;background:var(--surf);color:var(--gray);font-size:18px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s}
+  .qnav:hover{background:var(--surf2)} .qnav:active{transform:scale(.93)}
+  .qstage{flex:1;overflow:hidden}
+  .qslide{display:flex;align-items:center;gap:22px;background:linear-gradient(135deg,#f7f7fa,#eef0f4);border-radius:20px;padding:20px 24px;min-height:138px}
+  .qprod{flex:0 0 96px;height:108px;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.06)}
+  .qbody{flex:1;min-width:0}
+  .qnum{font-size:10.5px;color:var(--hint);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  .qquote{font-size:18px;font-weight:600;line-height:1.36;letter-spacing:-.01em;margin:5px 0 13px;color:var(--ink)}
+  .qtags{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .qtag{font-size:11.5px;color:var(--muted);background:#fff;border:0.5px solid var(--line);padding:4px 11px;border-radius:20px}
+  .qtag b{color:var(--ink);font-weight:600}
+  .qtag.kw{color:#0a7a5c;border-color:#bfe6d5} .qtag.nokw{color:#9a6212;border-color:#f0dcb4}
+  .qclaim{font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px}
+  .qdots{display:flex;gap:6px;justify-content:center;margin-top:13px}
+  .qdot{width:7px;height:7px;border-radius:50%;background:#d2d2d7;cursor:pointer;transition:all .2s}
+  .qdot.on{background:var(--ink);width:20px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -156,15 +189,27 @@ function gp(X,Y,grid){
     const v=S2-ks.reduce((s,k,i)=>s+k*matVec(Ki,ks)[i],0);
     return {x:g,mean,sd:Math.sqrt(Math.max(v,1e-5))};});}
 
-/* ---------- evaluation model (5 validation tuples) ---------- */
+/* ---------- evaluation model (6 validation labels) ----------
+   Difficulty d is the router's cheap-feature score from TWO features:
+   text length + keyword hit (an explicit, regex-registered claim phrase).
+   Keyword presence dominates (it tells you a regex suffices); length only
+   breaks ties among the no-keyword labels. The set is built so that
+   length-alone mis-ranks #2 (long but cheap) and #3 (short but escalates). */
 const SAMPLES=[
-  {label:'clear "FDA approved" label',d:0.15},
-  {label:'standard printed label',d:0.32},
-  {label:'small print',d:0.55},
-  {label:'curved-package text',d:0.78},
-  {label:'low-light photo',d:0.92}
+  {id:1,prefix:'"FDA approved…"',full:'"FDA approved."',
+   len:2,kw:true,kwt:'✔ "FDA approved"',d:0.07,ans:'Yes',prod:{type:'bottle',color:'#cf9248',cap:'#a9712f'}},
+  {id:2,prefix:'"Daily multivitamin…"',full:'"Daily multivitamin for immune support. Made in an FDA-registered, GMP-certified facility."',
+   len:13,kw:true,kwt:'✔ "FDA-registered"',d:0.20,ans:'Yes',prod:{type:'bottle',color:'#5f9a7c',cap:'#3f6e58'}},
+  {id:3,prefix:'"Approved…"',full:'"Approved."',
+   len:1,kw:false,kwt:'✘ no registered keyword',d:0.38,ans:'Yes',prod:{type:'jar',color:'#d9cfe9',cap:'#b7a8d6'}},
+  {id:4,prefix:'"Clinically proven…"',full:'"Clinically proven to reduce fine lines in 4 weeks."',
+   len:9,kw:false,kwt:'✘ no registered keyword',d:0.50,ans:'Yes',prod:{type:'dropper',color:'#e6bd5a'}},
+  {id:5,prefix:'"Helps maintain…"',full:'"Helps maintain overall wellness as part of a healthy, balanced daily lifestyle."',
+   len:12,kw:false,kwt:'✘ no registered keyword',d:0.74,ans:'Yes',prod:{type:'tube',color:'#e7e0d2',cap:'#c9bfa9'}},
+  {id:6,prefix:'"Trusted by…"',full:'"Trusted by professionals to support your immunity, energy, focus, and recovery every day."',
+   len:13,kw:false,kwt:'✘ no registered keyword',d:0.86,ans:'Yes',prod:{type:'bottle',color:'#c98aa0',cap:'#a96a80'}}
 ];
-const CAP={rule:0.34,local:0.70,llm:1.0};
+const CAP={rule:0.25,local:0.62,llm:1.0};
 const COST={rule:0.02,local:0.08,llm:0.50};
 const LAT={rule:0.1,local:0.6,llm:3.0};
 const LMAX=4.0,CMAX=0.7;
@@ -172,22 +217,22 @@ function routeOf(d,c1,c2){return d<c1?'rule':d<c2?'local':'llm';}
 function evalAt(c1,c2){
   let ok=0,cost=0,lat=0;const route={rule:0,local:0,llm:0};const tuples=[];
   SAMPLES.forEach(s=>{const b=routeOf(s.d,c1,c2);route[b]++;cost+=COST[b];lat+=LAT[b];
-    const good=s.d<=CAP[b];if(good)ok++;tuples.push({label:s.label,backend:b,ok:good});});
+    const good=s.d<=CAP[b];if(good)ok++;tuples.push({label:s.prefix,backend:b,ok:good});});
   const n=SAMPLES.length,Q=ok/n,C=cost/n,Lv=lat/n,U=Q-0.4*(Lv/LMAX)-0.3*(C/CMAX);
   return {Q,L:Lv,C,U,route,tuples};
 }
 /* 10 trials, each with milestone:detail + meaning. c1,c2 = OpTxtQA router breakpoints. */
 const TRIALS=[
-  {m:1,d:1,c1:0.70,c2:0.85,meaning:'Too-cheap split — a medium and a hard tuple fail.'},
-  {m:1,d:2,c1:0.02,c2:0.05,meaning:'All to GPT-4 — perfect quality, maximal cost.'},
-  {m:1,d:3,c1:0.60,c2:0.95,meaning:'Almost all pushed cheap — three tuples fail (worst quality).'},
-  {m:2,d:1,c1:0.10,c2:0.40,meaning:'First Q=1, but nothing on rule — three GPT-4 calls.'},
-  {m:2,d:2,c1:0.25,c2:0.55,meaning:'Easy tuple to rule; quality stays 1, cost edges down.'},
-  {m:3,d:1,c1:0.25,c2:0.60,meaning:'Medium tuple to local — only two GPT-4 calls. Big jump.'},
-  {m:3,d:2,c1:0.45,c2:0.85,meaning:'Overreach — curved tuple fails off GPT-4. Quality drops.'},
-  {m:3,d:3,c1:0.45,c2:0.60,meaning:'Two easy on rule, medium on local — Q=1, low cost. New best.'},
-  {m:4,d:1,c1:0.45,c2:0.55,meaning:'Probing the boundary — medium back to GPT-4; dips slightly.'},
-  {m:4,d:2,c1:0.45,c2:0.65,meaning:'Converged — rule / local / GPT-4 split. Q=1 at minimum cost.'}
+  {m:1,d:1,c1:0.70,c2:0.95,meaning:'Too-cheap split — only the two keyword labels land right; the other four mis-route.'},
+  {m:1,d:2,c1:0.02,c2:0.05,meaning:'Everything to GPT-4 — all six correct, but maximal cost.'},
+  {m:1,d:3,c1:0.45,c2:0.90,meaning:'Explore — keyword-free labels pushed too cheap; three still fail.'},
+  {m:2,d:1,c1:0.05,c2:0.30,meaning:'First Q=1, but nothing on rule — four GPT-4 calls.'},
+  {m:2,d:2,c1:0.30,c2:0.50,meaning:'Keyword labels now on rule; quality stays 1, still three GPT-4 calls.'},
+  {m:3,d:1,c1:0.30,c2:0.62,meaning:'Sweet spot — rule / local / GPT-4 split matches the difficulty. Q=1 at low cost.'},
+  {m:3,d:2,c1:0.30,c2:0.80,meaning:'Overreach — the long "Helps maintain…" label drops to local and fails.'},
+  {m:3,d:3,c1:0.28,c2:0.64,meaning:'Back to the optimal split — Q=1 at low cost.'},
+  {m:4,d:1,c1:0.30,c2:0.50,meaning:'Probe — a keyword-free label pushed up to GPT-4; costlier, dips slightly.'},
+  {m:4,d:2,c1:0.30,c2:0.62,meaning:'Converged — keyword→rule, short no-keyword→local, long no-keyword→GPT-4. Q=1 at minimum cost.'}
 ];
 const MET=TRIALS.map(t=>evalAt(t.c1,t.c2));
 const BEST=MET.map((_,i)=>Math.max(...MET.slice(0,i+1).map(m=>m.U)));
@@ -395,20 +440,25 @@ function productSVG(p){
   else{body='<rect x="24" y="6" width="16" height="12" rx="3" fill="'+cap+'"/><rect x="14" y="18" width="36" height="58" rx="9" fill="'+c+'"/><rect x="18" y="34" width="28" height="34" rx="5" fill="#fff"/>';}
   return '<svg viewBox="0 0 64 84" width="58" height="78">'+body+'</svg>';
 }
+let qi=0;
+function qSlide(i){
+  const s=SAMPLES[i];
+  return '<div class="qslide"><div class="qprod">'+productSVG(s.prod)+'</div>'
+    +'<div class="qbody"><div class="qnum">Label '+s.id+' / 6</div>'
+      +'<div class="qquote">'+s.full+'</div>'
+      +'<div class="qtags"><span class="qclaim '+(s.ans==='Yes'?'fl yes':'fl no')+'">claim '+s.ans+'</span></div>'
+    +'</div></div>';
+}
+function qDots(){return SAMPLES.map((_,i)=>'<span class="qdot'+(i===qi?' on':'')+'" data-qi="'+i+'"></span>').join('');}
 function cardQuery(){
-  const prods=[
-    {name:'Daily Multivitamin',type:'bottle',color:'#cf9248',cap:'#a9712f',flagged:true},
-    {name:'Vitamin C Serum',type:'dropper',color:'#e6bd5a',flagged:false},
-    {name:'Hydrating Cream',type:'jar',color:'#d9cfe9',cap:'#b7a8d6',flagged:true},
-    {name:'Omega-3 Caps',type:'bottle',color:'#5f9a7c',cap:'#3f6e58',flagged:false},
-    {name:'Retinol Lotion',type:'tube',color:'#e7e0d2',cap:'#c9bfa9',flagged:false}
-  ];
-  const tiles=prods.map(p=>'<div class="prod">'+productSVG(p)+'<div class="nm">'+p.name+'</div>'
-    +'<span class="fl '+(p.flagged?'yes':'no')+'">'+(p.flagged?'FDA approved':'no claim')+'</span></div>').join('');
   return '<div class="stage-label">Card 1 · Input</div><h2>Query &amp; Data</h2>'
-    +'<p class="lede">Flag products whose package-label image contains a compliance-sensitive claim (e.g., "FDA approved"), counted per brand. The color and wording live only in the image, so plain SQL cannot express it — a semantic operator is needed.</p>'
-    +'<div class="codeblock" style="margin-top:14px">SELECT b.BrandName, COUNT(*) AS NumFlagged\nFROM Products p JOIN Brands b ON p.BrandId = b.BrandId\nWHERE p.Category IN (\'Supplements\',\'Cosmetics\')\n  AND <b style="color:#0a7a5c">SemFilter</b>(\'Compliance-sensitive claims (e.g.,\n      "FDA approved") appear on the package labels in {p.Image}.\')\nGROUP BY b.BrandName;</div>'
-    +'<div class="zt" style="margin-top:16px">Sample products · validation set</div><div class="prodgrid">'+tiles+'</div>';
+    +'<p class="lede">Flag products whose package label makes a compliance-sensitive claim (e.g., "FDA approved"), counted per brand. The claim lives in free-form label text, so plain SQL cannot express it — a semantic operator is needed.</p>'
+    +'<div class="codeblock" style="margin-top:12px">SELECT b.BrandName, COUNT(*) AS NumFlagged\nFROM Products p JOIN Brands b ON p.BrandId = b.BrandId\nWHERE p.Category IN (\'Supplements\',\'Cosmetics\')\n  AND <b style="color:#0a7a5c">SemFilter</b>(\'A compliance-sensitive claim (e.g.,\n      "FDA approved") appears in the label text {p.Label}.\')\nGROUP BY b.BrandName;</div>'
+    +'<div class="zt" style="margin-top:14px">Sample package labels · 6-label validation set</div>'
+    +'<div class="qcar"><button class="qnav" data-qd="-1">‹</button>'
+      +'<div class="qstage" id="qstage">'+qSlide(qi)+'</div>'
+      +'<button class="qnav" data-qd="1">›</button></div>'
+    +'<div class="qdots" id="qdots">'+qDots()+'</div>';
 }
 function cardPlan(){
   const plan=[
@@ -455,7 +505,7 @@ function cardSettings(){
     +'<div style="margin-top:8px">'
     +row('Surrogate','Gaussian Process — predicts U and its uncertainty at any θ <span class="eqn">(Eq. 8–9)</span>')
     +row('Acquisition','q-Expected Improvement — balances mean (exploit) vs uncertainty (explore) to pick the next θ <span class="eqn">(Eq. 20)</span>')
-    +row('Sample size','5-tuple validation set; each trial = one noisy observation <span class="eqn">(§5.2)</span>')
+    +row('Sample size','6-label validation set; each trial = one noisy observation <span class="eqn">(§5.2)</span>')
     +row('Loop','fit GP → maximize qEI → evaluate U → update, repeated over a 10-trial budget <span class="eqn">(Algorithm 1)</span>')
     +'</div>';
 }
@@ -468,7 +518,7 @@ function cardOverview(){
   ];
   const rows=ms.map(x=>'<div class="setrow"><span class="setk"><span style="color:var(--blue)">'+x[0]+'</span> · '+x[1]+'</span><span class="setv">'+x[2]+'</span></div>').join('');
   return '<div class="stage-label">Card 6 · BO milestones</div><h2>How the 10-trial run unfolds</h2>'
-    +'<p class="lede">The next cards step through 10 trials, each labelled <b>M{milestone} : {detail}</b>. <b>For clarity, from here on we focus on the single most important operator (OpTxtQA) and its two key parameters — the router breakpoints τ<sub>qa,1</sub> and τ<sub>qa,2</sub></b> — evaluated over the 5 validation tuples. The full system tunes all 11 parameters across the plan.</p>'
+    +'<p class="lede">The next cards step through 10 trials, each labelled <b>M{milestone} : {detail}</b>. <b>For clarity, from here on we focus on the single most important operator (OpTxtQA) and its two key parameters — the router breakpoints τ<sub>qa,1</sub> and τ<sub>qa,2</sub></b> — evaluated over the 6 validation labels. The full system tunes all 11 parameters across the plan.</p>'
     +'<div style="margin-top:10px">'+rows+'</div>';
 }
 function cardTrial(ti){
@@ -484,7 +534,7 @@ function cardTrial(ti){
     +lg('<span style="flex:0 0 20px;text-align:center"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #c4342f"></span></span>','next, on surrogate')
     +'</div>';
   return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px">'
-      +'<div><div class="stage-label">Card '+(7+ti)+' · M'+t.m+' : '+t.d+'</div><h2 style="margin-bottom:2px">BO Trial '+(ti+1)+'</h2></div>'
+      +'<div><div class="stage-label">M'+t.m+' : '+t.d+' · BO trial</div><h2 style="margin-bottom:2px">BO Trial '+(ti+1)+'</h2></div>'
       +'<div style="flex:0 0 290px;margin-top:-10px"><div class="zt">How to read</div>'+legend+'</div>'
     +'</div>'
     +'<div style="display:flex;gap:16px;align-items:flex-start;margin-top:8px">'
@@ -497,14 +547,78 @@ function cardTrial(ti){
         +'</div></div>'
     +'</div>'
     +'<div class="zt" style="margin-top:12px">④ Utility — best-so-far</div>'+svgConv(ti)
-    +'<div class="zt" style="margin-top:12px">⑤ Per-data result · 5 tuples</div>'
+    +'<div class="zt" style="margin-top:12px">⑤ Per-data result · 6 labels</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 24px">'+tuples5(m)+'</div>'
     +'<div class="meaning"><b>⑥ Meaning</b> — '+t.meaning+'</div>';
 }
 
+/* ---------- interaction card (per-trial routing of the 6 labels) ---------- */
+function defaultSel(ti){const t=TRIALS[ti];
+  for(const sp of SAMPLES){const b=routeOf(sp.d,t.c1,t.c2);if(sp.d>CAP[b])return sp.id;}
+  return 2; /* no failure → showcase the "long but easy" label */
+}
+function iaxisSVG(ti,selId){
+  const t=TRIALS[ti],c1=t.c1,c2=t.c2;
+  const W=632,H=96,x0=22,bw=W-44,y=46,h=30;
+  const x1=x0+bw*c1,x2=x0+bw*c2;
+  let s='<text x="'+x0+'" y="13" style="font-size:10.5px;fill:#6e6e73">difficulty d  (length + keyword → score) · dot = label · green ✓ / red ✗</text>';
+  s+='<rect x="'+x0+'" y="'+y+'" width="'+(bw*c1)+'" height="'+h+'" fill="#f0f0f2"/>'
+    +'<rect x="'+x1+'" y="'+y+'" width="'+(bw*(c2-c1))+'" height="'+h+'" fill="#e4f5ee"/>'
+    +'<rect x="'+x2+'" y="'+y+'" width="'+(bw*(1-c2))+'" height="'+h+'" fill="#eaf3fd"/>'
+    +'<rect x="'+x0+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="6" fill="none" stroke="#d2d2d7"/>';
+  const zlab=(cx,w,col,txt)=>w>58?'<text x="'+cx+'" y="'+(y+h+15)+'" text-anchor="middle" style="font-size:10.5px;fill:'+col+';font-weight:600">'+txt+'</text>':'';
+  s+=zlab(x0+bw*c1/2,bw*c1,'#52525a','rule · regex')
+    +zlab((x1+x2)/2,bw*(c2-c1),'#0a7a5c','local · DistilBERT')
+    +zlab(x2+bw*(1-c2)/2,bw*(1-c2),'#185fa5','LLM · GPT-4');
+  const close=(x2-x1)<58;
+  const cut=(x,lab,anc)=>'<line x1="'+x+'" y1="'+(y-11)+'" x2="'+x+'" y2="'+(y+h+3)+'" stroke="#c4342f" stroke-width="1.4" stroke-dasharray="4 2"/>'
+    +'<text x="'+(x+(anc==='end'?-3:anc==='start'?3:0))+'" y="'+(y-14)+'" text-anchor="'+anc+'" style="font-size:10px;fill:#c4342f;font-weight:600">'+lab+'</text>';
+  s+=cut(x1,'c₁='+c1.toFixed(2),close?'end':'middle')+cut(x2,'c₂='+c2.toFixed(2),close?'start':'middle');
+  s+='<text x="'+x0+'" y="'+(y-3)+'" style="font-size:9.5px;fill:#86868b">easy</text>'
+    +'<text x="'+(x0+bw)+'" y="'+(y-3)+'" text-anchor="end" style="font-size:9.5px;fill:#86868b">hard</text>';
+  SAMPLES.forEach(sp=>{const b=routeOf(sp.d,c1,c2),ok=sp.d<=CAP[b];const cx=x0+bw*sp.d;const col=ok?'#0a7a5c':'#c4342f';
+    const r=sp.id===selId?7.5:5.4;
+    s+='<circle cx="'+cx+'" cy="'+(y+h/2)+'" r="'+r+'" fill="'+col+'" stroke="#fff" stroke-width="1.7"/>'
+      +'<text x="'+cx+'" y="'+(y+h/2+3)+'" text-anchor="middle" style="font-size:8.5px;fill:#fff;font-weight:700">'+sp.id+'</text>';});
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+s+'</svg>';
+}
+const IBK={rule:['#52525a','#f0f0f2','rule'],local:['#0a7a5c','#e4f5ee','local'],llm:['#185fa5','#eaf3fd','GPT-4']};
+function iitems(ti,selId){
+  const t=TRIALS[ti];
+  return SAMPLES.map(sp=>{const b=routeOf(sp.d,t.c1,t.c2),ok=sp.d<=CAP[b],c=IBK[b];
+    return '<div class="iitem'+(sp.id===selId?' on':'')+'" data-it="'+sp.id+'"><span class="ibadge">'+sp.id+'</span>'
+      +'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+sp.prefix+'</span>'
+      +'<span class="chip" style="background:'+c[1]+';color:'+c[0]+';justify-self:start">'+c[2]+'</span>'
+      +'<span style="color:'+(ok?'#0a7a5c':'#c4342f')+';font-weight:700">'+(ok?'✓':'✗')+'</span></div>';}).join('');
+}
+function idetail(ti,selId){
+  const t=TRIALS[ti],sp=SAMPLES.find(x=>x.id===selId);
+  const b=routeOf(sp.d,t.c1,t.c2),ok=sp.d<=CAP[b],c={rule:['#52525a','#f0f0f2','rule · regex'],local:['#0a7a5c','#e4f5ee','local · DistilBERT'],llm:['#185fa5','#eaf3fd','LLM · GPT-4']}[b];
+  const dec=sp.d<t.c1?'d &lt; c₁  →  rule':(sp.d<t.c2?'c₁ ≤ d &lt; c₂  →  local':'d ≥ c₂  →  GPT-4');
+  return '<div class="dh">'+sp.full+'</div>'
+    +'<div class="frow"><span class="fk">length</span><span class="fv">'+sp.len+' words</span></div>'
+    +'<div class="frow"><span class="fk">keyword</span><span class="fv">'+sp.kwt+'</span></div>'
+    +'<div class="frow"><span class="fk">→ difficulty d</span><span class="fv" style="color:#185fa5;font-weight:700">'+sp.d.toFixed(2)+'</span></div>'
+    +'<div class="iflow"><span class="ipill" style="background:#fdecec;color:#c4342f">'+dec+'</span></div>'
+    +'<div class="iflow"><span style="color:#86868b">routed to</span><span class="ipill" style="background:'+c[1]+';color:'+c[0]+'">'+c[2]+'</span>'
+      +'<span style="color:'+(ok?'#0a7a5c':'#c4342f')+';font-weight:700">'+(ok?'✓ correct':'✗ wrong')+'</span></div>'
+    +'<div class="iflow"><span style="color:#86868b">ground truth:</span><span style="font-weight:600">claim = '+sp.ans+'</span></div>';
+}
+function cardInteract(ti){
+  const t=TRIALS[ti],sel=defaultSel(ti);
+  return '<div class="stage-label">M'+t.m+' : '+t.d+' · routing</div>'
+    +'<h2 style="margin-bottom:3px">How the 6 labels route <span class="meta" style="color:#86868b">— Trial '+(ti+1)+' · c₁='+t.c1.toFixed(2)+', c₂='+t.c2.toFixed(2)+'</span></h2>'
+    +'<p class="lede" style="margin-bottom:4px">The router turns each label’s two cheap features (length + keyword) into one difficulty <b>d</b>; this trial’s breakpoints then send it to rule / local / GPT-4. <b>Click a label</b> to see why it lands where it does.</p>'
+    +'<div class="iax" id="iax-'+ti+'">'+iaxisSVG(ti,sel)+'</div>'
+    +'<div class="iact-wrap" data-ti="'+ti+'">'
+      +'<div class="iact-list" id="ilist-'+ti+'">'+iitems(ti,sel)+'</div>'
+      +'<div class="idet" id="idet-'+ti+'">'+idetail(ti,sel)+'</div>'
+    +'</div>';
+}
+
 /* ---------- deck + nav ---------- */
 const cards=[cardQuery,cardPlan,cardParams,cardSpace,cardSettings,cardOverview];
-for(let i=0;i<TRIALS.length;i++)cards.push(()=>cardTrial(i));
+for(let i=0;i<TRIALS.length;i++){const k=i;cards.push(()=>cardTrial(k));cards.push(()=>cardInteract(k));}
 const deck=document.getElementById('deck');
 const els=cards.map(fn=>{const d=document.createElement('div');d.className='card';d.innerHTML=fn();deck.appendChild(d);return d;});
 let cur=0;
@@ -529,7 +643,15 @@ function openModal(k){mbody.innerHTML=modalContent(k);modal.classList.add('show'
 function closeModal(){modal.classList.remove('show');}
 document.getElementById('mx').onclick=closeModal;
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+function renderQ(){const st=document.getElementById('qstage');if(!st)return;
+  st.innerHTML=qSlide(qi);document.getElementById('qdots').innerHTML=qDots();}
 deck.addEventListener('click',e=>{
+  const qn=e.target.closest('[data-qd]');if(qn){qi=(qi+(+qn.getAttribute('data-qd'))+SAMPLES.length)%SAMPLES.length;renderQ();return;}
+  const qd=e.target.closest('.qdot');if(qd){qi=+qd.getAttribute('data-qi');renderQ();return;}
+  const it=e.target.closest('.iitem');if(it){const wrap=it.closest('.iact-wrap');const ti=+wrap.getAttribute('data-ti');const id=+it.getAttribute('data-it');
+    document.getElementById('iax-'+ti).innerHTML=iaxisSVG(ti,id);
+    document.getElementById('ilist-'+ti).innerHTML=iitems(ti,id);
+    document.getElementById('idet-'+ti).innerHTML=idetail(ti,id);return;}
   const opEl=e.target.closest('[data-op]');if(opEl){openModal(opEl.getAttribute('data-op'));return;}
   const ch=e.target.closest('.pchip2');if(ch){
     [...document.querySelectorAll('.pchip2')].forEach(c=>c.classList.remove('on'));ch.classList.add('on');
