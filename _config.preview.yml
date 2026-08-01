@@ -1,5 +1,6 @@
 annotations:
   enabled: true
+  notification_endpoint: ""
   owner_emails:
     - yshajae@postech.ac.kr
     - jhha@dblab.postech.ac.kr

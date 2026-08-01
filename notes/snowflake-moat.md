@@ -2,7 +2,6 @@
 layout: note
 title: "Snowflake is dismantling its own moat — Jaehyun Ha"
 heading: "Snowflake is dismantling its own moat"
-dek: "To remain central in an open data ecosystem, Snowflake may have to weaken the lock-in that made it powerful."
 date: 2026-08-01
 display_date: "1 Aug 2026"
 permalink: /notes/snowflake-moat/

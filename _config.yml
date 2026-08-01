@@ -10,6 +10,7 @@ encoding: utf-8
 # See docs/annotations.md for setup and security-rule deployment.
 annotations:
   enabled: true
+  notification_endpoint: "https://script.google.com/macros/s/AKfycbwOPx97q-tfD_QXyKB-U4JLto6NLSF5y6Ip9ZrKOkODl0yOtdryNAN_CBI7Vf-s0Cx9/exec"
   owner_emails:
     - yshajae@postech.ac.kr
     - jhha@dblab.postech.ac.kr
@@ -29,3 +30,4 @@ exclude:
   - Gemfile.lock
   - README.md
   - vendor
+  - notifications

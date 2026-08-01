@@ -34,7 +34,11 @@ async function createStore(settings, context) {
 
   if (!settings.enabled || !hasFirebaseConfig(settings.firebase)) return null;
   const { createFirebaseStore } = await import("./firebase-store.js");
-  return createFirebaseStore({ ...context, config: settings.firebase });
+  return createFirebaseStore({
+    ...context,
+    config: settings.firebase,
+    notificationEndpoint: settings.notificationEndpoint || "",
+  });
 }
 
 if (root && prose && configNode) {
@@ -52,17 +56,26 @@ if (root && prose && configNode) {
     const view = new AnnotationView({
       language,
       guide: annotationIndex,
+      content: prose,
     });
     let annotations = [];
     let activeId = null;
-    let activeReplies = [];
-    let unsubscribeReplies = null;
+    const repliesByAnnotation = new Map();
+    const loadingReplies = new Map();
+    let replyHydrationRun = 0;
+    let replyRenderFrame = 0;
+    const linkedCommentId = new URLSearchParams(window.location.search).get("comment");
+    let linkedCommentOpened = false;
 
     const highlightsSupported = Boolean(window.Highlight && window.CSS?.highlights);
     const annotationHighlights = highlightsSupported ? new Highlight() : null;
+    const hoverHighlight = highlightsSupported ? new Highlight() : null;
+    const openHighlights = highlightsSupported ? new Highlight() : null;
     const activeHighlight = highlightsSupported ? new Highlight() : null;
     if (highlightsSupported) {
       CSS.highlights.set("note-annotations", annotationHighlights);
+      CSS.highlights.set("note-annotation-hover", hoverHighlight);
+      CSS.highlights.set("note-annotations-open", openHighlights);
       CSS.highlights.set("note-annotation-active", activeHighlight);
     }
 
@@ -72,9 +85,9 @@ if (root && prose && configNode) {
       fallbackFocus: view.guide,
       onClose() {
         activeId = null;
+        hoverHighlight?.clear();
+        openHighlights?.clear();
         activeHighlight?.clear();
-        unsubscribeReplies?.();
-        unsubscribeReplies = null;
         requestAnimationFrame(() => view.positionMarkers());
       },
       onSignIn: () => store.signIn(),
@@ -92,68 +105,138 @@ if (root && prose && configNode) {
 
     function renderAnnotations() {
       const items = anchoredItems();
-      view.renderMarkers(items, openThread);
+      view.renderMarkers(items, (annotation) => openComments(annotation.id));
       view.updateCount(annotations.length);
-      panel.updateOverview(annotations);
+      panel.updateComments(threadData());
 
-      if (activeId) {
-        const active = annotations.find(({ id }) => id === activeId);
+      openHighlights?.clear();
+      activeHighlight?.clear();
+      if (panel.isOpen()) {
+        items.forEach(({ annotation, range }) => {
+          if (range && !annotation.resolved) openHighlights?.add(range);
+        });
         const range = items.find(({ annotation }) => annotation.id === activeId)?.range;
-        activeHighlight?.clear();
         if (range) activeHighlight?.add(range);
-        if (active) {
-          panel.updateThread(active, activeReplies);
-          panel.alignTo(range, root);
-        }
       }
     }
 
-    function openOverview() {
-      activeId = null;
-      activeReplies = [];
-      activeHighlight?.clear();
-      unsubscribeReplies?.();
-      unsubscribeReplies = null;
-      panel.openOverview(annotations, openThread);
-      requestAnimationFrame(() => view.positionMarkers());
+    function threadData() {
+      return [...annotations]
+        .sort((a, b) => (a.start - b.start) || (a.createdAt - b.createdAt))
+        .map((annotation) => ({
+          annotation,
+          replies: repliesByAnnotation.get(annotation.id) || [],
+        }));
     }
 
-    function openThread(annotation) {
-      activeId = annotation.id;
-      activeReplies = [];
-      unsubscribeReplies?.();
-      const range = rangeForAnchor(prose, annotation);
-      panel.openThread(annotation, activeReplies, {
-        onReply: (body) => store.addReply(annotation.id, body),
-        onResolve: (resolved) => store.setResolved(annotation.id, resolved),
-        onBack: openOverview,
-        anchorRange: range,
-        anchorRoot: root,
+    function schedulePanelUpdate() {
+      if (replyRenderFrame) return;
+      replyRenderFrame = window.requestAnimationFrame(() => {
+        replyRenderFrame = 0;
+        if (panel.isOpen()) panel.updateComments(threadData());
       });
-      requestAnimationFrame(() => view.positionMarkers());
+    }
 
-      activeHighlight?.clear();
-      if (range) activeHighlight?.add(range);
+    async function loadReplies(annotationId, { refresh = false } = {}) {
+      if (!refresh && repliesByAnnotation.has(annotationId)) {
+        return repliesByAnnotation.get(annotationId);
+      }
+      if (!refresh && loadingReplies.has(annotationId)) return loadingReplies.get(annotationId);
+      const request = store.loadReplies(annotationId)
+        .then((replies) => {
+          repliesByAnnotation.set(annotationId, replies);
+          loadingReplies.delete(annotationId);
+          schedulePanelUpdate();
+          return replies;
+        })
+        .catch((error) => {
+          loadingReplies.delete(annotationId);
+          throw error;
+        });
+      loadingReplies.set(annotationId, request);
+      return request;
+    }
 
-      unsubscribeReplies = store.subscribeReplies(
-        annotation.id,
-        (replies) => {
-          activeReplies = replies;
-          const latest = annotations.find(({ id }) => id === annotation.id) || annotation;
-          panel.updateThread(latest, replies);
-        },
-        () => panel.showError(),
-      );
+    async function hydrateReplies() {
+      const run = ++replyHydrationRun;
+      const ids = annotations.map(({ id }) => id).filter((id) => !repliesByAnnotation.has(id));
+      let cursor = 0;
+      const worker = async () => {
+        while (run === replyHydrationRun && panel.isOpen() && cursor < ids.length) {
+          const id = ids[cursor];
+          cursor += 1;
+          try {
+            await loadReplies(id);
+          } catch {
+            panel.showError();
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(4, ids.length) }, worker));
+    }
+
+    const callbacks = {
+      async onReply(annotation, body) {
+        await store.addReply(annotation.id, body);
+        await loadReplies(annotation.id, { refresh: true });
+      },
+      onResolve(annotation, resolved) {
+        return store.setResolved(annotation.id, resolved);
+      },
+      async onEdit(annotation, item, rootComment, body) {
+        if (rootComment) await store.editAnnotation(annotation.id, body);
+        else {
+          await store.editReply(annotation.id, item.id, body);
+          await loadReplies(annotation.id, { refresh: true });
+        }
+      },
+      async onDelete(annotation, item, rootComment) {
+        if (rootComment) await store.hideAnnotation(annotation.id);
+        else {
+          await store.hideReply(annotation.id, item.id);
+          await loadReplies(annotation.id, { refresh: true });
+        }
+      },
+      async onSubmitDraft(body, draft) {
+        const annotationId = await store.addAnnotation(draft.anchor, body);
+        activeId = annotationId;
+        return annotationId;
+      },
+      onCancelDraft() {
+        panel.finishDraft(activeId);
+      },
+      onSelect(annotation) {
+        activeId = annotation.id;
+        panel.select(activeId);
+        renderAnnotations();
+      },
+    };
+
+    function openComments(selectedId = "") {
+      activeId = selectedId;
+      panel.openComments(threadData(), callbacks, { selectedId });
+      renderAnnotations();
+      panel.select(selectedId);
+      hydrateReplies();
+    }
+
+    function toggleComments() {
+      if (panel.isOpen()) {
+        panel.close();
+        return;
+      }
+      openComments();
     }
 
     function openDraft(anchor, anchorRange) {
       window.getSelection()?.removeAllRanges();
       view.hideSelection();
-      panel.openDraft(anchor, async (body) => {
-        await store.addAnnotation(anchor, body);
-        panel.close();
-      }, { anchorRange, anchorRoot: root });
-      requestAnimationFrame(() => view.positionMarkers());
+      activeId = "";
+      panel.openComments(threadData(), callbacks, {
+        draft: { anchor, anchorRange },
+      });
+      renderAnnotations();
+      hydrateReplies();
     }
 
     function inspectSelection() {
@@ -174,13 +257,24 @@ if (root && prose && configNode) {
       selectionTimer = window.setTimeout(inspectSelection, 80);
     });
 
-    view.onGuide = openOverview;
+    view.onGuide = toggleComments;
+    view.rangeHover = (range) => {
+      hoverHighlight?.clear();
+      if (range && !activeId) hoverHighlight?.add(range);
+    };
 
     store.onAuthStateChange((user) => panel.setUser(user));
     store.subscribeAnnotations(
       (items) => {
         annotations = items;
         renderAnnotations();
+        if (!linkedCommentOpened && linkedCommentId) {
+          const linked = annotations.find(({ id }) => id === linkedCommentId);
+          if (linked) {
+            linkedCommentOpened = true;
+            openComments(linked.id);
+          }
+        }
       },
       () => {
         view.setUnavailable();

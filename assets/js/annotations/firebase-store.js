@@ -14,9 +14,11 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
   getFirestore,
   onSnapshot,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -39,11 +41,23 @@ function cleanUser(user, ownerEmails) {
 
 function cleanDocuments(snapshot) {
   return snapshot.docs
-    .map((item) => ({ id: item.id, ...item.data(), createdAt: dateValue(item.data().createdAt) }))
+    .map((item) => ({
+      id: item.id,
+      ...item.data(),
+      createdAt: dateValue(item.data().createdAt),
+      updatedAt: dateValue(item.data().updatedAt),
+    }))
     .sort((a, b) => a.createdAt - b.createdAt);
 }
 
-export function createFirebaseStore({ config, articleId, revision, language, ownerEmails }) {
+export function createFirebaseStore({
+  config,
+  articleId,
+  revision,
+  language,
+  ownerEmails,
+  notificationEndpoint,
+}) {
   const { appCheckSiteKey, ...firebaseConfig } = config;
   const app = initializeApp(firebaseConfig);
   if (appCheckSiteKey) {
@@ -83,6 +97,12 @@ export function createFirebaseStore({ config, articleId, revision, language, own
       return onSnapshot(visible, (snapshot) => listener(cleanDocuments(snapshot)), onError);
     },
 
+    async loadReplies(annotationId) {
+      const repliesRef = collection(database, "articles", articleId, "annotations", annotationId, "replies");
+      const visible = query(repliesRef, where("hidden", "==", false));
+      return cleanDocuments(await getDocs(visible));
+    },
+
     async signIn() {
       const result = await signInWithPopup(auth, provider);
       return cleanUser(result.user, ownerEmails);
@@ -110,7 +130,10 @@ export function createFirebaseStore({ config, articleId, revision, language, own
         updatedAt: serverTimestamp(),
         resolved: false,
         hidden: false,
+        editCount: 0,
+        lastEditId: "",
       });
+      notifyCreated({ annotationId: result.id }).catch(() => {});
       return result.id;
     },
 
@@ -124,7 +147,10 @@ export function createFirebaseStore({ config, articleId, revision, language, own
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         hidden: false,
+        editCount: 0,
+        lastEditId: "",
       });
+      notifyCreated({ annotationId, replyId: result.id }).catch(() => {});
       return result.id;
     },
 
@@ -132,5 +158,84 @@ export function createFirebaseStore({ config, articleId, revision, language, own
       const annotationRef = doc(database, "articles", articleId, "annotations", annotationId);
       await updateDoc(annotationRef, { resolved, updatedAt: serverTimestamp() });
     },
+
+    async editAnnotation(annotationId, body) {
+      const annotationRef = doc(database, "articles", articleId, "annotations", annotationId);
+      await editDocument(annotationRef, body);
+    },
+
+    async editReply(annotationId, replyId, body) {
+      const replyRef = doc(
+        database,
+        "articles",
+        articleId,
+        "annotations",
+        annotationId,
+        "replies",
+        replyId,
+      );
+      await editDocument(replyRef, body);
+    },
+
+    async hideAnnotation(annotationId) {
+      if (!currentUser?.isOwner) throw new Error("Owner permission required");
+      const annotationRef = doc(database, "articles", articleId, "annotations", annotationId);
+      await updateDoc(annotationRef, { hidden: true, updatedAt: serverTimestamp() });
+    },
+
+    async hideReply(annotationId, replyId) {
+      if (!currentUser?.isOwner) throw new Error("Owner permission required");
+      const replyRef = doc(
+        database,
+        "articles",
+        articleId,
+        "annotations",
+        annotationId,
+        "replies",
+        replyId,
+      );
+      await updateDoc(replyRef, { hidden: true, updatedAt: serverTimestamp() });
+    },
+
   };
+
+  async function notifyCreated({ annotationId, replyId = "" }) {
+    if (!notificationEndpoint || !auth.currentUser) return;
+    const idToken = await auth.currentUser.getIdToken();
+    await fetch(notificationEndpoint, {
+      method: "POST",
+      mode: "no-cors",
+      keepalive: true,
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify({ articleId, annotationId, replyId, idToken }),
+    });
+  }
+
+  async function editDocument(targetRef, body) {
+    if (!currentUser) throw new Error("Authentication required");
+    const value = body.trim();
+    if (!value || value.length > 2000) throw new Error("Invalid comment");
+
+    const historyRef = doc(collection(targetRef, "history"));
+    await runTransaction(database, async (transaction) => {
+      const snapshot = await transaction.get(targetRef);
+      if (!snapshot.exists()) throw new Error("Comment not found");
+      const current = snapshot.data();
+      if (current.authorId !== currentUser.uid) throw new Error("Author permission required");
+      if (current.body === value) return;
+
+      const version = (Number.isInteger(current.editCount) ? current.editCount : 0) + 1;
+      transaction.set(historyRef, {
+        body: current.body,
+        editedAt: serverTimestamp(),
+        version,
+      });
+      transaction.update(targetRef, {
+        body: value,
+        editCount: version,
+        lastEditId: historyRef.id,
+        updatedAt: serverTimestamp(),
+      });
+    });
+  }
 }

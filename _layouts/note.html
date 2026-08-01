@@ -41,9 +41,6 @@ layout: default
     >
       <header class="note-page__header">
         <h1>{{ page.heading | default: page.title }}</h1>
-        {% if page.dek %}
-          <p class="note-page__dek">{{ page.dek }}</p>
-        {% endif %}
         {% if page.display_date %}
           <time class="note-page__date" datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
         {% endif %}
@@ -66,6 +63,7 @@ layout: default
     {
       "enabled": true,
       "ownerEmails": {{ site.annotations.owner_emails | jsonify }},
+      "notificationEndpoint": {{ site.annotations.notification_endpoint | default: '' | jsonify }},
       "firebase": {{ site.annotations.firebase | jsonify }}
     }
   </script>

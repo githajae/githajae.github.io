@@ -21,6 +21,12 @@ Firebase Web API keys identify the app; Firestore Security Rules provide authori
 
 Comments and Google display names are public. Firebase Authentication still processes the signed-in account, but email addresses and profile photos are not copied into public comment documents. Before launch, set Firebase budget alerts and enforce App Check after confirming legitimate traffic is accepted.
 
+## Gmail notifications
+
+`notifications/Code.gs` is deployed as an Apps Script web app owned by the notification Gmail account. New comments and replies send a best-effort webhook containing the creator's short-lived Firebase ID token and document IDs. The script reads the exact Firestore document with that token, ignores hidden or invalid documents, deduplicates each notification, and sends to the script owner's Gmail address. It cannot be used to choose an arbitrary recipient or arbitrary email body.
+
+The deployed `/exec` URL lives in `annotations.notification_endpoint`. When the Apps Script source changes, create a new deployment version and keep the same web-app URL. Gmail consumer accounts have daily Apps Script email quotas, so this is intended for a personal, low-volume Notes site.
+
 ## Local preview
 
 Build with the local preview configuration, then open an article with `?annotations=preview` on localhost:
@@ -36,7 +42,10 @@ Preview mode is limited to `localhost` and uses an in-memory account and store. 
 
 - `articles/{articleId}/annotations/{annotationId}` stores the selected quote, surrounding context, text offsets, root comment, author display name, and moderation state.
 - `articles/{articleId}/annotations/{annotationId}/replies/{replyId}` stores replies.
+- Each comment and reply keeps immutable prior versions in its owner-only `history` subcollection. The public interface shows only an `Edited` label.
+- Only the verified owner emails listed in `_config.yml` and `firestore.rules` can hide comments. Moderation uses a recoverable `hidden` flag rather than physical deletion.
 - Email addresses and profile photos are not stored in comment documents.
 - Rendering uses text nodes only; comment text is never interpreted as HTML.
+- The public comment rail fetches replies with at most four concurrent requests and caches them for the open session, avoiding one persistent listener per thread.
 
 When article copy changes, increment `annotation_revision` in front matter. Anchors first try the saved text offsets, then reattach using the exact quote plus its surrounding context.

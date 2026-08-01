@@ -16,11 +16,13 @@ function debounce(callback, wait) {
 }
 
 export class AnnotationView {
-  constructor({ language, guide }) {
+  constructor({ language, guide, content }) {
     this.language = language === "ko" ? "ko" : "en";
     this.markerClick = null;
+    this.rangeHover = null;
     this.items = [];
     this.guide = guide;
+    this.content = content;
     this.count = guide?.querySelector("[data-annotation-count]") || null;
 
     this.markerLayer = document.createElement("div");
@@ -35,6 +37,10 @@ export class AnnotationView {
 
     this.guide?.addEventListener("click", () => this.onGuide?.());
     if (this.guide) this.guide.hidden = false;
+
+    this.content?.addEventListener("pointermove", (event) => this.inspectPointer(event));
+    this.content?.addEventListener("pointerleave", () => this.setHoveredItem(null));
+    this.content?.addEventListener("click", (event) => this.openFromRange(event));
 
     document.body.append(this.markerLayer, this.selectionButton);
     window.addEventListener("resize", debounce(() => this.positionMarkers(), 100));
@@ -75,20 +81,57 @@ export class AnnotationView {
   renderMarkers(items, onClick) {
     this.items = items.filter(({ range }) => range);
     this.markerClick = onClick;
+    this.setHoveredItem(null);
     this.positionMarkers();
+  }
+
+  itemAtPoint(x, y) {
+    return this.items.find(({ annotation, range }) => (
+      !annotation.resolved
+      && [...range.getClientRects()].some((rect) => (
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      ))
+    )) || null;
+  }
+
+  setHoveredItem(item) {
+    if (this.hoveredItem === item) return;
+    this.hoveredItem = item;
+    this.content?.classList.toggle("annotation-range-hover", Boolean(item));
+    this.rangeHover?.(item?.range || null);
+  }
+
+  inspectPointer(event) {
+    this.setHoveredItem(this.itemAtPoint(event.clientX, event.clientY));
+  }
+
+  openFromRange(event) {
+    if (event.target.closest("a, button, input, textarea, select")) return;
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed) return;
+    const item = this.itemAtPoint(event.clientX, event.clientY);
+    if (item) this.markerClick?.(item.annotation);
   }
 
   positionMarkers() {
     this.markerLayer.replaceChildren();
     let previousTop = -Infinity;
+    const contentRect = this.content?.getBoundingClientRect();
+    const documentRect = this.content?.closest("[data-annotation-root]")?.getBoundingClientRect();
+    const marginWidth = contentRect && documentRect
+      ? Math.max(0, documentRect.right - contentRect.right)
+      : 0;
+    const marginLeft = contentRect
+      ? contentRect.right + window.scrollX + Math.max(4, (marginWidth - 32) / 2)
+      : 0;
 
     this.items
       .map((item) => {
         const rect = item.range.getBoundingClientRect();
         return {
           ...item,
-          top: rect.top + window.scrollY,
-          left: rect.right + window.scrollX + 12,
+          top: rect.top + window.scrollY + (rect.height / 2) - 16,
+          left: marginLeft,
         };
       })
       .sort((a, b) => a.top - b.top)
@@ -97,7 +140,7 @@ export class AnnotationView {
         previousTop = top;
         const marker = button(
           `annotation-marker${item.annotation.resolved ? " annotation-marker--resolved" : ""}`,
-          item.annotation.resolved ? "✓" : "1",
+          "",
           this.language === "ko"
             ? `“${item.annotation.quote}”의 댓글 열기`
             : `Open comment on “${item.annotation.quote}”`,

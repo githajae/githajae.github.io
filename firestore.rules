@@ -24,7 +24,8 @@ service cloud.firestore {
           'articleId', 'revision', 'language',
           'quote', 'prefix', 'suffix', 'start', 'end',
           'body', 'authorId', 'authorName',
-          'createdAt', 'updatedAt', 'resolved', 'hidden'
+          'createdAt', 'updatedAt', 'resolved', 'hidden',
+          'editCount', 'lastEditId'
         ])
         && request.resource.data.articleId == articleId
         && validText(request.resource.data.revision, 80)
@@ -44,7 +45,9 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
         && request.resource.data.resolved == false
-        && request.resource.data.hidden == false;
+        && request.resource.data.hidden == false
+        && request.resource.data.get('editCount', 0) == 0
+        && request.resource.data.get('lastEditId', '') == '';
     }
 
     function annotationVisible(articleId, annotationId) {
@@ -56,37 +59,127 @@ service cloud.firestore {
       return annotation.data.hidden == false && annotation.data.resolved == false;
     }
 
+    function validHistoryDocument(history, version, previousBody) {
+      return history.keys().hasOnly(['body', 'editedAt', 'version'])
+        && history.body == previousBody
+        && validText(history.body, 2000)
+        && history.editedAt == request.time
+        && history.version == version;
+    }
+
+    function validAnnotationEdit(articleId, annotationId) {
+      let previousVersion = resource.data.get('editCount', 0);
+      let nextVersion = previousVersion + 1;
+      let historyId = request.resource.data.lastEditId;
+      let historyPath = /databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId)/history/$(historyId);
+      return signedIn()
+        && resource.data.authorId == request.auth.uid
+        && resource.data.hidden == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'body', 'updatedAt', 'editCount', 'lastEditId'
+        ])
+        && validText(request.resource.data.body, 2000)
+        && request.resource.data.body != resource.data.body
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.editCount == nextVersion
+        && validText(historyId, 128)
+        && existsAfter(historyPath)
+        && validHistoryDocument(getAfter(historyPath).data, nextVersion, resource.data.body);
+    }
+
+    function validReplyEdit(articleId, annotationId, replyId) {
+      let previousVersion = resource.data.get('editCount', 0);
+      let nextVersion = previousVersion + 1;
+      let historyId = request.resource.data.lastEditId;
+      let historyPath = /databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId)/replies/$(replyId)/history/$(historyId);
+      return signedIn()
+        && resource.data.authorId == request.auth.uid
+        && resource.data.hidden == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'body', 'updatedAt', 'editCount', 'lastEditId'
+        ])
+        && validText(request.resource.data.body, 2000)
+        && request.resource.data.body != resource.data.body
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.editCount == nextVersion
+        && validText(historyId, 128)
+        && existsAfter(historyPath)
+        && validHistoryDocument(getAfter(historyPath).data, nextVersion, resource.data.body);
+    }
+
+    function validAnnotationHistory(articleId, annotationId, historyId) {
+      let annotationPath = /databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId);
+      return signedIn()
+        && get(annotationPath).data.authorId == request.auth.uid
+        && get(annotationPath).data.hidden == false
+        && getAfter(annotationPath).data.lastEditId == historyId
+        && validHistoryDocument(
+          request.resource.data,
+          getAfter(annotationPath).data.editCount,
+          get(annotationPath).data.body
+        );
+    }
+
+    function validReplyHistory(articleId, annotationId, replyId, historyId) {
+      let replyPath = /databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId)/replies/$(replyId);
+      return signedIn()
+        && get(replyPath).data.authorId == request.auth.uid
+        && get(replyPath).data.hidden == false
+        && getAfter(replyPath).data.lastEditId == historyId
+        && validHistoryDocument(
+          request.resource.data,
+          getAfter(replyPath).data.editCount,
+          get(replyPath).data.body
+        );
+    }
+
     match /articles/{articleId}/annotations/{annotationId} {
       allow get, list: if resource.data.hidden == false || isOwner();
       allow create: if signedIn() && validAnnotation(articleId);
-      allow update: if isOwner()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'resolved', 'hidden', 'updatedAt'
-        ])
-        && request.resource.data.resolved is bool
-        && request.resource.data.hidden is bool
-        && request.resource.data.updatedAt == request.time;
-      allow delete: if isOwner() || (signedIn() && resource.data.authorId == request.auth.uid);
+      allow update: if (
+          isOwner()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'resolved', 'hidden', 'updatedAt'
+          ])
+          && request.resource.data.resolved is bool
+          && request.resource.data.hidden is bool
+          && request.resource.data.updatedAt == request.time
+        ) || validAnnotationEdit(articleId, annotationId);
+
+      match /history/{historyId} {
+        allow get, list: if isOwner();
+        allow create: if validAnnotationHistory(articleId, annotationId, historyId);
+      }
 
       match /replies/{replyId} {
         allow get, list: if (resource.data.hidden == false && annotationVisible(articleId, annotationId)) || isOwner();
         allow create: if signedIn()
           && annotationOpen(articleId, annotationId)
           && request.resource.data.keys().hasOnly([
-            'body', 'authorId', 'authorName', 'createdAt', 'updatedAt', 'hidden'
+            'body', 'authorId', 'authorName', 'createdAt', 'updatedAt', 'hidden',
+            'editCount', 'lastEditId'
           ])
           && validText(request.resource.data.body, 2000)
           && request.resource.data.authorId == request.auth.uid
           && validText(request.resource.data.authorName, 80)
           && request.resource.data.createdAt == request.time
           && request.resource.data.updatedAt == request.time
-          && request.resource.data.hidden == false;
-        allow update: if signedIn()
-          && resource.data.authorId == request.auth.uid
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updatedAt'])
-          && validText(request.resource.data.body, 2000)
-          && request.resource.data.updatedAt == request.time;
-        allow delete: if isOwner() || (signedIn() && resource.data.authorId == request.auth.uid);
+          && request.resource.data.hidden == false
+          && request.resource.data.get('editCount', 0) == 0
+          && request.resource.data.get('lastEditId', '') == '';
+        allow update: if (
+            isOwner()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'hidden', 'updatedAt'
+            ])
+            && request.resource.data.hidden is bool
+            && request.resource.data.updatedAt == request.time
+          ) || validReplyEdit(articleId, annotationId, replyId);
+
+        match /history/{historyId} {
+          allow get, list: if isOwner();
+          allow create: if validReplyHistory(articleId, annotationId, replyId, historyId);
+        }
       }
     }
   }
