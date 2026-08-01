@@ -1034,6 +1034,10 @@ body.note {
   display: none;
 }
 
+.annotation-panel:focus {
+  outline: none;
+}
+
 .annotation-backdrop {
   display: none;
 }
