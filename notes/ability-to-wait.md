@@ -27,3 +27,19 @@ We therefore need a difference that is difficult to copy. Technology and knowled
 The ability to act against human nature is difficult to copy. Knowing what is right is not the same as enduring fear and desire long enough to act on it.
 
 One such ability is waiting. It is refusing ambiguous opportunities, preserving time and attention, and moving decisively when a truly asymmetric opportunity arrives.
+
+Yet waiting is difficult. Very difficult. The fact that we have a word like FOMO suggests how hard it is to bear the feeling that something is passing us by.
+
+Human beings cannot see the future. The opportunity in front of us is concrete, while the opportunities yet to come are vague. The present therefore appears larger than it is, and the future smaller. Waiting becomes even harder when money is involved. The stock market makes this especially clear. Even when we believe our judgment is sound, it is difficult to endure a falling price.
+
+I am not very different. I am relatively detached about money, but obsessive about opportunities. Afraid of missing a chance to succeed ahead of others, I constantly look for startup ideas, hover around different possibilities, and try to graduate sooner.
+
+I often see people seek opportunities before they are ready for them. But an opportunity is not captured merely by encountering it. Building sufficient skill and leaving a strong impression in one important moment may be better than meeting many opportunities while unprepared.
+
+Impatience does not always produce a bad result. We can move before we are ready and still succeed. Luck plays a large role in life, and a poor decision can produce a good outcome.
+
+We therefore cannot judge the quality of a decision by its result alone. Success does not prove that the choice was rational when it was made.
+
+Waiting does not guarantee success either. It can only improve the odds. If we use the time to build skill, sharpen our judgment, and preserve time and resources, we become more likely to capture the next opportunity.
+
+Waiting is not the ability to predict the future. It is the work of improving the odds that we can seize it when it arrives.
