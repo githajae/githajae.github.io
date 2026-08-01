@@ -926,10 +926,10 @@ body.note {
 }
 
 .annotation-paragraph-action::after {
-  width: 0.1875rem;
+  width: 0.25rem;
   height: 100%;
   border-radius: 999px;
-  background: rgb(0 102 204 / 42%);
+  background: rgb(17 17 17 / 34%);
   content: "";
   transition: background-color 160ms ease;
 }
@@ -941,17 +941,17 @@ body.note {
 }
 
 .annotation-commentable.has-annotation > .annotation-paragraph-action::after {
-  background: rgb(0 102 204 / 62%);
+  background: rgb(17 17 17 / 56%);
 }
 
 .annotation-panel-open .annotation-commentable.has-annotation > .annotation-paragraph-action::after {
-  background: rgb(0 102 204 / 76%);
+  background: rgb(17 17 17 / 72%);
 }
 
 .annotation-commentable.is-active > .annotation-paragraph-action::after,
 .annotation-paragraph-action:hover::after,
 .annotation-paragraph-action:focus-visible::after {
-  background: var(--link);
+  background: var(--ink);
 }
 
 .annotation-paragraph-action:focus-visible {
