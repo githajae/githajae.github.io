@@ -1,22 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
-  initializeAppCheck,
-  ReCaptchaEnterpriseProvider,
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-import {
   addDoc,
   collection,
   doc,
   getDocs,
-  getFirestore,
+  initializeFirestore,
   onSnapshot,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   query,
   runTransaction,
   serverTimestamp,
@@ -50,7 +41,7 @@ function cleanDocuments(snapshot) {
     .sort((a, b) => a.createdAt - b.createdAt);
 }
 
-export function createFirebaseStore({
+export async function createFirebaseStore({
   config,
   articleId,
   revision,
@@ -61,15 +52,32 @@ export function createFirebaseStore({
   const { appCheckSiteKey, ...firebaseConfig } = config;
   const app = initializeApp(firebaseConfig);
   if (appCheckSiteKey) {
+    const {
+      initializeAppCheck,
+      ReCaptchaEnterpriseProvider,
+    } = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js");
     initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
       isTokenAutoRefreshEnabled: true,
     });
   }
-  const auth = getAuth(app);
-  const database = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
+  const database = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
+  let authContextPromise = null;
+
+  function authContext() {
+    if (!authContextPromise) {
+      authContextPromise = import("https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js")
+        .then((firebaseAuth) => ({
+          firebaseAuth,
+          auth: firebaseAuth.getAuth(app),
+        }));
+    }
+    return authContextPromise;
+  }
 
   const annotationsRef = collection(database, "articles", articleId, "annotations");
   let currentUser = null;
@@ -80,10 +88,23 @@ export function createFirebaseStore({
     },
 
     onAuthStateChange(listener) {
-      return onAuthStateChanged(auth, (user) => {
-        currentUser = cleanUser(user, ownerEmails);
-        listener(currentUser);
-      });
+      let active = true;
+      let unsubscribe = () => {};
+      authContext()
+        .then(({ firebaseAuth, auth }) => {
+          if (!active) return;
+          unsubscribe = firebaseAuth.onAuthStateChanged(auth, (user) => {
+            currentUser = cleanUser(user, ownerEmails);
+            listener(currentUser);
+          });
+        })
+        .catch(() => {
+          if (active) listener(null);
+        });
+      return () => {
+        active = false;
+        unsubscribe();
+      };
     },
 
     subscribeAnnotations(listener, onError) {
@@ -104,12 +125,16 @@ export function createFirebaseStore({
     },
 
     async signIn() {
-      const result = await signInWithPopup(auth, provider);
+      const { firebaseAuth, auth } = await authContext();
+      const provider = new firebaseAuth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const result = await firebaseAuth.signInWithPopup(auth, provider);
       return cleanUser(result.user, ownerEmails);
     },
 
     async signOut() {
-      await firebaseSignOut(auth);
+      const { firebaseAuth, auth } = await authContext();
+      await firebaseAuth.signOut(auth);
     },
 
     async addAnnotation(anchor, body) {
@@ -200,7 +225,9 @@ export function createFirebaseStore({
   };
 
   async function notifyCreated({ annotationId, replyId = "" }) {
-    if (!notificationEndpoint || !auth.currentUser) return;
+    if (!notificationEndpoint) return;
+    const { auth } = await authContext();
+    if (!auth.currentUser) return;
     const idToken = await auth.currentUser.getIdToken();
     await fetch(notificationEndpoint, {
       method: "POST",

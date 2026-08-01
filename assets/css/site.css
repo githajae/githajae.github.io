@@ -93,8 +93,27 @@ a:focus-visible {
   font-size: 0.8125rem;
 }
 
-.site-header__inner--utility {
+.site-header__inner--zoned {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.header-zone {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.header-zone--left {
+  justify-content: flex-start;
+}
+
+.header-zone--center {
   justify-content: center;
+}
+
+.header-zone--right {
+  justify-content: flex-end;
 }
 
 .quiet-link {
@@ -111,8 +130,8 @@ a:focus-visible {
   gap: 1.5rem;
 }
 
-.header-links a,
-.header-links button {
+.header-zone a,
+.header-zone button {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
@@ -283,7 +302,8 @@ a:focus-visible {
 
 .work-list,
 .record-list,
-.note-list {
+.note-list,
+.place-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -460,31 +480,13 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-.notes-gateway {
-  padding-block: clamp(5rem, 9vw, 8rem);
-  border-top: 1px solid var(--rule);
-}
-
-.notes-gateway a {
-  display: inline-block;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  text-decoration: none;
-}
-
-.notes-gateway a::after {
-  content: "\2192";
-  display: inline-block;
-  margin-left: 0.4em;
-  font-weight: 400;
-}
-
-.notes-hero {
+.notes-hero,
+.places-hero {
   padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2rem, 4vw, 3rem);
 }
 
-.notes-hero h1 {
+.notes-hero h1,
+.places-hero h1 {
   margin: 0;
   font-size: clamp(3.5rem, 9vw, 6rem);
   font-weight: 650;
@@ -545,6 +547,131 @@ a:focus-visible {
 .note-list__link:hover::after {
   color: var(--link);
   transform: translateX(0.15rem);
+}
+
+.place-year h2 {
+  margin: 0 0 0.75rem;
+  color: var(--faint);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.place-list {
+  border-bottom: 1px solid var(--rule);
+}
+
+.place-list__item {
+  border-top: 1px solid var(--rule);
+}
+
+.place-list__link {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 1rem;
+  min-height: 4.25rem;
+  padding-block: 1.25rem;
+  text-decoration: none;
+}
+
+.place-list__date,
+.place-list__location {
+  color: var(--faint);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.place-list__title {
+  min-width: 0;
+  font-size: 1.125rem;
+  font-weight: 560;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.place-list__link::after {
+  content: "\2192";
+  color: var(--faint);
+  font-size: 1rem;
+  line-height: 1;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.place-list__link:hover::after {
+  color: var(--link);
+  transform: translateX(0.15rem);
+}
+
+.place-page {
+  padding-block: clamp(4.5rem, 9vw, 6.5rem) 3rem;
+}
+
+.place-page__header {
+  padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.place-page h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(2.75rem, 7vw, 4.5rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.055em;
+}
+
+.place-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1.25rem 0 0;
+  color: var(--faint);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.place-page__media {
+  margin: 2rem 0 0;
+}
+
+.place-page__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.place-page__content {
+  max-width: 34rem;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  letter-spacing: -0.012em;
+}
+
+.place-page__content p {
+  margin: 0 0 1.5em;
+}
+
+.place-page__footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+
+.place-page__footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  text-decoration: none;
+}
+
+.place-page__footer a::after {
+  content: "\2192";
+  margin-left: 0.5em;
+  color: var(--faint);
 }
 
 body.note {
@@ -1266,7 +1393,9 @@ body.note {
 html[lang="ko"] .note-list__title,
 html[lang="ko"] .note-page h1,
 html[lang="ko"] .note-page__dek,
-html[lang="ko"] .prose {
+html[lang="ko"] .prose,
+html[lang="ko"] .place-list__title,
+html[lang="ko"] .place-page__content {
   word-break: keep-all;
 }
 
@@ -1296,6 +1425,10 @@ html[lang="ko"] .prose {
 @media (max-width: 44rem) {
   .shell {
     width: min(calc(100% - 2rem), var(--shell));
+  }
+
+  .header-zone--center {
+    gap: 1rem;
   }
 
   .cv-hero {
@@ -1389,12 +1522,38 @@ html[lang="ko"] .prose {
     padding-top: 3.5rem;
   }
 
-  .notes-hero {
+  .notes-hero,
+  .places-hero {
     padding-top: 3.5rem;
   }
 
   .note-list__link {
     gap: 0.75rem;
+  }
+
+  .place-list__link {
+    grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.2rem 0.75rem;
+  }
+
+  .place-list__date {
+    grid-row: 1 / span 2;
+  }
+
+  .place-list__location {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .place-list__link::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .place-page {
+    padding-block: 3.5rem 2rem;
   }
 
   .evidence {

@@ -9,11 +9,17 @@ description: "하재현의 Notes."
 ---
 
 <header class="site-header">
-  <div class="shell shell--note site-header__inner site-header__inner--utility">
-    <nav class="header-links" aria-label="페이지 링크">
+  <div class="shell shell--note site-header__inner site-header__inner--zoned">
+    <div class="header-zone header-zone--left">
       <a class="quiet-link" href="{{ '/ko/' | relative_url }}">CV</a>
-      <a class="quiet-link" href="{{ '/notes/' | relative_url }}" hreflang="en" lang="en">English</a>
+    </div>
+    <nav class="header-zone header-zone--center header-links" aria-label="페이지 링크">
+      <a class="quiet-link" href="{{ '/ko/notes/' | relative_url }}" aria-current="page">Notes</a>
+      <a class="quiet-link" href="{{ '/ko/places/' | relative_url }}">Places</a>
     </nav>
+    <div class="header-zone header-zone--right">
+      <a class="quiet-link" href="{{ '/notes/' | relative_url }}" hreflang="en" lang="en">English</a>
+    </div>
   </div>
 </header>
 

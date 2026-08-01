@@ -1,0 +1,51 @@
+---
+layout: default
+---
+
+{% if page.lang == 'ko' %}
+  {% assign places_url = '/ko/places/' %}
+  {% assign language_label = 'English' %}
+{% else %}
+  {% assign places_url = '/places/' %}
+  {% assign language_label = '한국어' %}
+{% endif %}
+
+<header class="site-header">
+  <div class="shell shell--note site-header__inner site-header__inner--zoned">
+    <div class="header-zone header-zone--left">
+      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}">CV</a>
+    </div>
+    <nav class="header-zone header-zone--center header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
+      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/notes/' | relative_url }}{% else %}{{ '/notes/' | relative_url }}{% endif %}">Notes</a>
+      <a class="quiet-link" href="{{ places_url | relative_url }}" aria-current="page">Places</a>
+    </nav>
+    <div class="header-zone header-zone--right">
+      <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="shell shell--note place-page">
+  <header class="place-page__header">
+    <h1>{{ page.heading | default: page.title }}</h1>
+    <p class="place-page__meta">
+      <span>{{ page.location }}</span>
+      <span aria-hidden="true">·</span>
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+    </p>
+  </header>
+
+  {% if page.image %}
+    <figure class="place-page__media">
+      <img src="{{ page.image | relative_url }}" alt="{{ page.image_alt | default: '' }}">
+    </figure>
+  {% endif %}
+
+  <div class="place-page__content">
+    {{ content }}
+  </div>
+
+  <footer class="place-page__footer">
+    <a href="{{ places_url | relative_url }}">{% if page.lang == 'ko' %}모든 장소{% else %}All places{% endif %}</a>
+  </footer>
+</main>

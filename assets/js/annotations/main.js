@@ -50,6 +50,15 @@ if (root && prose && configNode) {
     language,
     ownerEmails: (settings.ownerEmails || []).map((email) => email.toLowerCase()),
   };
+  const view = new AnnotationView({
+    language,
+    guide: annotationIndex,
+    content: prose,
+  });
+  let pendingGuideOpen = false;
+  view.onGuide = () => {
+    pendingGuideOpen = true;
+  };
 
   // Keep authentication and Firestore off the critical rendering path. Two
   // frames let the article heading paint before Firebase is downloaded and
@@ -57,19 +66,20 @@ if (root && prose && configNode) {
   await new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
-  const store = await createStore(settings, context);
+  let store = null;
+  try {
+    store = await createStore(settings, context);
+  } catch {
+    view.setUnavailable();
+  }
   if (store) {
-    const view = new AnnotationView({
-      language,
-      guide: annotationIndex,
-      content: prose,
-    });
     let annotations = [];
     let activeId = null;
     const repliesByAnnotation = new Map();
     const loadingReplies = new Map();
     let replyHydrationRun = 0;
     let replyRenderFrame = 0;
+    let replyWarmupScheduled = false;
     const linkedCommentId = new URLSearchParams(window.location.search).get("comment");
     let linkedCommentOpened = false;
 
@@ -163,12 +173,12 @@ if (root && prose && configNode) {
       return request;
     }
 
-    async function hydrateReplies() {
+    async function hydrateReplies({ background = false } = {}) {
       const run = ++replyHydrationRun;
       const ids = annotations.map(({ id }) => id).filter((id) => !repliesByAnnotation.has(id));
       let cursor = 0;
       const worker = async () => {
-        while (run === replyHydrationRun && panel.isOpen() && cursor < ids.length) {
+        while (run === replyHydrationRun && (background || panel.isOpen()) && cursor < ids.length) {
           const id = ids[cursor];
           cursor += 1;
           try {
@@ -179,6 +189,20 @@ if (root && prose && configNode) {
         }
       };
       await Promise.all(Array.from({ length: Math.min(4, ids.length) }, worker));
+    }
+
+    function scheduleReplyWarmup() {
+      if (replyWarmupScheduled || !annotations.length || annotations.length > 8) return;
+      replyWarmupScheduled = true;
+      const warm = () => {
+        replyWarmupScheduled = false;
+        hydrateReplies({ background: true }).catch(() => {});
+      };
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(warm, { timeout: 1500 });
+      } else {
+        window.setTimeout(warm, 250);
+      }
     }
 
     const callbacks = {
@@ -264,6 +288,7 @@ if (root && prose && configNode) {
     });
 
     view.onGuide = toggleComments;
+    if (pendingGuideOpen) toggleComments();
     view.rangeHover = (range) => {
       hoverHighlight?.clear();
       if (range && !activeId) hoverHighlight?.add(range);
@@ -274,6 +299,7 @@ if (root && prose && configNode) {
       (items) => {
         annotations = items;
         renderAnnotations();
+        scheduleReplyWarmup();
         if (!linkedCommentOpened && linkedCommentId) {
           const linked = annotations.find(({ id }) => id === linkedCommentId);
           if (linked) {
