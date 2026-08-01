@@ -85,8 +85,8 @@ a:focus-visible {
   font-size: 0.875rem;
 }
 
-.site-header__inner--end {
-  justify-content: flex-end;
+.site-header__inner--utility {
+  justify-content: flex-start;
 }
 
 .wordmark {
@@ -120,10 +120,10 @@ a:focus-visible {
 
 .cv-hero {
   display: grid;
-  grid-template-columns: minmax(0, 38rem) 9rem;
+  grid-template-columns: minmax(0, 37rem) 11rem;
   align-items: center;
   justify-content: start;
-  gap: 3rem;
+  gap: 2rem;
   padding-block: clamp(4.5rem, 8vw, 7rem) clamp(3rem, 5vw, 4rem);
 }
 
@@ -132,7 +132,7 @@ a:focus-visible {
 }
 
 .cv-hero__photo-frame {
-  width: 9rem;
+  width: 11rem;
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
@@ -194,8 +194,8 @@ a:focus-visible {
 
 .cv-section {
   display: grid;
-  grid-template-columns: 9rem minmax(0, 1fr);
-  gap: 3rem;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1.5rem;
   padding-block: 4rem;
   border-top: 1px solid var(--rule);
 }
@@ -206,16 +206,13 @@ a:focus-visible {
 
 .cv-section > h2 {
   margin: 0;
+  padding-top: 0.125rem;
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.09em;
   line-height: 1.4;
   text-transform: uppercase;
-}
-
-.cv-section > :not(h2) {
-  padding-top: 0.75rem;
 }
 
 .cv-copy {
@@ -299,6 +296,10 @@ a:focus-visible {
   grid-template-columns: 5rem minmax(0, 1fr);
   gap: 1.5rem;
   padding-block: 0.875rem;
+}
+
+.record-item:first-child {
+  padding-top: 0;
 }
 
 .record-item__year {
@@ -421,7 +422,7 @@ a:focus-visible {
 }
 
 .notes-gateway {
-  padding-block: clamp(7rem, 14vw, 12rem);
+  padding-block: clamp(5rem, 9vw, 8rem);
   border-top: 1px solid var(--rule);
 }
 
@@ -540,12 +541,12 @@ a:focus-visible {
 
 @media (max-width: 53rem) and (min-width: 44.001rem) {
   .cv-hero {
-    grid-template-columns: minmax(0, 30rem) 8rem;
-    gap: 2.5rem;
+    grid-template-columns: minmax(0, 28.5rem) 10.5rem;
+    gap: 2rem;
   }
 
   .cv-hero__photo-frame {
-    width: 8rem;
+    width: 10.5rem;
   }
 }
 
@@ -558,7 +559,7 @@ a:focus-visible {
     min-height: 4rem;
   }
 
-  .site-header__inner--end {
+  .site-header__inner--utility {
     justify-content: center;
   }
 
@@ -584,7 +585,7 @@ a:focus-visible {
 
   .cv-hero__photo-frame {
     order: -1;
-    width: 8.5rem;
+    width: 9.5rem;
     justify-self: center;
   }
 
@@ -601,10 +602,6 @@ a:focus-visible {
 
   .cv-section:first-child {
     padding-top: 2.5rem;
-  }
-
-  .cv-section > :not(h2) {
-    padding-top: 0;
   }
 
   .work-item {
