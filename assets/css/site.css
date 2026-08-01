@@ -507,7 +507,7 @@ a:focus-visible {
   min-height: 2.75rem;
 }
 
-@media (max-width: 44rem) {
+@media (max-width: 56rem) {
   .shell {
     width: min(calc(100% - 2rem), var(--shell));
   }
@@ -519,13 +519,13 @@ a:focus-visible {
   .cv-hero {
     grid-template-columns: 1fr;
     align-items: start;
-    gap: 2.5rem;
-    padding-block: 5rem 5.5rem;
+    gap: 1.5rem;
+    padding-block: 3.5rem 4.5rem;
   }
 
   .cv-hero__photo-frame {
     order: -1;
-    width: 6rem;
+    width: 7.5rem;
   }
 
   .cv-section {
