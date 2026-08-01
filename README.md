@@ -7,4 +7,4 @@ bundle install
 bundle exec jekyll serve
 ```
 
-Inline Notes comments are optional. See [docs/annotations.md](docs/annotations.md) to connect Google sign-in and Firestore.
+Notes comments are optional. See [docs/annotations.md](docs/annotations.md) to connect Google sign-in and Firestore.

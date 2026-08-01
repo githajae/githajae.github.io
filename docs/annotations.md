@@ -1,6 +1,6 @@
-# Inline Notes comments
+# Notes comments
 
-Notes can support Google Docs-style comments anchored to selected text. The implementation is checked in, but article pages remain completely dormant until Firebase is configured.
+Notes supports whole-article comments beneath each post, with one level of replies. The header comment link moves directly to the discussion. The implementation is checked in, but article pages remain completely dormant until Firebase is configured.
 
 ## Firebase setup
 
@@ -40,12 +40,11 @@ Preview mode is limited to `localhost` and uses an in-memory account and store. 
 
 ## Data model
 
-- `articles/{articleId}/annotations/{annotationId}` stores the selected quote, surrounding context, text offsets, root comment, author display name, and moderation state.
+- `articles/{articleId}/annotations/{annotationId}` stores a root article comment, author display name, and moderation state. New documents use `scope: "article"`; anchor fields remain empty for schema compatibility.
 - `articles/{articleId}/annotations/{annotationId}/replies/{replyId}` stores replies.
+- Earlier paragraph comments remain readable. Their saved quote appears above the corresponding root comment, but new paragraph anchors are no longer created.
 - Each comment and reply keeps immutable prior versions in its owner-only `history` subcollection. The public interface shows only an `Edited` label.
 - Only the verified owner emails listed in `_config.yml` and `firestore.rules` can hide comments. Moderation uses a recoverable `hidden` flag rather than physical deletion.
 - Email addresses and profile photos are not stored in comment documents.
 - Rendering uses text nodes only; comment text is never interpreted as HTML.
-- The public comment rail fetches replies with at most four concurrent requests and caches them for the open session, avoiding one persistent listener per thread.
-
-When article copy changes, increment `annotation_revision` in front matter. Anchors first try the saved text offsets, then reattach using the exact quote plus its surrounding context.
+- The public discussion fetches replies with at most four concurrent requests and caches them for the open session, avoiding one persistent listener per thread.

@@ -137,12 +137,39 @@ export async function createFirebaseStore({
       await firebaseAuth.signOut(auth);
     },
 
+    async addComment(body) {
+      if (!currentUser) throw new Error("Authentication required");
+      const result = await addDoc(annotationsRef, {
+        articleId,
+        revision,
+        language,
+        scope: "article",
+        quote: "",
+        prefix: "",
+        suffix: "",
+        start: 0,
+        end: 0,
+        body: body.trim(),
+        authorId: currentUser.uid,
+        authorName: currentUser.displayName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        resolved: false,
+        hidden: false,
+        editCount: 0,
+        lastEditId: "",
+      });
+      notifyCreated({ annotationId: result.id }).catch(() => {});
+      return result.id;
+    },
+
     async addAnnotation(anchor, body) {
       if (!currentUser) throw new Error("Authentication required");
       const result = await addDoc(annotationsRef, {
         articleId,
         revision,
         language,
+        scope: "paragraph",
         quote: anchor.quote,
         prefix: anchor.prefix,
         suffix: anchor.suffix,

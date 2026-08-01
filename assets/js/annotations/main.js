@@ -2,20 +2,12 @@ const moduleVersion = new URL(import.meta.url).searchParams.get("v");
 const modulePath = (path) => (moduleVersion
   ? `${path}?v=${encodeURIComponent(moduleVersion)}`
   : path);
-const [anchorsModule, panelModule, viewModule] = await Promise.all([
-  import(modulePath("./anchors.js")),
-  import(modulePath("./panel.js")),
-  import(modulePath("./view.js")),
-]);
-const { captureParagraph, rangeForAnchor } = anchorsModule;
-const { AnnotationPanel } = panelModule;
-const { AnnotationView } = viewModule;
+const { CommentSection } = await import(modulePath("./comments.js"));
 
 const root = document.querySelector("[data-annotation-root]");
-const prose = root?.querySelector(".prose");
 const configNode = document.querySelector("#annotation-config");
-const annotationRail = document.querySelector("[data-annotation-rail]");
-const annotationIndex = document.querySelector("[data-annotation-index]");
+const commentSection = document.querySelector("[data-comment-section]");
+const commentIndex = document.querySelector("[data-comment-index]");
 
 function readConfig() {
   try {
@@ -50,7 +42,7 @@ async function createStore(settings, context) {
   });
 }
 
-if (root && prose && configNode) {
+if (root && configNode && commentSection) {
   const settings = readConfig();
   const language = root.dataset.annotationLanguage === "ko" ? "ko" : "en";
   const context = {
@@ -59,93 +51,56 @@ if (root && prose && configNode) {
     language,
     ownerEmails: (settings.ownerEmails || []).map((email) => email.toLowerCase()),
   };
-  const view = new AnnotationView({
+  const comments = new CommentSection({
     language,
-    guide: annotationIndex,
-    content: prose,
+    mount: commentSection,
+    guide: commentIndex,
   });
-  let pendingGuideOpen = false;
-  view.onGuide = () => {
-    pendingGuideOpen = true;
-  };
 
-  // Keep authentication and Firestore off the critical rendering path. Two
-  // frames let the article heading paint before Firebase is downloaded and
-  // evaluated on slower mobile connections.
   await new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
+
   let store = null;
   try {
     store = await createStore(settings, context);
   } catch {
-    view.setUnavailable();
+    comments.setUnavailable();
   }
+
   if (store) {
     let annotations = [];
-    let activeId = null;
-    let activeParagraph = null;
-    let visibleAnnotationIds = null;
     const repliesByAnnotation = new Map();
     const loadingReplies = new Map();
-    let replyHydrationRun = 0;
-    let replyRenderFrame = 0;
-    let replyWarmupScheduled = false;
-    const linkedCommentId = new URLSearchParams(window.location.search).get("comment");
+    let hydrationRun = 0;
+    let renderFrame = 0;
+    let pendingSelectedId = new URLSearchParams(window.location.search).get("comment") || "";
     let linkedCommentOpened = false;
 
-    const panel = new AnnotationPanel({
-      language,
-      mount: annotationRail,
-      fallbackFocus: view.guide,
-      onClose() {
-        activeId = null;
-        activeParagraph = null;
-        visibleAnnotationIds = null;
-        view.clearActiveParagraph();
-        renderAnnotations();
-      },
-      onSignIn: () => store.signIn(),
-      onSignOut: () => store.signOut(),
-    });
-
-    function anchoredItems() {
-      return annotations.map((annotation) => {
-        const range = rangeForAnchor(prose, annotation);
-        return { annotation, range };
-      });
-    }
-
-    function renderAnnotations() {
-      const items = anchoredItems();
-      view.renderMarkers(
-        items,
-        (annotation, paragraph) => toggleParagraphComments(annotation, paragraph),
-        panel.isOpen() ? activeId : "",
-      );
-      view.updateCount(annotations.length);
-      panel.updateComments(threadData());
-    }
-
-    function visibleAnnotations() {
-      if (visibleAnnotationIds === null) return annotations;
-      return annotations.filter(({ id }) => visibleAnnotationIds.has(id));
-    }
-
     function threadData() {
-      return [...visibleAnnotations()]
-        .sort((a, b) => (a.start - b.start) || (a.createdAt - b.createdAt))
+      return [...annotations]
+        .sort((a, b) => (a.createdAt - b.createdAt))
         .map((annotation) => ({
           annotation,
           replies: repliesByAnnotation.get(annotation.id) || [],
         }));
     }
 
-    function schedulePanelUpdate() {
-      if (replyRenderFrame) return;
-      replyRenderFrame = window.requestAnimationFrame(() => {
-        replyRenderFrame = 0;
-        if (panel.isOpen()) panel.updateComments(threadData());
+    function updateComments() {
+      comments.updateComments(threadData(), callbacks);
+      if (pendingSelectedId && annotations.some(({ id }) => id === pendingSelectedId)) {
+        const selectedId = pendingSelectedId;
+        pendingSelectedId = "";
+        comments.reveal(selectedId, { scroll: !linkedCommentOpened });
+        linkedCommentOpened = true;
+      }
+    }
+
+    function scheduleUpdate() {
+      if (renderFrame) return;
+      renderFrame = window.requestAnimationFrame(() => {
+        renderFrame = 0;
+        updateComments();
       });
     }
 
@@ -158,7 +113,7 @@ if (root && prose && configNode) {
         .then((replies) => {
           repliesByAnnotation.set(annotationId, replies);
           loadingReplies.delete(annotationId);
-          schedulePanelUpdate();
+          scheduleUpdate();
           return replies;
         })
         .catch((error) => {
@@ -169,41 +124,31 @@ if (root && prose && configNode) {
       return request;
     }
 
-    async function hydrateReplies({ background = false } = {}) {
-      const run = ++replyHydrationRun;
-      const ids = visibleAnnotations()
+    async function hydrateReplies() {
+      const run = ++hydrationRun;
+      const ids = annotations
         .map(({ id }) => id)
         .filter((id) => !repliesByAnnotation.has(id));
       let cursor = 0;
       const worker = async () => {
-        while (run === replyHydrationRun && (background || panel.isOpen()) && cursor < ids.length) {
+        while (run === hydrationRun && cursor < ids.length) {
           const id = ids[cursor];
           cursor += 1;
           try {
             await loadReplies(id);
           } catch {
-            panel.showError();
+            comments.showError();
           }
         }
       };
       await Promise.all(Array.from({ length: Math.min(4, ids.length) }, worker));
     }
 
-    function scheduleReplyWarmup() {
-      if (replyWarmupScheduled || !annotations.length || annotations.length > 8) return;
-      replyWarmupScheduled = true;
-      const warm = () => {
-        replyWarmupScheduled = false;
-        hydrateReplies({ background: true }).catch(() => {});
-      };
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(warm, { timeout: 1500 });
-      } else {
-        window.setTimeout(warm, 250);
-      }
-    }
-
     const callbacks = {
+      async onSubmitComment(body) {
+        pendingSelectedId = await store.addComment(body);
+        return pendingSelectedId;
+      },
       async onReply(annotation, body) {
         await store.addReply(annotation.id, body);
         await loadReplies(annotation.id, { refresh: true });
@@ -222,109 +167,23 @@ if (root && prose && configNode) {
           await loadReplies(annotation.id, { refresh: true });
         }
       },
-      async onSubmitDraft(body, draft) {
-        const annotationId = await store.addAnnotation(draft.anchor, body);
-        visibleAnnotationIds?.add(annotationId);
-        activeId = annotationId;
-        renderAnnotations();
-        return annotationId;
-      },
-      onCancelDraft() {
-        panel.close();
-      },
-      onSelect(annotation) {
-        activeId = annotation.id;
-        panel.select(activeId);
-        renderAnnotations();
-      },
+      onSignIn: () => store.signIn(),
+      onSignOut: () => store.signOut(),
     };
 
-    function openComments(selectedId = "") {
-      activeParagraph = null;
-      visibleAnnotationIds = null;
-      view.clearActiveParagraph();
-      activeId = selectedId;
-      panel.openComments(threadData(), callbacks, { selectedId });
-      renderAnnotations();
-      panel.select(selectedId);
-      hydrateReplies();
-    }
-
-    function toggleParagraphComments(annotation, paragraph) {
-      if (panel.isOpen() && activeParagraph === paragraph) {
-        panel.close();
-        return;
-      }
-      activeParagraph = paragraph;
-      visibleAnnotationIds = new Set(
-        view.annotationsForParagraph(paragraph).map(({ id }) => id),
-      );
-      view.clearActiveParagraph();
-      activeId = annotation.id;
-      panel.openComments(threadData(), callbacks, {
-        selectedId: activeId,
-        anchorElement: paragraph,
-      });
-      renderAnnotations();
-      panel.select(activeId);
-      hydrateReplies();
-    }
-
-    function toggleComments() {
-      if (panel.isOpen()) {
-        panel.close();
-        return;
-      }
-      openComments();
-    }
-
-    function openDraft(anchor, paragraph) {
-      activeParagraph = paragraph;
-      visibleAnnotationIds = new Set();
-      activeId = "";
-      panel.openComments(threadData(), callbacks, {
-        draft: { anchor },
-        anchorElement: paragraph,
-      });
-      renderAnnotations();
-      view.setDraftParagraph(paragraph);
-      hydrateReplies();
-    }
-
-    view.onGuide = toggleComments;
-    if (pendingGuideOpen) toggleComments();
-    view.paragraphClick = (paragraph) => {
-      if (panel.isOpen() && activeParagraph === paragraph) {
-        panel.close();
-        return;
-      }
-      const anchor = captureParagraph(prose, paragraph);
-      if (anchor) openDraft(anchor, paragraph);
-    };
-
-    store.onAuthStateChange((user) => panel.setUser(user));
+    comments.updateComments([], callbacks);
+    store.onAuthStateChange((user) => comments.setUser(user));
     store.subscribeAnnotations(
       (items) => {
         annotations = items;
-        renderAnnotations();
-        scheduleReplyWarmup();
-        if (!linkedCommentOpened && linkedCommentId) {
-          const linked = annotations.find(({ id }) => id === linkedCommentId);
-          if (linked) {
-            linkedCommentOpened = true;
-            const linkedItem = anchoredItems()
-              .find(({ annotation }) => annotation.id === linked.id);
-            const paragraph = linkedItem?.range
-              ? view.paragraphForRange(linkedItem.range)
-              : null;
-            if (paragraph) toggleParagraphComments(linked, paragraph);
-            else openComments(linked.id);
-          }
-        }
+        const visibleIds = new Set(items.map(({ id }) => id));
+        [...repliesByAnnotation.keys()].forEach((id) => {
+          if (!visibleIds.has(id)) repliesByAnnotation.delete(id);
+        });
+        updateComments();
+        hydrateReplies().catch(() => comments.showError());
       },
-      () => {
-        view.setUnavailable();
-      },
+      () => comments.setUnavailable(),
     );
   }
 }

@@ -13,15 +13,15 @@ layout: default
     {% endif %}
     <div class="header-zone header-zone--left">
       {% if site.annotations.enabled %}
-        <button
+        <a
           class="quiet-link annotation-index-trigger"
-          type="button"
-          data-annotation-index
+          href="#comments"
+          data-comment-index
           hidden
         >
           <span>{% if page.lang == 'ko' %}댓글{% else %}Comments{% endif %}</span>
-          <span class="annotation-index-trigger__count" data-annotation-count aria-hidden="true"></span>
-        </button>
+          <span class="annotation-index-trigger__count" data-comment-count aria-hidden="true"></span>
+        </a>
       {% endif %}
     </div>
     <nav class="header-zone header-zone--center header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
@@ -55,11 +55,16 @@ layout: default
         {{ content | replace: ' role="doc-endnote"', '' }}
       </div>
 
-      <footer class="note-page__footer">
-        <a href="{{ notes_url | relative_url }}">{% if page.lang == 'ko' %}모든 글{% else %}All notes{% endif %}</a>
-      </footer>
+      {% if site.annotations.enabled %}
+        <section
+          id="comments"
+          class="comments-section"
+          data-comment-section
+          aria-label="{% if page.lang == 'ko' %}댓글{% else %}Comments{% endif %}"
+          hidden
+        ></section>
+      {% endif %}
     </article>
-    <div class="annotation-rail" data-annotation-rail></div>
   </div>
 </main>
 

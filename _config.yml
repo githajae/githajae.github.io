@@ -6,7 +6,7 @@ lang: en
 timezone: Asia/Seoul
 encoding: utf-8
 
-# Inline comments stay completely dormant until a Firebase web app is connected.
+# Notes comments stay completely dormant until a Firebase web app is connected.
 # See docs/annotations.md for setup and security-rule deployment.
 annotations:
   enabled: true

@@ -19,10 +19,33 @@ service cloud.firestore {
       return value is string && value.size() > 0 && value.size() <= maximum;
     }
 
+    function validCommentScope() {
+      let scope = request.resource.data.get('scope', 'paragraph');
+      return (
+          scope == 'article'
+          && request.resource.data.quote == ''
+          && request.resource.data.prefix == ''
+          && request.resource.data.suffix == ''
+          && request.resource.data.start == 0
+          && request.resource.data.end == 0
+        ) || (
+          scope == 'paragraph'
+          && validText(request.resource.data.quote, 500)
+          && request.resource.data.prefix is string
+          && request.resource.data.prefix.size() <= 128
+          && request.resource.data.suffix is string
+          && request.resource.data.suffix.size() <= 128
+          && request.resource.data.start is int
+          && request.resource.data.start >= 0
+          && request.resource.data.end is int
+          && request.resource.data.end > request.resource.data.start
+        );
+    }
+
     function validAnnotation(articleId) {
       return request.resource.data.keys().hasOnly([
           'articleId', 'revision', 'language',
-          'quote', 'prefix', 'suffix', 'start', 'end',
+          'scope', 'quote', 'prefix', 'suffix', 'start', 'end',
           'body', 'authorId', 'authorName',
           'createdAt', 'updatedAt', 'resolved', 'hidden',
           'editCount', 'lastEditId'
@@ -30,15 +53,7 @@ service cloud.firestore {
         && request.resource.data.articleId == articleId
         && validText(request.resource.data.revision, 80)
         && request.resource.data.language in ['en', 'ko']
-        && validText(request.resource.data.quote, 500)
-        && request.resource.data.prefix is string
-        && request.resource.data.prefix.size() <= 128
-        && request.resource.data.suffix is string
-        && request.resource.data.suffix.size() <= 128
-        && request.resource.data.start is int
-        && request.resource.data.start >= 0
-        && request.resource.data.end is int
-        && request.resource.data.end > request.resource.data.start
+        && validCommentScope()
         && validText(request.resource.data.body, 2000)
         && request.resource.data.authorId == request.auth.uid
         && validText(request.resource.data.authorName, 80)

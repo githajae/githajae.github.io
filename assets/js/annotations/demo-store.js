@@ -62,6 +62,34 @@ export function createDemoStore({ articleId, revision, language, ownerEmails }) 
       notifyAuth();
     },
 
+    async addComment(body) {
+      if (!currentUser) throw new Error("Authentication required");
+      const annotation = {
+        id: `preview-${Date.now()}`,
+        articleId,
+        revision,
+        language,
+        scope: "article",
+        quote: "",
+        prefix: "",
+        suffix: "",
+        start: 0,
+        end: 0,
+        body: body.trim(),
+        authorId: currentUser.uid,
+        authorName: currentUser.displayName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        resolved: false,
+        hidden: false,
+        editCount: 0,
+        lastEditId: "",
+      };
+      annotations = [...annotations, annotation];
+      notifyAnnotations();
+      return annotation.id;
+    },
+
     async addAnnotation(anchor, body) {
       if (!currentUser) throw new Error("Authentication required");
       const annotation = {
@@ -69,6 +97,7 @@ export function createDemoStore({ articleId, revision, language, ownerEmails }) 
         articleId,
         revision,
         language,
+        scope: "paragraph",
         ...anchor,
         body: body.trim(),
         authorId: currentUser.uid,
