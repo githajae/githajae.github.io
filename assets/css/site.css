@@ -531,21 +531,21 @@ body.note {
 
 .note-workspace__inner {
   display: grid;
-  grid-template-columns: minmax(0, 48rem);
+  grid-template-columns: minmax(0, 52rem);
   align-items: start;
-  width: min(100%, 48rem);
+  width: min(100%, 52rem);
   margin-inline: auto;
 }
 
 .annotation-panel-open .note-workspace__inner {
-  grid-template-columns: minmax(0, 48rem) minmax(18rem, 20rem);
+  grid-template-columns: minmax(0, 52rem) minmax(18rem, 20rem);
   gap: 1.5rem;
-  width: min(100%, 69.5rem);
+  width: min(100%, 73.5rem);
 }
 
 .note-page {
   min-width: 0;
-  padding: 0 3rem clamp(4rem, 8vw, 6rem);
+  padding: 0 4rem clamp(3rem, 5vw, 4rem);
 }
 
 .note-document {
@@ -691,8 +691,8 @@ body.note {
 }
 
 .prose .sources-title {
-  margin: 4rem 0 1rem;
-  padding-top: 1.5rem;
+  margin: 3rem 0 0.75rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--rule);
   font-size: 1rem;
   line-height: 1.4;
@@ -714,8 +714,8 @@ body.note {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: clamp(3rem, 6vw, 4rem);
-  padding-top: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--rule);
   font-size: 0.9375rem;
 }
@@ -882,6 +882,7 @@ body.note {
   position: sticky;
   z-index: 21;
   top: 4.5rem;
+  margin-top: var(--annotation-panel-offset, 0);
   width: 100%;
   max-height: calc(100dvh - 5rem);
   padding: 1rem;
@@ -1151,7 +1152,7 @@ html[lang="ko"] .prose {
   }
 }
 
-@media (max-width: 72rem) and (min-width: 52.001rem) {
+@media (max-width: 76rem) and (min-width: 52.001rem) {
   .annotation-panel-open .note-workspace__inner {
     grid-template-columns: minmax(0, 1fr) 18rem;
     gap: 1rem;
@@ -1320,6 +1321,7 @@ html[lang="ko"] .prose {
     right: auto;
     bottom: 0;
     left: 50%;
+    margin-top: 0;
     width: min(42rem, 100%);
     max-height: min(72dvh, 42rem);
     padding: 1rem max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom));

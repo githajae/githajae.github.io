@@ -101,7 +101,10 @@ if (root && prose && configNode) {
         const range = items.find(({ annotation }) => annotation.id === activeId)?.range;
         activeHighlight?.clear();
         if (range) activeHighlight?.add(range);
-        if (active) panel.updateThread(active, activeReplies);
+        if (active) {
+          panel.updateThread(active, activeReplies);
+          panel.alignTo(range, root);
+        }
       }
     }
 
@@ -119,14 +122,16 @@ if (root && prose && configNode) {
       activeId = annotation.id;
       activeReplies = [];
       unsubscribeReplies?.();
+      const range = rangeForAnchor(prose, annotation);
       panel.openThread(annotation, activeReplies, {
         onReply: (body) => store.addReply(annotation.id, body),
         onResolve: (resolved) => store.setResolved(annotation.id, resolved),
         onBack: openOverview,
+        anchorRange: range,
+        anchorRoot: root,
       });
       requestAnimationFrame(() => view.positionMarkers());
 
-      const range = rangeForAnchor(prose, annotation);
       activeHighlight?.clear();
       if (range) activeHighlight?.add(range);
 
@@ -141,24 +146,26 @@ if (root && prose && configNode) {
       );
     }
 
-    function openDraft(anchor) {
+    function openDraft(anchor, anchorRange) {
       window.getSelection()?.removeAllRanges();
       view.hideSelection();
       panel.openDraft(anchor, async (body) => {
         await store.addAnnotation(anchor, body);
         panel.close();
-      });
+      }, { anchorRange, anchorRoot: root });
       requestAnimationFrame(() => view.positionMarkers());
     }
 
     function inspectSelection() {
+      const selection = window.getSelection();
+      const anchorRange = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
       const anchor = captureSelection(prose);
       const rect = anchor ? selectionRect() : null;
       if (!anchor || !rect) {
         view.hideSelection();
         return;
       }
-      view.showSelection(rect, () => openDraft(anchor));
+      view.showSelection(rect, () => openDraft(anchor, anchorRange));
     }
 
     let selectionTimer;

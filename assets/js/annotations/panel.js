@@ -71,6 +71,8 @@ export class AnnotationPanel {
     this.onSignOut = onSignOut;
     this.fallbackFocus = fallbackFocus;
     this.previousFocus = null;
+    this.anchorRange = null;
+    this.anchorRoot = null;
     this.compactMedia = window.matchMedia("(max-width: 52rem)");
 
     this.backdrop = element("button", "annotation-backdrop");
@@ -111,6 +113,13 @@ export class AnnotationPanel {
 
     this.compactMedia.addEventListener("change", () => {
       this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
+      this.positionAlongside();
+    });
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => this.positionAlongside(), 100);
     });
 
     document.addEventListener("keydown", (event) => {
@@ -120,11 +129,16 @@ export class AnnotationPanel {
 
   setUser(user) {
     this.user = user;
-    if (this.state) this.render({ focusInput: Boolean(user), preserveInput: false });
+    if (this.state) {
+      this.render({
+        focusInput: Boolean(user) && this.state.type === "draft",
+        preserveInput: false,
+      });
+    }
   }
 
-  openDraft(anchor, onSubmit) {
-    this.open({ type: "draft", anchor, onSubmit });
+  openDraft(anchor, onSubmit, { anchorRange, anchorRoot } = {}) {
+    this.open({ type: "draft", anchor, onSubmit, anchorRange, anchorRoot });
   }
 
   openOverview(annotations, onOpen) {
@@ -137,8 +151,23 @@ export class AnnotationPanel {
     this.render();
   }
 
-  openThread(annotation, replies, { onReply, onResolve, onBack }) {
-    this.open({ type: "thread", annotation, replies, onReply, onResolve, onBack });
+  openThread(annotation, replies, {
+    onReply,
+    onResolve,
+    onBack,
+    anchorRange,
+    anchorRoot,
+  }) {
+    this.open({
+      type: "thread",
+      annotation,
+      replies,
+      onReply,
+      onResolve,
+      onBack,
+      anchorRange,
+      anchorRoot,
+    });
   }
 
   updateThread(annotation, replies) {
@@ -156,26 +185,78 @@ export class AnnotationPanel {
     this.panel.hidden = true;
     this.backdrop.hidden = true;
     document.body.classList.remove("annotation-panel-open");
+    this.clearAlignment();
     this.state = null;
     this.status.textContent = "";
     this.onClose?.();
     const returnTarget = this.previousFocus?.isConnected && !this.previousFocus.hidden
       ? this.previousFocus
       : this.fallbackFocus;
-    returnTarget?.focus?.();
+    returnTarget?.focus?.({ preventScroll: true });
   }
 
   open(state) {
     if (this.panel.hidden) this.previousFocus = document.activeElement;
     this.state = state;
+    this.anchorRange = state.anchorRange || null;
+    this.anchorRoot = state.anchorRoot || null;
+    this.panel.style.removeProperty("--annotation-panel-offset");
     this.panel.hidden = false;
     this.backdrop.hidden = false;
+    this.panel.scrollTop = 0;
     this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
     document.body.classList.add("annotation-panel-open");
     this.render({ preserveInput: false });
-    requestAnimationFrame(() => (
-      this.panel.querySelector("[data-autofocus]") || this.closeButton
-    ).focus());
+    requestAnimationFrame(() => {
+      this.positionAlongside();
+      const target = this.panel.querySelector("[data-autofocus]");
+      if (target) {
+        target.focus({ preventScroll: true });
+      } else if (this.compactMedia.matches) {
+        this.closeButton.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  alignTo(anchorRange, anchorRoot) {
+    this.anchorRange = anchorRange || null;
+    this.anchorRoot = anchorRoot || null;
+    requestAnimationFrame(() => this.positionAlongside());
+  }
+
+  clearAlignment() {
+    this.anchorRange = null;
+    this.anchorRoot = null;
+    this.panel.style.removeProperty("--annotation-panel-offset");
+  }
+
+  positionAlongside() {
+    this.panel.style.removeProperty("--annotation-panel-offset");
+    if (
+      this.panel.hidden
+      || this.compactMedia.matches
+      || !this.anchorRange
+      || !this.anchorRoot
+    ) return;
+
+    const anchorRect = this.anchorRange.getBoundingClientRect();
+    const rootRect = this.anchorRoot.getBoundingClientRect();
+    if (!Number.isFinite(anchorRect.top) || !Number.isFinite(rootRect.top)) return;
+
+    const stickyTop = 72;
+    const viewportGutter = 16;
+    const panelHeight = Math.min(
+      this.panel.scrollHeight,
+      Math.max(1, window.innerHeight - stickyTop - viewportGutter),
+    );
+    const latestTop = Math.max(
+      stickyTop,
+      window.innerHeight - panelHeight - viewportGutter,
+    );
+    const preferredTop = anchorRect.top - 16;
+    const viewportTop = Math.min(Math.max(preferredTop, stickyTop), latestTop);
+    const offset = Math.max(0, viewportTop - rootRect.top);
+    this.panel.style.setProperty("--annotation-panel-offset", `${offset}px`);
   }
 
   render({ focusInput = false, preserveInput = true } = {}) {
@@ -211,7 +292,12 @@ export class AnnotationPanel {
 
     if (!isOverview && this.user) {
       if (isDraft) {
-        fragments.push(this.form(this.copy.commentPlaceholder, this.copy.comment, this.state.onSubmit));
+        fragments.push(this.form(
+          this.copy.commentPlaceholder,
+          this.copy.comment,
+          this.state.onSubmit,
+          { autofocus: true },
+        ));
       } else if (!annotation.resolved) {
         fragments.push(this.form(this.copy.replyPlaceholder, this.copy.reply, this.state.onReply));
       }
@@ -223,7 +309,9 @@ export class AnnotationPanel {
     this.content.replaceChildren(...fragments);
     const nextInput = this.content.querySelector(".annotation-form__input");
     if (nextInput && previousValue) nextInput.value = previousValue;
-    if (nextInput && (focusInput || inputHadFocus)) requestAnimationFrame(() => nextInput.focus());
+    if (nextInput && (focusInput || inputHadFocus)) {
+      requestAnimationFrame(() => nextInput.focus({ preventScroll: true }));
+    }
   }
 
   overview(annotations, onOpen) {
@@ -261,7 +349,7 @@ export class AnnotationPanel {
     return article;
   }
 
-  form(placeholder, submitLabel, submit) {
+  form(placeholder, submitLabel, submit, { autofocus = false } = {}) {
     const form = element("form", "annotation-form");
     const label = element("label", "visually-hidden", placeholder);
     const textarea = element("textarea", "annotation-form__input");
@@ -273,7 +361,7 @@ export class AnnotationPanel {
     textarea.maxLength = 2000;
     textarea.required = true;
     textarea.rows = 3;
-    textarea.dataset.autofocus = "";
+    if (autofocus) textarea.dataset.autofocus = "";
     const button = element("button", "annotation-form__submit", submitLabel);
     button.type = "submit";
 
