@@ -143,8 +143,8 @@ a:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.55);
-  transform-origin: 50% 34%;
+  transform: scale(1.4);
+  transform-origin: 50% 24%;
 }
 
 .cv-hero h1,
