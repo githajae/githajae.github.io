@@ -915,8 +915,7 @@ body.note {
 
 .comments-section {
   margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(2.5rem, 5vw, 4rem);
-  border-top: 1px solid var(--rule);
+  padding-top: 0;
   scroll-margin-top: 4.5rem;
 }
 
