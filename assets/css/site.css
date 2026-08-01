@@ -925,10 +925,10 @@ body.note {
 }
 
 .annotation-paragraph-action::after {
-  width: 0.125rem;
-  height: 1.5rem;
+  width: 0.1875rem;
+  height: 2.25rem;
   border-radius: 999px;
-  background: rgb(134 134 139 / 30%);
+  background: rgb(134 134 139 / 44%);
   content: "";
   transition: background-color 160ms ease, transform 160ms ease;
 }
@@ -940,11 +940,11 @@ body.note {
 }
 
 .annotation-commentable.has-annotation > .annotation-paragraph-action::after {
-  background: rgb(134 134 139 / 48%);
+  background: rgb(110 110 115 / 68%);
 }
 
 .annotation-panel-open .annotation-commentable.has-annotation > .annotation-paragraph-action::after {
-  background: rgb(134 134 139 / 72%);
+  background: rgb(110 110 115 / 84%);
 }
 
 .annotation-commentable.is-active > .annotation-paragraph-action::after,
@@ -1538,7 +1538,7 @@ html[lang="ko"] .place-page__content {
   }
 
   .annotation-paragraph-action {
-    right: calc(-2rem + 2px);
+    right: calc(-1.5rem + 2px);
   }
 
   .annotation-panel-open .annotation-paragraph-action {
