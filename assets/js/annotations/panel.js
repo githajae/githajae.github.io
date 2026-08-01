@@ -71,6 +71,7 @@ export class AnnotationPanel {
     this.onSignOut = onSignOut;
     this.fallbackFocus = fallbackFocus;
     this.previousFocus = null;
+    this.compactMedia = window.matchMedia("(max-width: 52rem)");
 
     this.backdrop = element("button", "annotation-backdrop");
     this.backdrop.type = "button";
@@ -107,6 +108,10 @@ export class AnnotationPanel {
     this.panel.append(header, this.quote, this.content, this.status);
     document.body.append(this.backdrop);
     (mount || document.body).append(this.panel);
+
+    this.compactMedia.addEventListener("change", () => {
+      this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
+    });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !this.panel.hidden) this.close();
@@ -165,7 +170,7 @@ export class AnnotationPanel {
     this.state = state;
     this.panel.hidden = false;
     this.backdrop.hidden = false;
-    this.panel.setAttribute("aria-modal", String(window.matchMedia("(max-width: 52rem)").matches));
+    this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
     document.body.classList.add("annotation-panel-open");
     this.render({ preserveInput: false });
     requestAnimationFrame(() => (

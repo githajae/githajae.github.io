@@ -792,6 +792,12 @@ body.note {
   display: none;
 }
 
+.annotation-index-trigger:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
 .annotation-guide:hover,
 .annotation-guide:focus-visible,
 .annotation-index-trigger:hover,
@@ -803,6 +809,13 @@ body.note {
 .annotation-panel__close:hover,
 .annotation-panel__close:focus-visible {
   color: var(--ink);
+}
+
+.annotation-panel__back:focus-visible,
+.annotation-panel__close:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid var(--ink);
+  outline-offset: -5px;
 }
 
 .annotation-selection-button,
@@ -954,9 +967,13 @@ body.note {
   cursor: pointer;
 }
 
-.annotation-overview__item:hover,
-.annotation-overview__item:focus-visible {
+.annotation-overview__item:hover {
   border-color: rgb(17 17 17 / 28%);
+}
+
+.annotation-overview__item:focus-visible {
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px rgb(0 102 204 / 18%);
   outline: none;
 }
 
