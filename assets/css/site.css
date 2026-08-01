@@ -1545,7 +1545,7 @@ html[lang="ko"] .place-page__content {
   }
 
   .annotation-paragraph-action {
-    right: calc(-1.5rem + 2px);
+    right: calc(-1rem + 1px);
   }
 
   .annotation-panel-open .annotation-paragraph-action {
