@@ -47,7 +47,7 @@ layout: default
       </header>
 
       <div class="prose">
-        {{ content }}
+        {{ content | replace: ' role="doc-endnote"', '' }}
       </div>
 
       <footer class="note-page__footer">

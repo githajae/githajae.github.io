@@ -694,6 +694,13 @@ body.note {
   text-decoration: none;
 }
 
+.reversefootnote {
+  display: inline-grid;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  place-items: center;
+}
+
 .footnote:hover,
 .reversefootnote:hover {
   color: var(--link);
@@ -728,7 +735,7 @@ body.note {
 }
 
 .footnotes li .reversefootnote + .reversefootnote {
-  margin-left: 0.25rem;
+  margin-left: 0.125rem;
   font-size: 0;
 }
 

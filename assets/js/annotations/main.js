@@ -51,6 +51,12 @@ if (root && prose && configNode) {
     ownerEmails: (settings.ownerEmails || []).map((email) => email.toLowerCase()),
   };
 
+  // Keep authentication and Firestore off the critical rendering path. Two
+  // frames let the article heading paint before Firebase is downloaded and
+  // evaluated on slower mobile connections.
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
   const store = await createStore(settings, context);
   if (store) {
     const view = new AnnotationView({
