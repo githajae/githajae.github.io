@@ -68,6 +68,7 @@ export class AnnotationPanel {
     this.onSignIn = onSignIn;
     this.onSignOut = onSignOut;
     this.fallbackFocus = fallbackFocus;
+    this.mount = mount || document.body;
     this.previousFocus = null;
     this.compactMedia = window.matchMedia("(max-width: 52rem)");
 
@@ -86,6 +87,7 @@ export class AnnotationPanel {
     this.panel.setAttribute("aria-labelledby", "annotation-panel-title");
 
     const header = element("header", "annotation-panel__header");
+    this.header = header;
     this.title = element("h2", "annotation-panel__title", this.copy.comments);
     this.title.id = "annotation-panel-title";
     header.append(this.title);
@@ -95,10 +97,14 @@ export class AnnotationPanel {
     this.status.setAttribute("aria-live", "polite");
     this.panel.append(header, this.content, this.status);
     document.body.append(this.backdrop);
-    (mount || document.body).append(this.panel);
+    this.mount.append(this.panel);
 
     this.compactMedia.addEventListener("change", () => {
       this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
+      this.alignTo(this.state?.anchorElement);
+    });
+    window.addEventListener("resize", () => this.alignTo(this.state?.anchorElement), {
+      passive: true,
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !this.panel.hidden) this.close();
@@ -110,8 +116,12 @@ export class AnnotationPanel {
     if (this.state) this.render();
   }
 
-  openComments(threads, callbacks, { selectedId = "", draft = null } = {}) {
-    this.open({ threads, callbacks, selectedId, draft });
+  openComments(threads, callbacks, {
+    selectedId = "",
+    draft = null,
+    anchorElement = null,
+  } = {}) {
+    this.open({ threads, callbacks, selectedId, draft, anchorElement });
   }
 
   updateComments(threads) {
@@ -146,6 +156,7 @@ export class AnnotationPanel {
     this.backdrop.hidden = true;
     document.body.classList.remove("annotation-panel-open");
     this.state = null;
+    this.panel.style.removeProperty("--annotation-panel-offset");
     this.status.textContent = "";
     this.onClose?.();
     const target = this.previousFocus?.isConnected && !this.previousFocus.hidden
@@ -162,10 +173,23 @@ export class AnnotationPanel {
     this.panel.setAttribute("aria-modal", String(this.compactMedia.matches));
     document.body.classList.add("annotation-panel-open");
     this.render({ preserveInput: false });
+    this.alignTo(state.anchorElement);
     requestAnimationFrame(() => {
       this.focusSelected();
       if (this.compactMedia.matches && !state.draft) this.panel.focus({ preventScroll: true });
     });
+  }
+
+  alignTo(anchorElement) {
+    if (!anchorElement || this.compactMedia.matches) {
+      this.panel.style.removeProperty("--annotation-panel-offset");
+      return;
+    }
+    const anchorTop = anchorElement.getBoundingClientRect().top;
+    const mountTop = this.mount.getBoundingClientRect().top;
+    const headerHeight = this.header.getBoundingClientRect().height;
+    const offset = Math.max(0, anchorTop - mountTop - headerHeight);
+    this.panel.style.setProperty("--annotation-panel-offset", `${Math.round(offset)}px`);
   }
 
   focusSelected() {

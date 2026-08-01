@@ -253,7 +253,10 @@ if (root && prose && configNode) {
       );
       view.clearActiveParagraph();
       activeId = annotation.id;
-      panel.openComments(threadData(), callbacks, { selectedId: activeId });
+      panel.openComments(threadData(), callbacks, {
+        selectedId: activeId,
+        anchorElement: paragraph,
+      });
       renderAnnotations();
       panel.select(activeId);
       hydrateReplies();
@@ -273,6 +276,7 @@ if (root && prose && configNode) {
       activeId = "";
       panel.openComments(threadData(), callbacks, {
         draft: { anchor },
+        anchorElement: paragraph,
       });
       renderAnnotations();
       view.setDraftParagraph(paragraph);
