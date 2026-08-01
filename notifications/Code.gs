@@ -38,21 +38,28 @@ function doPost(event) {
       const recipient = Session.getEffectiveUser().getEmail();
       if (!recipient) throw new Error("Notification recipient is unavailable");
 
-      const notePath = language === "ko" ? `/ko/notes/${articleSlug(articleId)}/` : `/notes/${articleSlug(articleId)}/`;
-      const link = `${CONFIG.siteUrl}${notePath}?comment=${encodeURIComponent(annotationId)}`;
+      const article = articleRoute(articleId, language);
+      const link = `${CONFIG.siteUrl}${article.path}?comment=${encodeURIComponent(annotationId)}`;
       const kind = replyId ? "reply" : "comment";
-      const subject = `New ${kind} on Notes — ${author}`;
+      const kindLabel = language === "ko" ? (replyId ? "답글" : "댓글") : kind;
+      const subject = language === "ko"
+        ? `${article.label} 새 ${kindLabel} — ${author}`
+        : `New ${kind} on ${article.label} — ${author}`;
+      const introduction = language === "ko"
+        ? `${author}님이 ${kindLabel}을 남겼습니다.`
+        : `${author} left a ${kind}.`;
+      const linkLabel = language === "ko" ? `${kindLabel} 열기` : `Open ${kind}`;
       const plain = [
-        `${author} left a ${kind}.`,
+        introduction,
         quote ? `\n“${quote}”` : "",
         `\n${body}`,
         `\n${link}`,
       ].join("");
       const html = [
-        `<p><strong>${escapeHtml(author)}</strong> left a ${kind}.</p>`,
+        `<p>${escapeHtml(introduction).replace(escapeHtml(author), `<strong>${escapeHtml(author)}</strong>`)}</p>`,
         quote ? `<blockquote style="margin:16px 0;padding-left:12px;border-left:2px solid #d2d2d7;color:#6e6e73">${escapeHtml(quote)}</blockquote>` : "",
         `<p style="white-space:pre-wrap">${escapeHtml(body)}</p>`,
-        `<p><a href="${escapeHtml(link)}">Open comment</a></p>`,
+        `<p><a href="${escapeHtml(link)}">${escapeHtml(linkLabel)}</a></p>`,
       ].join("");
 
       MailApp.sendEmail({
@@ -60,7 +67,7 @@ function doPost(event) {
         subject,
         body: plain,
         htmlBody: html,
-        name: "Jaehyun Ha — Notes",
+        name: `Jaehyun Ha — ${article.label}`,
       });
       properties.setProperty(notificationKey, new Date().toISOString());
       return json({ ok: true });
@@ -102,6 +109,18 @@ function booleanField(document, name) {
 
 function articleSlug(articleId) {
   return articleId.replace(/-(en|ko)$/, "");
+}
+
+function articleRoute(articleId, language) {
+  const slug = articleSlug(articleId);
+  const isPlace = slug.indexOf("place-") === 0;
+  const section = isPlace ? "places" : "notes";
+  const entrySlug = isPlace ? slug.slice("place-".length) : slug;
+  const languagePrefix = language === "ko" ? "/ko" : "";
+  return {
+    path: `${languagePrefix}/${section}/${entrySlug}/`,
+    label: isPlace ? "Places" : "Notes",
+  };
 }
 
 function digestKey(value) {

@@ -7,8 +7,11 @@ lang: ko
 alternate_url: /places/naoshima/
 body_class: place
 location: "일본, 가가와"
+map_query: "Naoshima, Kagawa, Japan"
 date: 2026-07-19
 display_date: "2026. 7. 19."
+annotation_id: "place-naoshima-ko"
+annotation_revision: "2026-07-19"
 description: "일본 가가와 나오시마 방문 기록."
 ---
 

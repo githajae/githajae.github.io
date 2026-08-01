@@ -7,8 +7,11 @@ lang: ko
 alternate_url: /places/sushi-kojima/
 body_class: place
 location: "한국, 서울"
+map_query: "Sushi Kojima, Seoul, South Korea"
 date: 2026-08-01
 display_date: "2026. 8. 1."
+annotation_id: "place-sushi-kojima-ko"
+annotation_revision: "2026-08-01"
 description: "서울 스시 코지마 방문 기록."
 ---
 

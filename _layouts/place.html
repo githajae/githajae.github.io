@@ -5,15 +5,31 @@ layout: default
 {% if page.lang == 'ko' %}
   {% assign places_url = '/ko/places/' %}
   {% assign language_label = 'English' %}
+  {% assign comments_label = '댓글' %}
+  {% assign map_label = '지도' %}
+  {% assign map_aria_label = 'Google 지도에서 보기' %}
 {% else %}
   {% assign places_url = '/places/' %}
   {% assign language_label = '한국어' %}
+  {% assign comments_label = 'Comments' %}
+  {% assign map_label = 'Map' %}
+  {% assign map_aria_label = 'View in Google Maps' %}
 {% endif %}
 
 <header class="site-header">
   <div class="shell shell--note site-header__inner site-header__inner--zoned">
     <div class="header-zone header-zone--left">
-      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}">CV</a>
+      {% if site.annotations.enabled %}
+        <a
+          class="quiet-link annotation-index-trigger"
+          href="#comments"
+          data-comment-index
+          hidden
+        >
+          <span>{{ comments_label }}</span>
+          <span class="annotation-index-trigger__count" data-comment-count aria-hidden="true"></span>
+        </a>
+      {% endif %}
     </div>
     <nav class="header-zone header-zone--center header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
       <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/notes/' | relative_url }}{% else %}{{ '/notes/' | relative_url }}{% endif %}">Notes</a>
@@ -25,13 +41,42 @@ layout: default
   </div>
 </header>
 
-<main id="main-content" class="shell shell--note place-page">
+{% assign annotation_id = page.annotation_id | default: page.url %}
+<main
+  id="main-content"
+  class="shell shell--note place-page"
+  data-annotation-root
+  data-annotation-id="{{ annotation_id | escape }}"
+  data-annotation-revision="{% if page.annotation_revision %}{{ page.annotation_revision | escape }}{% else %}{{ page.date | date: '%Y-%m-%d' }}{% endif %}"
+  data-annotation-language="{{ page.lang | default: 'en' }}"
+>
   <header class="place-page__header">
     <h1>{{ page.heading | default: page.title }}</h1>
     <p class="place-page__meta">
       <span>{{ page.location }}</span>
       <span aria-hidden="true">·</span>
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+      {% if page.end_date %}
+        <span
+          class="place-page__duration"
+          data-start-date="{{ page.date | date: '%Y-%m-%d' }}"
+          data-end-date="{{ page.end_date | date: '%Y-%m-%d' }}"
+        >{{ page.display_date }}</span>
+      {% else %}
+        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+      {% endif %}
+      {% if page.map_url or page.map_query %}
+        <span aria-hidden="true">·</span>
+        <a
+          class="place-page__map-link"
+          href="{% if page.map_url %}{{ page.map_url }}{% else %}https://www.google.com/maps/search/?api=1&amp;query={{ page.map_query | url_encode }}{% endif %}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="{{ page.heading | default: page.title | escape }} — {{ map_aria_label }}"
+        >
+          <span>{{ map_label }}</span>
+          <span class="place-page__map-arrow" aria-hidden="true">↗</span>
+        </a>
+      {% endif %}
     </p>
   </header>
 
@@ -41,11 +86,54 @@ layout: default
     </figure>
   {% endif %}
 
-  <div class="place-page__content">
-    {{ content }}
-  </div>
+  <div class="place-page__body">
+    <div class="place-page__content">
+      {{ content }}
+    </div>
 
-  <footer class="place-page__footer">
-    <a href="{{ places_url | relative_url }}">{% if page.lang == 'ko' %}모든 장소{% else %}All places{% endif %}</a>
-  </footer>
+    {% if page.story %}
+      <div class="place-story">
+        {% for item in page.story %}
+          <figure class="place-story__item">
+            <img
+              class="place-story__image"
+              src="{{ item.image | relative_url }}"
+              alt="{{ item.alt | default: '' | escape }}"
+              width="{{ item.width | default: 1800 }}"
+              height="{{ item.height | default: 1350 }}"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              decoding="async"
+            >
+            {% if item.text %}
+              <figcaption class="place-story__text">{{ item.text | markdownify }}</figcaption>
+            {% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if site.annotations.enabled %}
+      <section
+        id="comments"
+        class="comments-section"
+        data-comment-section
+        aria-label="{{ comments_label }}"
+        hidden
+      ></section>
+    {% endif %}
+  </div>
 </main>
+
+{% if site.annotations.enabled %}
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <script id="annotation-config" type="application/json">
+    {
+      "enabled": true,
+      "ownerEmails": {{ site.annotations.owner_emails | jsonify }},
+      "notificationEndpoint": {{ site.annotations.notification_endpoint | default: '' | jsonify }},
+      "firebase": {{ site.annotations.firebase | jsonify }}
+    }
+  </script>
+  <script type="module" src="{{ '/assets/js/annotations/main.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}"></script>
+{% endif %}

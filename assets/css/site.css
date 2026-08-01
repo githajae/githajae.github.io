@@ -632,12 +632,40 @@ a:focus-visible {
 
 .place-page__meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
   margin: 1.25rem 0 0;
   color: var(--faint);
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+.place-page__map-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  min-height: 2.75rem;
+  margin-block: -0.625rem;
+  color: inherit;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.place-page__map-link:hover,
+.place-page__map-link:focus-visible {
+  color: var(--link);
+}
+
+.place-page__map-arrow {
+  display: inline-block;
+  font-size: 0.75em;
+  transition: transform 160ms ease;
+}
+
+.place-page__map-link:hover .place-page__map-arrow,
+.place-page__map-link:focus-visible .place-page__map-arrow {
+  transform: translate(0.08rem, -0.08rem);
 }
 
 .place-page__media {
@@ -650,9 +678,12 @@ a:focus-visible {
   height: auto;
 }
 
-.place-page__content {
-  max-width: 34rem;
+.place-page__body {
   padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+
+.place-page__content {
+  max-width: 39rem;
   font-size: 1.0625rem;
   line-height: 1.8;
   letter-spacing: -0.012em;
@@ -662,23 +693,42 @@ a:focus-visible {
   margin: 0 0 1.5em;
 }
 
-.place-page__footer {
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--rule);
+.place-page__content > :last-child {
+  margin-bottom: 0;
+}
+
+.place-story {
+  display: grid;
+  gap: clamp(3.5rem, 8vw, 5.5rem);
+  margin-top: clamp(3rem, 7vw, 4.5rem);
+}
+
+.place-story__item {
+  margin: 0;
+}
+
+.place-story__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--workspace);
+}
+
+.place-story__text {
+  max-width: 39rem;
+  margin-top: 0.875rem;
+  color: var(--muted);
   font-size: 0.9375rem;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
 }
 
-.place-page__footer a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  text-decoration: none;
+.place-story__text p {
+  margin: 0;
 }
 
-.place-page__footer a::after {
-  content: "\2192";
-  margin-left: 0.5em;
-  color: var(--faint);
+.place-page__body > .comments-section {
+  max-width: 39rem;
 }
 
 body.note {
