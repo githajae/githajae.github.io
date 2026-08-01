@@ -8,6 +8,6 @@ permalink: /sitemap.xml
   <url><loc>{{ '/ko/' | absolute_url }}</loc></url>
   <url><loc>{{ '/notes/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/notes/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/notes/first/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/ko/notes/first/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/notes/snowflake-moat/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/notes/snowflake-moat/' | absolute_url }}</loc></url>
 </urlset>

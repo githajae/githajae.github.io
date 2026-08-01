@@ -22,6 +22,12 @@ layout: default
   <article>
     <header class="note-page__header">
       <h1>{{ page.heading | default: page.title }}</h1>
+      {% if page.dek %}
+        <p class="note-page__dek">{{ page.dek }}</p>
+      {% endif %}
+      {% if page.display_date %}
+        <time class="note-page__date" datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+      {% endif %}
     </header>
 
     <div class="prose">
@@ -29,7 +35,7 @@ layout: default
     </div>
 
     <footer class="note-page__footer">
-      <a href="{{ notes_url | relative_url }}">Notes</a>
+      <a href="{{ notes_url | relative_url }}">{% if page.lang == 'ko' %}모든 글{% else %}All notes{% endif %}</a>
     </footer>
   </article>
 </main>
