@@ -73,8 +73,13 @@ export class AnnotationView {
 
   activateParagraph(paragraph) {
     const item = this.itemsByParagraph.get(paragraph)?.[0];
-    if (item) this.markerClick?.(item.annotation);
+    if (item) this.markerClick?.(item.annotation, paragraph);
     else this.paragraphClick?.(paragraph);
+  }
+
+  annotationsForParagraph(paragraph) {
+    return (this.itemsByParagraph.get(paragraph) || [])
+      .map(({ annotation }) => annotation);
   }
 
   openFromParagraph(event) {

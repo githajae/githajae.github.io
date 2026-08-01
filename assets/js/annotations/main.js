@@ -75,6 +75,8 @@ if (root && prose && configNode) {
   if (store) {
     let annotations = [];
     let activeId = null;
+    let activeParagraph = null;
+    let visibleAnnotationIds = null;
     const repliesByAnnotation = new Map();
     const loadingReplies = new Map();
     let replyHydrationRun = 0;
@@ -89,6 +91,8 @@ if (root && prose && configNode) {
       fallbackFocus: view.guide,
       onClose() {
         activeId = null;
+        activeParagraph = null;
+        visibleAnnotationIds = null;
         view.clearActiveParagraph();
         renderAnnotations();
       },
@@ -107,15 +111,20 @@ if (root && prose && configNode) {
       const items = anchoredItems();
       view.renderMarkers(
         items,
-        (annotation) => toggleParagraphComments(annotation.id),
+        (annotation, paragraph) => toggleParagraphComments(annotation, paragraph),
         panel.isOpen() ? activeId : "",
       );
       view.updateCount(annotations.length);
       panel.updateComments(threadData());
     }
 
+    function visibleAnnotations() {
+      if (visibleAnnotationIds === null) return annotations;
+      return annotations.filter(({ id }) => visibleAnnotationIds.has(id));
+    }
+
     function threadData() {
-      return [...annotations]
+      return [...visibleAnnotations()]
         .sort((a, b) => (a.start - b.start) || (a.createdAt - b.createdAt))
         .map((annotation) => ({
           annotation,
@@ -153,7 +162,9 @@ if (root && prose && configNode) {
 
     async function hydrateReplies({ background = false } = {}) {
       const run = ++replyHydrationRun;
-      const ids = annotations.map(({ id }) => id).filter((id) => !repliesByAnnotation.has(id));
+      const ids = visibleAnnotations()
+        .map(({ id }) => id)
+        .filter((id) => !repliesByAnnotation.has(id));
       let cursor = 0;
       const worker = async () => {
         while (run === replyHydrationRun && (background || panel.isOpen()) && cursor < ids.length) {
@@ -204,7 +215,9 @@ if (root && prose && configNode) {
       },
       async onSubmitDraft(body, draft) {
         const annotationId = await store.addAnnotation(draft.anchor, body);
+        visibleAnnotationIds?.add(annotationId);
         activeId = annotationId;
+        renderAnnotations();
         return annotationId;
       },
       onCancelDraft() {
@@ -219,6 +232,8 @@ if (root && prose && configNode) {
     };
 
     function openComments(selectedId = "") {
+      activeParagraph = null;
+      visibleAnnotationIds = null;
       view.clearActiveParagraph();
       activeId = selectedId;
       panel.openComments(threadData(), callbacks, { selectedId });
@@ -227,12 +242,21 @@ if (root && prose && configNode) {
       hydrateReplies();
     }
 
-    function toggleParagraphComments(selectedId) {
-      if (panel.isOpen() && activeId === selectedId && !view.draftParagraph) {
+    function toggleParagraphComments(annotation, paragraph) {
+      if (panel.isOpen() && activeParagraph === paragraph) {
         panel.close();
         return;
       }
-      openComments(selectedId);
+      activeParagraph = paragraph;
+      visibleAnnotationIds = new Set(
+        view.annotationsForParagraph(paragraph).map(({ id }) => id),
+      );
+      view.clearActiveParagraph();
+      activeId = annotation.id;
+      panel.openComments(threadData(), callbacks, { selectedId: activeId });
+      renderAnnotations();
+      panel.select(activeId);
+      hydrateReplies();
     }
 
     function toggleComments() {
@@ -244,6 +268,8 @@ if (root && prose && configNode) {
     }
 
     function openDraft(anchor, paragraph) {
+      activeParagraph = paragraph;
+      visibleAnnotationIds = new Set();
       activeId = "";
       panel.openComments(threadData(), callbacks, {
         draft: { anchor },
@@ -256,7 +282,7 @@ if (root && prose && configNode) {
     view.onGuide = toggleComments;
     if (pendingGuideOpen) toggleComments();
     view.paragraphClick = (paragraph) => {
-      if (panel.isOpen() && view.draftParagraph === paragraph) {
+      if (panel.isOpen() && activeParagraph === paragraph) {
         panel.close();
         return;
       }
@@ -274,7 +300,13 @@ if (root && prose && configNode) {
           const linked = annotations.find(({ id }) => id === linkedCommentId);
           if (linked) {
             linkedCommentOpened = true;
-            openComments(linked.id);
+            const linkedItem = anchoredItems()
+              .find(({ annotation }) => annotation.id === linked.id);
+            const paragraph = linkedItem?.range
+              ? view.paragraphForRange(linkedItem.range)
+              : null;
+            if (paragraph) toggleParagraphComments(linked, paragraph);
+            else openComments(linked.id);
           }
         }
       },
