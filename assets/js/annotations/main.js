@@ -114,7 +114,7 @@ if (root && prose && configNode) {
       annotationHighlights?.clear();
       return annotations.map((annotation) => {
         const range = rangeForAnchor(prose, annotation);
-        if (range && !annotation.resolved) annotationHighlights?.add(range);
+        if (range) annotationHighlights?.add(range);
         return { annotation, range };
       });
     }
@@ -129,7 +129,7 @@ if (root && prose && configNode) {
       activeHighlight?.clear();
       if (panel.isOpen()) {
         items.forEach(({ annotation, range }) => {
-          if (range && !annotation.resolved) openHighlights?.add(range);
+          if (range) openHighlights?.add(range);
         });
         const range = items.find(({ annotation }) => annotation.id === activeId)?.range;
         if (range) activeHighlight?.add(range);
@@ -209,9 +209,6 @@ if (root && prose && configNode) {
       async onReply(annotation, body) {
         await store.addReply(annotation.id, body);
         await loadReplies(annotation.id, { refresh: true });
-      },
-      onResolve(annotation, resolved) {
-        return store.setResolved(annotation.id, resolved);
       },
       async onEdit(annotation, item, rootComment, body) {
         if (rootComment) await store.editAnnotation(annotation.id, body);

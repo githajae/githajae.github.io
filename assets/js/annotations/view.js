@@ -86,9 +86,8 @@ export class AnnotationView {
   }
 
   itemAtPoint(x, y) {
-    return this.items.find(({ annotation, range }) => (
-      !annotation.resolved
-      && [...range.getClientRects()].some((rect) => (
+    return this.items.find(({ range }) => (
+      [...range.getClientRects()].some((rect) => (
         x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
       ))
     )) || null;
@@ -139,7 +138,7 @@ export class AnnotationView {
         const top = Math.max(item.top, previousTop + 28);
         previousTop = top;
         const marker = button(
-          `annotation-marker${item.annotation.resolved ? " annotation-marker--resolved" : ""}`,
+          "annotation-marker",
           "",
           this.language === "ko"
             ? `“${item.annotation.quote}”의 댓글 열기`

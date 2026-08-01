@@ -14,9 +14,6 @@ const COPY = {
     cancel: "Cancel",
     delete: "Delete",
     deleteConfirm: "Delete this comment?",
-    resolve: "Resolve",
-    reopen: "Reopen",
-    resolved: "Resolved",
     signedInAs: "Signed in as",
     signOut: "Sign out",
     noComments: "No comments yet. Select text to start one.",
@@ -37,9 +34,6 @@ const COPY = {
     cancel: "취소",
     delete: "삭제",
     deleteConfirm: "이 댓글을 삭제할까요?",
-    resolve: "해결",
-    reopen: "다시 열기",
-    resolved: "해결됨",
     signedInAs: "로그인",
     signOut: "로그아웃",
     noComments: "아직 댓글이 없습니다. 문장을 선택해 시작하세요.",
@@ -259,9 +253,7 @@ export class AnnotationPanel {
     replies.forEach((reply) => replyList.append(this.comment(reply, false, annotation)));
     card.append(replyList);
 
-    if (annotation.resolved) {
-      card.append(element("p", "annotation-resolved", this.copy.resolved));
-    } else if (this.user) {
+    if (this.user) {
       card.append(this.form(
         this.copy.replyPlaceholder,
         this.copy.reply,
@@ -270,18 +262,6 @@ export class AnnotationPanel {
       ));
     }
 
-    if (this.user?.isOwner) {
-      const controls = element("div", "annotation-thread__controls");
-      const resolve = element(
-        "button",
-        "annotation-text-action",
-        annotation.resolved ? this.copy.reopen : this.copy.resolve,
-      );
-      resolve.type = "button";
-      resolve.addEventListener("click", () => this.state.callbacks.onResolve(annotation, !annotation.resolved));
-      controls.append(resolve);
-      card.append(controls);
-    }
     return card;
   }
 

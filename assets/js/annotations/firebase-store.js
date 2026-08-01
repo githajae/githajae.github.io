@@ -179,11 +179,6 @@ export async function createFirebaseStore({
       return result.id;
     },
 
-    async setResolved(annotationId, resolved) {
-      const annotationRef = doc(database, "articles", articleId, "annotations", annotationId);
-      await updateDoc(annotationRef, { resolved, updatedAt: serverTimestamp() });
-    },
-
     async editAnnotation(annotationId, body) {
       const annotationRef = doc(database, "articles", articleId, "annotations", annotationId);
       await editDocument(annotationRef, body);

@@ -103,15 +103,6 @@ export function createDemoStore({ articleId, revision, language, ownerEmails }) 
       return reply.id;
     },
 
-    async setResolved(annotationId, resolved) {
-      annotations = annotations.map((annotation) => (
-        annotation.id === annotationId
-          ? { ...annotation, resolved, updatedAt: new Date() }
-          : annotation
-      ));
-      notifyAnnotations();
-    },
-
     async editAnnotation(annotationId, body) {
       annotations = annotations.map((annotation) => (
         annotation.id === annotationId
