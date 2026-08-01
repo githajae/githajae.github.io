@@ -96,14 +96,6 @@ a:focus-visible {
   justify-content: center;
 }
 
-.wordmark {
-  margin: 0;
-  font-size: inherit;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-}
-
 .quiet-link {
   color: var(--muted);
   text-decoration: none;
@@ -118,8 +110,7 @@ a:focus-visible {
   gap: 1.5rem;
 }
 
-.header-links a,
-.wordmark {
+.header-links a {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;

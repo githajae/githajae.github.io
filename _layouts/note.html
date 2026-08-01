@@ -3,7 +3,7 @@ layout: default
 ---
 
 <header class="site-header">
-  <div class="shell shell--note site-header__inner">
+  <div class="shell shell--note site-header__inner site-header__inner--utility">
     {% if page.lang == 'ko' %}
       {% assign notes_url = '/ko/notes/' %}
       {% assign language_label = 'English' %}
@@ -11,8 +11,8 @@ layout: default
       {% assign notes_url = '/notes/' %}
       {% assign language_label = '한국어' %}
     {% endif %}
-    <a class="wordmark" href="{{ notes_url | relative_url }}">Notes</a>
     <nav class="header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
+      <a class="quiet-link" href="{{ notes_url | relative_url }}">Notes</a>
       <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>
     </nav>
   </div>
