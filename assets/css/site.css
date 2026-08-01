@@ -74,19 +74,26 @@ a:focus-visible {
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   width: 100%;
+  border-bottom: 1px solid rgb(17 17 17 / 8%);
+  background: rgb(255 255 255 / 86%);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 
 .site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 5rem;
-  font-size: 0.875rem;
+  min-height: 3rem;
+  font-size: 0.8125rem;
 }
 
 .site-header__inner--utility {
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .wordmark {
@@ -120,9 +127,8 @@ a:focus-visible {
 
 .cv-hero {
   display: grid;
-  grid-template-columns: minmax(0, 37rem) 11rem;
+  grid-template-columns: minmax(0, 37rem) minmax(0, 1fr);
   align-items: center;
-  justify-content: start;
   gap: 2rem;
   padding-block: clamp(4.5rem, 8vw, 7rem) clamp(3rem, 5vw, 4rem);
 }
@@ -136,6 +142,7 @@ a:focus-visible {
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
+  justify-self: center;
 }
 
 .cv-hero__photo {
@@ -541,7 +548,7 @@ a:focus-visible {
 
 @media (max-width: 53rem) and (min-width: 44.001rem) {
   .cv-hero {
-    grid-template-columns: minmax(0, 28.5rem) 10.5rem;
+    grid-template-columns: minmax(0, 28.5rem) minmax(0, 1fr);
     gap: 2rem;
   }
 
@@ -553,14 +560,6 @@ a:focus-visible {
 @media (max-width: 44rem) {
   .shell {
     width: min(calc(100% - 2rem), var(--shell));
-  }
-
-  .site-header__inner {
-    min-height: 4rem;
-  }
-
-  .site-header__inner--utility {
-    justify-content: center;
   }
 
   .cv-hero {
