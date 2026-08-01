@@ -230,8 +230,7 @@ if (root && prose && configNode) {
         return annotationId;
       },
       onCancelDraft() {
-        view.clearActiveParagraph();
-        panel.finishDraft(activeId);
+        panel.close();
       },
       onSelect(annotation) {
         activeId = annotation.id;
