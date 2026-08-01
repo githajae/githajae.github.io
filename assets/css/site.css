@@ -909,11 +909,12 @@ body.note {
 .annotation-paragraph-action {
   position: absolute;
   z-index: 3;
-  top: 0.1em;
+  top: 0;
   right: -3.25rem;
+  bottom: 0;
   display: grid;
   width: 2.75rem;
-  height: 2.75rem;
+  height: auto;
   padding: 0;
   place-items: center;
   border: 0;
@@ -926,11 +927,11 @@ body.note {
 
 .annotation-paragraph-action::after {
   width: 0.1875rem;
-  height: 2.25rem;
+  height: 100%;
   border-radius: 999px;
   background: rgb(134 134 139 / 44%);
   content: "";
-  transition: background-color 160ms ease, transform 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .annotation-commentable:hover > .annotation-paragraph-action,
@@ -951,7 +952,6 @@ body.note {
 .annotation-paragraph-action:hover::after,
 .annotation-paragraph-action:focus-visible::after {
   background: var(--ink);
-  transform: scaleY(1.12);
 }
 
 .annotation-paragraph-action:focus-visible {
