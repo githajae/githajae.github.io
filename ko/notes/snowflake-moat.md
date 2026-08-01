@@ -53,6 +53,7 @@ Snowflake도 직접 대응하고 있다. Iceberg 상호운용성, 외부 엔진�
 그것은 다른 형태의 해자다. 기존보다 더 강한 해자가 될 수도 있다. 다만 그곳에 도달하려면 이미 가진 해자의 일부를 먼저 약화시켜야 한다.
 
 ## 출처
+{: .sources-title }
 
 [^1]: [Snowflake, 2026 회계연도 Form 10-K](https://www.sec.gov/Archives/edgar/data/1640147/000164014726000008/snow-20260131.htm)
 [^2]: [Snowflake, “Pioneers Open Framework for Interoperable Data & AI”](https://www.snowflake.com/en/news/press-releases/snowflake-pioneers-new-open-framework-for-interoperable-enterprise-data-and-ai/)

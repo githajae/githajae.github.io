@@ -53,6 +53,7 @@ If data can remain in open formats and customers can choose among engines, Snowf
 That would be a different moat. It may also be a stronger one. But Snowflake can reach it only by weakening part of the moat it already has.
 
 ## Sources
+{: .sources-title }
 
 [^1]: [Snowflake, Form 10-K for the fiscal year ended January 31, 2026](https://www.sec.gov/Archives/edgar/data/1640147/000164014726000008/snow-20260131.htm)
 [^2]: [Snowflake, “Pioneers Open Framework for Interoperable Data & AI”](https://www.snowflake.com/en/news/press-releases/snowflake-pioneers-new-open-framework-for-interoperable-enterprise-data-and-ai/)

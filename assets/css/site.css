@@ -440,7 +440,7 @@ a:focus-visible {
 }
 
 .notes-hero {
-  padding-block: clamp(6rem, 13vw, 10rem) clamp(3rem, 7vw, 5rem);
+  padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2rem, 4vw, 3rem);
 }
 
 .notes-hero h1 {
@@ -452,7 +452,6 @@ a:focus-visible {
 }
 
 .note-list {
-  padding-bottom: clamp(6rem, 14vw, 11rem);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -465,7 +464,7 @@ a:focus-visible {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
-  padding-block: 2rem;
+  padding-block: 1.5rem;
   text-decoration: none;
 }
 
@@ -501,7 +500,7 @@ a:focus-visible {
 
 .note-list__dek {
   max-width: 36rem;
-  margin-top: 0.625rem;
+  margin-top: 0.5rem;
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.55;
@@ -519,12 +518,12 @@ a:focus-visible {
 }
 
 .note-page {
-  padding-bottom: clamp(6rem, 14vw, 11rem);
+  padding-bottom: clamp(4rem, 8vw, 6rem);
 }
 
 .note-page__header {
-  margin-bottom: clamp(3rem, 7vw, 5rem);
-  padding-block: clamp(6rem, 13vw, 10rem) clamp(3rem, 7vw, 5rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2.5rem, 5vw, 4rem);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -640,17 +639,45 @@ a:focus-visible {
 
 .footnotes {
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.65;
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 
 .footnotes ol {
   margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+.footnotes p {
+  margin-bottom: 0;
+}
+
+.footnotes li + li {
+  margin-top: 0.75rem;
+}
+
+.prose .sources-title {
+  margin: 4rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+
+.footnotes li .reversefootnote + .reversefootnote {
+  margin-left: 0.25rem;
+  font-size: 0;
+}
+
+.footnotes li .reversefootnote + .reversefootnote sup {
+  font-size: 0.6875rem;
+  vertical-align: baseline;
 }
 
 .note-page__footer {
-  margin-top: clamp(5rem, 12vw, 9rem);
-  padding-top: 1.5rem;
+  margin-top: clamp(3rem, 6vw, 4rem);
+  padding-top: 1rem;
   border-top: 1px solid var(--rule);
   font-size: 0.9375rem;
 }
@@ -780,11 +807,11 @@ html[lang="ko"] .prose {
   }
 
   .note-page__header {
-    padding-top: 5rem;
+    padding-top: 3.5rem;
   }
 
   .notes-hero {
-    padding-top: 5rem;
+    padding-top: 3.5rem;
   }
 
   .note-list__link {
