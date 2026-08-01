@@ -8,4 +8,6 @@ permalink: /sitemap.xml
   <url><loc>{{ '/ko/' | absolute_url }}</loc></url>
   <url><loc>{{ '/notes/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/notes/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/notes/ability-to-wait/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/notes/ability-to-wait/' | absolute_url }}</loc></url>
 </urlset>

@@ -33,7 +33,7 @@ Build with the local preview configuration, then open an article with `?annotati
 
 ```sh
 bundle exec jekyll serve --config _config.yml,_config.preview.yml
-open 'http://127.0.0.1:4000/notes/your-note/?annotations=preview'
+open 'http://127.0.0.1:4000/notes/ability-to-wait/?annotations=preview'
 ```
 
 Preview mode is limited to `localhost` and uses an in-memory account and store. It never writes to Firebase.
