@@ -180,6 +180,10 @@ a:focus-visible {
   font-size: 0.9375rem;
 }
 
+.cv-hero__emails {
+  margin-top: 0.5rem;
+}
+
 .cv-hero__links {
   gap: 0.125rem;
   margin-top: 0.5rem;
