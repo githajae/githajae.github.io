@@ -686,16 +686,16 @@ body.note {
 
 .note-workspace__inner {
   display: grid;
-  grid-template-columns: minmax(0, 52rem);
+  grid-template-columns: minmax(0, var(--note));
   align-items: start;
-  width: min(100%, 52rem);
+  width: min(100%, var(--note));
   margin-inline: auto;
 }
 
 .annotation-panel-open .note-workspace__inner {
-  grid-template-columns: minmax(0, 52rem) minmax(20rem, 22rem);
+  grid-template-columns: minmax(0, var(--note)) minmax(20rem, 22rem);
   gap: 1.5rem;
-  width: min(100%, 75.5rem);
+  width: min(100%, 65.5rem);
 }
 
 .note-page {
@@ -822,10 +822,7 @@ body.note {
 }
 
 .reversefootnote {
-  display: inline-grid;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
-  place-items: center;
+  display: inline;
 }
 
 .footnote:hover,
@@ -862,13 +859,7 @@ body.note {
 }
 
 .footnotes li .reversefootnote + .reversefootnote {
-  margin-left: 0.125rem;
-  font-size: 0;
-}
-
-.footnotes li .reversefootnote + .reversefootnote sup {
-  font-size: 0.6875rem;
-  vertical-align: baseline;
+  display: none;
 }
 
 .note-page__footer {
@@ -1565,11 +1556,11 @@ html[lang="ko"] .place-page__content {
   .note-workspace__inner,
   .annotation-panel-open .note-workspace__inner {
     display: block;
-    width: 100%;
+    width: min(calc(100% - 2rem), var(--note));
   }
 
   .note-page {
-    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-inline: 0;
   }
 
   .note-document {
