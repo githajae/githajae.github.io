@@ -13,37 +13,52 @@ layout: default
     {% endif %}
     <nav class="header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
       <a class="quiet-link" href="{{ notes_url | relative_url }}">Notes</a>
+      {% if site.annotations.enabled %}
+        <button
+          class="quiet-link annotation-index-trigger"
+          type="button"
+          data-annotation-index
+          hidden
+        >
+          <span>{% if page.lang == 'ko' %}댓글{% else %}Comments{% endif %}</span>
+          <span class="annotation-index-trigger__count" data-annotation-count aria-hidden="true"></span>
+        </button>
+      {% endif %}
       <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>
     </nav>
   </div>
 </header>
 
 {% assign annotation_id = page.annotation_id | default: page.url %}
-<main id="main-content" class="shell shell--note note-page">
-  <article
-    data-annotation-root
-    data-annotation-id="{{ annotation_id | escape }}"
-    data-annotation-revision="{{ page.annotation_revision | default: page.date | date: '%Y-%m-%d' }}"
-    data-annotation-language="{{ page.lang | default: 'en' }}"
-  >
-    <header class="note-page__header">
-      <h1>{{ page.heading | default: page.title }}</h1>
-      {% if page.dek %}
-        <p class="note-page__dek">{{ page.dek }}</p>
-      {% endif %}
-      {% if page.display_date %}
-        <time class="note-page__date" datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
-      {% endif %}
-    </header>
+<main id="main-content" class="note-workspace">
+  <div class="note-workspace__inner">
+    <article
+      class="note-page note-document"
+      data-annotation-root
+      data-annotation-id="{{ annotation_id | escape }}"
+      data-annotation-revision="{{ page.annotation_revision | default: page.date | date: '%Y-%m-%d' }}"
+      data-annotation-language="{{ page.lang | default: 'en' }}"
+    >
+      <header class="note-page__header">
+        <h1>{{ page.heading | default: page.title }}</h1>
+        {% if page.dek %}
+          <p class="note-page__dek">{{ page.dek }}</p>
+        {% endif %}
+        {% if page.display_date %}
+          <time class="note-page__date" datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+        {% endif %}
+      </header>
 
-    <div class="prose">
-      {{ content }}
-    </div>
+      <div class="prose">
+        {{ content }}
+      </div>
 
-    <footer class="note-page__footer">
-      <a href="{{ notes_url | relative_url }}">{% if page.lang == 'ko' %}모든 글{% else %}All notes{% endif %}</a>
-    </footer>
-  </article>
+      <footer class="note-page__footer">
+        <a href="{{ notes_url | relative_url }}">{% if page.lang == 'ko' %}모든 글{% else %}All notes{% endif %}</a>
+      </footer>
+    </article>
+    <div class="annotation-rail" data-annotation-rail></div>
+  </div>
 </main>
 
 {% if site.annotations.enabled %}

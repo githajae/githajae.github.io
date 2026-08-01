@@ -16,10 +16,12 @@ function debounce(callback, wait) {
 }
 
 export class AnnotationView {
-  constructor({ language, footer }) {
+  constructor({ language, guide }) {
     this.language = language === "ko" ? "ko" : "en";
     this.markerClick = null;
     this.items = [];
+    this.guide = guide;
+    this.count = guide?.querySelector("[data-annotation-count]") || null;
 
     this.markerLayer = document.createElement("div");
     this.markerLayer.className = "annotation-markers";
@@ -31,19 +33,31 @@ export class AnnotationView {
     );
     this.selectionButton.hidden = true;
 
-    this.guide = button(
-      "annotation-guide",
-      this.language === "ko" ? "댓글" : "Comment",
-    );
-    this.guide.addEventListener("click", () => this.onGuide?.());
-    footer?.append(this.guide);
+    this.guide?.addEventListener("click", () => this.onGuide?.());
+    if (this.guide) this.guide.hidden = false;
 
     document.body.append(this.markerLayer, this.selectionButton);
     window.addEventListener("resize", debounce(() => this.positionMarkers(), 100));
   }
 
+  updateCount(count) {
+    if (!this.guide || !this.count) return;
+    this.count.textContent = count ? String(count) : "";
+    const label = this.language === "ko" ? "댓글" : "Comments";
+    this.guide.setAttribute("aria-label", count ? `${label} ${count}` : label);
+  }
+
+  setUnavailable() {
+    if (!this.guide) return;
+    this.guide.disabled = true;
+    this.guide.setAttribute(
+      "aria-label",
+      this.language === "ko" ? "댓글 사용 불가" : "Comments unavailable",
+    );
+  }
+
   showSelection(rect, onClick) {
-    const compact = window.matchMedia("(max-width: 44rem)").matches;
+    const compact = window.matchMedia("(max-width: 52rem)").matches;
     const left = compact
       ? window.innerWidth - 44
       : Math.max(8, Math.min(window.innerWidth - 44, rect.right + window.scrollX - 12));
@@ -69,7 +83,14 @@ export class AnnotationView {
     let previousTop = -Infinity;
 
     this.items
-      .map((item) => ({ ...item, top: item.range.getBoundingClientRect().top + window.scrollY }))
+      .map((item) => {
+        const rect = item.range.getBoundingClientRect();
+        return {
+          ...item,
+          top: rect.top + window.scrollY,
+          left: rect.right + window.scrollX + 12,
+        };
+      })
       .sort((a, b) => a.top - b.top)
       .forEach((item) => {
         const top = Math.max(item.top, previousTop + 28);
@@ -82,6 +103,7 @@ export class AnnotationView {
             : `Open comment on “${item.annotation.quote}”`,
         );
         marker.style.setProperty("--annotation-marker-top", `${top}px`);
+        marker.style.setProperty("--annotation-marker-left", `${item.left}px`);
         marker.addEventListener("click", () => this.markerClick?.(item.annotation));
         this.markerLayer.append(marker);
       });

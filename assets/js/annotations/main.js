@@ -5,6 +5,8 @@ import { AnnotationView } from "./view.js";
 const root = document.querySelector("[data-annotation-root]");
 const prose = root?.querySelector(".prose");
 const configNode = document.querySelector("#annotation-config");
+const annotationRail = document.querySelector("[data-annotation-rail]");
+const annotationIndex = document.querySelector("[data-annotation-index]");
 
 function readConfig() {
   try {
@@ -49,7 +51,7 @@ if (root && prose && configNode) {
   if (store) {
     const view = new AnnotationView({
       language,
-      footer: root.querySelector(".note-page__footer"),
+      guide: annotationIndex,
     });
     let annotations = [];
     let activeId = null;
@@ -66,12 +68,14 @@ if (root && prose && configNode) {
 
     const panel = new AnnotationPanel({
       language,
+      mount: annotationRail,
       fallbackFocus: view.guide,
       onClose() {
         activeId = null;
         activeHighlight?.clear();
         unsubscribeReplies?.();
         unsubscribeReplies = null;
+        requestAnimationFrame(() => view.positionMarkers());
       },
       onSignIn: () => store.signIn(),
       onSignOut: () => store.signOut(),
@@ -89,6 +93,8 @@ if (root && prose && configNode) {
     function renderAnnotations() {
       const items = anchoredItems();
       view.renderMarkers(items, openThread);
+      view.updateCount(annotations.length);
+      panel.updateOverview(annotations);
 
       if (activeId) {
         const active = annotations.find(({ id }) => id === activeId);
@@ -99,6 +105,16 @@ if (root && prose && configNode) {
       }
     }
 
+    function openOverview() {
+      activeId = null;
+      activeReplies = [];
+      activeHighlight?.clear();
+      unsubscribeReplies?.();
+      unsubscribeReplies = null;
+      panel.openOverview(annotations, openThread);
+      requestAnimationFrame(() => view.positionMarkers());
+    }
+
     function openThread(annotation) {
       activeId = annotation.id;
       activeReplies = [];
@@ -106,7 +122,9 @@ if (root && prose && configNode) {
       panel.openThread(annotation, activeReplies, {
         onReply: (body) => store.addReply(annotation.id, body),
         onResolve: (resolved) => store.setResolved(annotation.id, resolved),
+        onBack: openOverview,
       });
+      requestAnimationFrame(() => view.positionMarkers());
 
       const range = rangeForAnchor(prose, annotation);
       activeHighlight?.clear();
@@ -130,6 +148,7 @@ if (root && prose && configNode) {
         await store.addAnnotation(anchor, body);
         panel.close();
       });
+      requestAnimationFrame(() => view.positionMarkers());
     }
 
     function inspectSelection() {
@@ -148,16 +167,7 @@ if (root && prose && configNode) {
       selectionTimer = window.setTimeout(inspectSelection, 80);
     });
 
-    view.onGuide = () => {
-      const first = annotations.find(({ resolved }) => !resolved) || annotations[0];
-      if (first) {
-        openThread(first);
-        return;
-      }
-      const original = view.guide.textContent;
-      view.guide.textContent = language === "ko" ? "문장을 선택하세요" : "Select text";
-      window.setTimeout(() => { view.guide.textContent = original; }, 1800);
-    };
+    view.onGuide = openOverview;
 
     store.onAuthStateChange((user) => panel.setUser(user));
     store.subscribeAnnotations(
@@ -166,8 +176,7 @@ if (root && prose && configNode) {
         renderAnnotations();
       },
       () => {
-        view.guide.textContent = language === "ko" ? "댓글 사용 불가" : "Comments unavailable";
-        view.guide.disabled = true;
+        view.setUnavailable();
       },
     );
   }
