@@ -1,71 +1,71 @@
 ---
 layout: default
 title: "Jaehyun Ha"
-permalink: /
-lang: en
-alternate_url: /ko/
+permalink: /ko/
+lang: ko
+alternate_url: /
 body_class: cv
-description: "Jaehyun Ha is a researcher in the Data Systems Lab at POSTECH."
+description: "POSTECH Data Systems Lab 연구자 하재현의 CV."
 person: true
 ---
 
 <header class="site-header">
   <div class="shell site-header__inner site-header__inner--end">
-    <nav class="header-links" aria-label="Page links">
+    <nav class="header-links" aria-label="페이지 링크">
       <a class="quiet-link" href="{{ '/assets/files/jhha_cv.pdf' | relative_url }}" download>PDF</a>
-      <a class="quiet-link" href="{{ '/ko/' | relative_url }}" hreflang="ko" lang="ko">한국어</a>
+      <a class="quiet-link" href="{{ '/' | relative_url }}" hreflang="en" lang="en">English</a>
     </nav>
   </div>
 </header>
 
 <main id="main-content">
-  <section class="shell cv-hero" aria-labelledby="cv-name">
+  <section class="shell cv-hero" aria-labelledby="cv-name-ko">
     <div class="cv-hero__body">
-      <h1 id="cv-name">Jaehyun Ha</h1>
+      <h1 id="cv-name-ko">Jaehyun Ha</h1>
       <div class="cv-hero__identity">
-        <p>Department of Artificial Intelligence, POSTECH, South Korea</p>
-        <p>Data Systems Lab @ POSTECH</p>
-        <p>Advisor: Wook-Shin Han</p>
+        <p>POSTECH 인공지능대학원</p>
+        <p>POSTECH Data Systems Lab</p>
+        <p>지도교수: Wook-Shin Han</p>
       </div>
-      <div class="cv-hero__emails" aria-label="Email addresses">
+      <div class="cv-hero__emails" aria-label="이메일 주소">
         <a href="mailto:yshajae@postech.ac.kr">yshajae@postech.ac.kr</a>
         <a href="mailto:jhha@dblab.postech.ac.kr">jhha@dblab.postech.ac.kr</a>
       </div>
-      <nav class="cv-hero__links" aria-label="Profiles">
-        <a href="https://scholar.google.com/citations?user=U6ZrhqwAAAAJ&amp;hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a>
+      <nav class="cv-hero__links" aria-label="프로필 링크">
+        <a href="https://scholar.google.com/citations?user=U6ZrhqwAAAAJ&amp;hl=ko" target="_blank" rel="noopener noreferrer">Google Scholar</a>
         <a href="https://github.com/githajae" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://www.linkedin.com/in/jaehyun-ha-6351a2244/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </nav>
     </div>
     <div class="cv-hero__photo-frame">
-      <img class="cv-hero__photo" src="{{ '/assets/images/profile.webp' | relative_url }}" alt="Portrait of Jaehyun Ha" width="600" height="583">
+      <img class="cv-hero__photo" src="{{ '/assets/images/profile.webp' | relative_url }}" alt="하재현 프로필 사진" width="600" height="583">
     </div>
   </section>
 
   <div class="shell">
-    <section class="cv-section" aria-labelledby="research-title">
-      <h2 id="research-title">Research Interests</h2>
+    <section class="cv-section" aria-labelledby="research-title-ko">
+      <h2 id="research-title-ko">연구 분야</h2>
       <div>
-        <p class="cv-copy">Building AI-native database systems for unified analytics and inference on multi-modal data</p>
+        <p class="cv-copy">멀티모달 데이터의 통합 분석과 추론을 위한 AI-native 데이터베이스 시스템</p>
         <dl class="interest-list">
           <div>
-            <dt>Graph Databases</dt>
-            <dd>Architecting a foundational query framework based on a unified graph representation of multi-modal data</dd>
+            <dt>그래프 데이터베이스</dt>
+            <dd>멀티모달 데이터를 통합 그래프로 표현하는 질의 프레임워크</dd>
           </div>
           <div>
-            <dt>Semantic Operator</dt>
-            <dd>Embedding Large Language Models (LLMs) into the database to enable context-aware querying of unstructured data</dd>
+            <dt>시맨틱 연산자</dt>
+            <dd>비정형 데이터의 문맥 기반 질의를 위한 데이터베이스와 LLM의 결합</dd>
           </div>
           <div>
-            <dt>Query Optimization</dt>
-            <dd>Designing proxy models and novel cardinality estimation methods to optimize the execution of computationally expensive semantic operators</dd>
+            <dt>질의 최적화</dt>
+            <dd>고비용 시맨틱 연산자를 위한 프록시 모델과 카디널리티 추정</dd>
           </div>
         </dl>
       </div>
     </section>
 
-    <section class="cv-section" aria-labelledby="publications-title">
-      <h2 id="publications-title">Publications</h2>
+    <section class="cv-section" aria-labelledby="publications-title-ko">
+      <h2 id="publications-title-ko">논문</h2>
       <ol class="record-list publication-list">
         <li class="record-item">
           <span class="record-item__year">2027</span>
@@ -98,8 +98,8 @@ person: true
       </ol>
     </section>
 
-    <section class="cv-section" aria-labelledby="experience-title">
-      <h2 id="experience-title">Professional Experience</h2>
+    <section class="cv-section" aria-labelledby="experience-title-ko">
+      <h2 id="experience-title-ko">Professional Experience</h2>
       <ol class="profile-list">
         <li class="profile-item">
           <img class="profile-item__logo" src="{{ '/assets/images/organizations/google.png' | relative_url }}" alt="">
@@ -107,11 +107,11 @@ person: true
             <h3>Google Systems Research Group</h3>
             <p class="profile-item__role">Visiting Student Researcher · Sunnyvale, CA, USA</p>
             <ul class="profile-item__details">
-              <li>Researching hardware-software co-optimization to accelerate semantic queries</li>
+              <li>시맨틱 질의 가속을 위한 하드웨어-소프트웨어 공동 최적화 연구</li>
               <li>Hosted by Yeounoh Chung; collaborated with Helena Caminal and Fatma Özcan</li>
             </ul>
           </div>
-          <time class="profile-item__date">Jun 2026 – Sep 2026</time>
+          <time class="profile-item__date">2026. 06 – 2026. 09</time>
         </li>
         <li class="profile-item">
           <img class="profile-item__logo" src="{{ '/assets/images/organizations/illinois.png' | relative_url }}" alt="">
@@ -119,11 +119,11 @@ person: true
             <h3>University of Illinois Urbana-Champaign (UIUC)</h3>
             <p class="profile-item__role">Visiting Scholar · IL, USA</p>
             <ul class="profile-item__details">
-              <li>Conducted research on semantic operator optimization, resulting in a paper accepted at SIGMOD 2027</li>
-              <li>Joint research project under the supervision of Prof. Yongjoo Park</li>
+              <li>시맨틱 연산자 최적화 연구, SIGMOD 2027 논문 게재</li>
+              <li>Advisor: Prof. Yongjoo Park</li>
             </ul>
           </div>
-          <time class="profile-item__date">Jun 2025 – Sep 2025</time>
+          <time class="profile-item__date">2025. 06 – 2025. 09</time>
         </li>
         <li class="profile-item">
           <img class="profile-item__logo profile-item__logo--wide" src="{{ '/assets/images/organizations/sk-hynix.png' | relative_url }}" alt="">
@@ -131,49 +131,49 @@ person: true
             <h3>Digital Platform team, SK hynix Inc.</h3>
             <p class="profile-item__role">Software Engineer Intern · Korea</p>
             <ul class="profile-item__details">
-              <li>Developed real-time video comment overlay system for SK hynix’s internal video streaming systems</li>
-              <li>Won silver prize (2nd) in internship contest</li>
+              <li>사내 영상 스트리밍 시스템의 실시간 댓글 오버레이 개발</li>
+              <li>인턴십 경진대회 은상</li>
             </ul>
           </div>
-          <time class="profile-item__date">Jul 2020 – Aug 2020</time>
+          <time class="profile-item__date">2020. 07 – 2020. 08</time>
         </li>
       </ol>
     </section>
 
-    <section class="cv-section" aria-labelledby="education-title">
-      <h2 id="education-title">Education</h2>
+    <section class="cv-section" aria-labelledby="education-title-ko">
+      <h2 id="education-title-ko">Education</h2>
       <ol class="profile-list">
         <li class="profile-item">
           <img class="profile-item__logo" src="{{ '/assets/images/organizations/postech.png' | relative_url }}" alt="">
           <div class="profile-item__body">
-            <h3>POSTECH, Graduate School of Artificial Intelligence</h3>
-            <p class="profile-item__role">M.S./Ph.D. Integrated Program · Data Systems Lab</p>
-            <p class="profile-item__detail">Advisor: Prof. Wook-Shin Han · Expected: Feb. 2028</p>
+            <h3>POSTECH 인공지능대학원</h3>
+            <p class="profile-item__role">석·박사통합과정 · Data Systems Lab</p>
+            <p class="profile-item__detail">지도교수: Prof. Wook-Shin Han · 2028년 2월 졸업 예정</p>
           </div>
-          <time class="profile-item__date">Mar. 2022 – Present</time>
+          <time class="profile-item__date">2022. 03 – 현재</time>
         </li>
         <li class="profile-item">
           <img class="profile-item__logo" src="{{ '/assets/images/organizations/postech.png' | relative_url }}" alt="">
           <div class="profile-item__body">
-            <h3>POSTECH, Dept. of Computer Science and Engineering</h3>
-            <p class="profile-item__role">B.S. in Computer Science and Engineering · GPA: 4.06 / 4.3</p>
-            <p class="profile-item__detail">Graduated with the highest GPA in CS Dept.</p>
+            <h3>POSTECH 컴퓨터공학과</h3>
+            <p class="profile-item__role">학사 · GPA 4.06 / 4.3</p>
+            <p class="profile-item__detail">학과 수석 졸업</p>
           </div>
-          <time class="profile-item__date">Mar. 2018 – Mar. 2022</time>
+          <time class="profile-item__date">2018. 03 – 2022. 03</time>
         </li>
         <li class="profile-item">
           <img class="profile-item__logo" src="{{ '/assets/images/organizations/ulsan-science-high-school.png' | relative_url }}" alt="">
           <div class="profile-item__body">
-            <h3>Ulsan Science High School</h3>
-            <p class="profile-item__detail">Early admission to POSTECH</p>
+            <h3>울산과학고등학교</h3>
+            <p class="profile-item__detail">POSTECH 조기진학</p>
           </div>
-          <time class="profile-item__date">Mar. 2016 – Mar. 2018</time>
+          <time class="profile-item__date">2016. 03 – 2018. 03</time>
         </li>
       </ol>
     </section>
 
     <aside class="notes-gateway" aria-label="Notes">
-      <a href="{{ '/notes/' | relative_url }}">Notes</a>
+      <a href="{{ '/ko/notes/' | relative_url }}">Notes</a>
     </aside>
   </div>
 </main>

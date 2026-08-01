@@ -1,56 +1,49 @@
----
----
-
 <!doctype html>
-<!--
-  Minimal Mistakes Jekyll Theme 4.20.1 by Michael Rose
-  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
-  Free for personal and commercial use under the MIT license
-  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
--->
-<html lang="{{ site.locale | slice: 0,2 | default: "en" }}" class="no-js">
+<html lang="{{ page.lang | default: 'en' }}">
   <head>
-    {% include head.html %}
-    {% include head/custom.html %}
-    {% if page.use_math %}
-      {% include mathjax_support.html %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    <title>{{ page.title }}</title>
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    {% if page.alternate_url %}
+      <link rel="alternate" hreflang="{{ page.lang }}" href="{{ page.url | absolute_url }}">
+      <link rel="alternate" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" href="{{ page.alternate_url | absolute_url }}">
+      <link rel="alternate" hreflang="x-default" href="{% if page.lang == 'ko' %}{{ page.alternate_url | absolute_url }}{% else %}{{ page.url | absolute_url }}{% endif %}">
+    {% endif %}
+    <meta property="og:type" content="{{ page.og_type | default: 'website' }}">
+    <meta property="og:title" content="{{ page.title }}">
+    <meta property="og:description" content="{{ page.description | default: site.description }}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:image" content="{{ '/assets/images/profile.webp' | absolute_url }}">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+    {% if page.person %}
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": "Jaehyun Ha",
+          "url": "{{ '/' | absolute_url }}",
+          "image": "{{ '/assets/images/profile.webp' | absolute_url }}",
+          "email": ["mailto:yshajae@postech.ac.kr", "mailto:jhha@dblab.postech.ac.kr"],
+          "affiliation": {
+            "@type": "CollegeOrUniversity",
+            "name": "Pohang University of Science and Technology",
+            "alternateName": "POSTECH"
+          },
+          "sameAs": [
+            "https://scholar.google.com/citations?user=U6ZrhqwAAAAJ&hl=en",
+            "https://github.com/githajae",
+            "https://www.linkedin.com/in/jaehyun-ha-6351a2244/"
+          ]
+        }
+      </script>
     {% endif %}
   </head>
-
-  <body class="layout--{{ page.layout | default: layout.layout }}{% if page.classes or layout.classes %}{{ page.classes | default: layout.classes | join: ' ' | prepend: ' ' }}{% endif %}">
-    {% include_cached skip-links.html %}
-    {% include_cached browser-upgrade.html %}
-    {% include_cached masthead.html %}
-
-    <div class="initial-content">
-      {{ content }}
-    </div>
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <div align="center" style="margin: 1em 0;">
-    <ins class="adsbygoogle"
-        style="display:block; border-bottom: initial;"
-        data-ad-client="ca-pub-8696484291473185"
-        data-ad-format="auto"></ins>
-    </div>
-    <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-
-    {% if site.search == true %}
-      <div class="search-content">
-        {% include_cached search/search_form.html %}
-      </div>
-    {% endif %}
-
-    <div id="footer" class="page__footer">
-      <footer>
-        {% include footer/custom.html %}
-        {% include_cached footer.html %}
-      </footer>
-    </div>
-
-    {% include scripts.html %}
-
+  <body class="{{ page.body_class }}">
+    <a class="skip-link" href="#main-content">{% if page.lang == 'ko' %}본문으로 이동{% else %}Skip to content{% endif %}</a>
+    {{ content }}
   </body>
 </html>

@@ -1,12 +1,8 @@
-# Jaehyun Ha's Blog
+# Jaehyun Ha
 
-This repository contains the source code for my personal blog. 
+Personal CV and Notes, built with Jekyll and deployed on GitHub Pages.
 
-```
-brew install rbenv ruby-build
-rbenv install 3.1.4
-rbenv local 3.1.4
-gem install bundler
+```sh
 bundle install
 bundle exec jekyll serve
 ```

@@ -1,0 +1,13 @@
+---
+layout: null
+permalink: /sitemap.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{{ '/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/notes/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/notes/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/notes/first/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/notes/first/' | absolute_url }}</loc></url>
+</urlset>

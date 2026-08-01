@@ -1,0 +1,35 @@
+---
+layout: default
+---
+
+<header class="site-header">
+  <div class="shell shell--note site-header__inner">
+    {% if page.lang == 'ko' %}
+      {% assign notes_url = '/ko/notes/' %}
+      {% assign language_label = 'English' %}
+    {% else %}
+      {% assign notes_url = '/notes/' %}
+      {% assign language_label = '한국어' %}
+    {% endif %}
+    <a class="wordmark" href="{{ notes_url | relative_url }}">Notes</a>
+    <nav class="header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
+      <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content" class="shell shell--note note-page">
+  <article>
+    <header class="note-page__header">
+      <h1>{{ page.heading | default: page.title }}</h1>
+    </header>
+
+    <div class="prose">
+      {{ content }}
+    </div>
+
+    <footer class="note-page__footer">
+      <a href="{{ notes_url | relative_url }}">Notes</a>
+    </footer>
+  </article>
+</main>
