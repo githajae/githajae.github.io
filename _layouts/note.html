@@ -18,8 +18,14 @@ layout: default
   </div>
 </header>
 
+{% assign annotation_id = page.annotation_id | default: page.url %}
 <main id="main-content" class="shell shell--note note-page">
-  <article>
+  <article
+    data-annotation-root
+    data-annotation-id="{{ annotation_id | escape }}"
+    data-annotation-revision="{{ page.annotation_revision | default: page.date | date: '%Y-%m-%d' }}"
+    data-annotation-language="{{ page.lang | default: 'en' }}"
+  >
     <header class="note-page__header">
       <h1>{{ page.heading | default: page.title }}</h1>
       {% if page.dek %}
@@ -39,3 +45,14 @@ layout: default
     </footer>
   </article>
 </main>
+
+{% if site.annotations.enabled %}
+  <script id="annotation-config" type="application/json">
+    {
+      "enabled": true,
+      "ownerEmails": {{ site.annotations.owner_emails | jsonify }},
+      "firebase": {{ site.annotations.firebase | jsonify }}
+    }
+  </script>
+  <script type="module" src="{{ '/assets/js/annotations/main.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}"></script>
+{% endif %}

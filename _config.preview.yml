@@ -1,0 +1,11 @@
+annotations:
+  enabled: true
+  owner_emails:
+    - yshajae@postech.ac.kr
+    - jhha@dblab.postech.ac.kr
+  firebase:
+    apiKey: ""
+    authDomain: ""
+    projectId: ""
+    appId: ""
+    appCheckSiteKey: ""

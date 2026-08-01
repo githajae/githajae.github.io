@@ -6,3 +6,5 @@ Personal CV and Notes, built with Jekyll and deployed on GitHub Pages.
 bundle install
 bundle exec jekyll serve
 ```
+
+Inline Notes comments are optional. See [docs/annotations.md](docs/annotations.md) to connect Google sign-in and Firestore.

@@ -11,6 +11,8 @@ body_class: note
 description: "Snowflake may need to weaken its own lock-in to remain central in an open data ecosystem."
 alternate_url: /ko/notes/snowflake-moat/
 og_type: article
+annotation_id: snowflake-moat-en
+annotation_revision: 2026-08-01
 ---
 
 Snowflake's strategic tension is not that its business has stopped growing. It is that the choices required for its next stage of growth weaken two properties that made the original model powerful: consumption and lock-in.

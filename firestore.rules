@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'yshajae@postech.ac.kr',
+          'jhha@dblab.postech.ac.kr'
+        ];
+    }
+
+    function validText(value, maximum) {
+      return value is string && value.size() > 0 && value.size() <= maximum;
+    }
+
+    function validAnnotation(articleId) {
+      return request.resource.data.keys().hasOnly([
+          'articleId', 'revision', 'language',
+          'quote', 'prefix', 'suffix', 'start', 'end',
+          'body', 'authorId', 'authorName',
+          'createdAt', 'updatedAt', 'resolved', 'hidden'
+        ])
+        && request.resource.data.articleId == articleId
+        && validText(request.resource.data.revision, 80)
+        && request.resource.data.language in ['en', 'ko']
+        && validText(request.resource.data.quote, 500)
+        && request.resource.data.prefix is string
+        && request.resource.data.prefix.size() <= 128
+        && request.resource.data.suffix is string
+        && request.resource.data.suffix.size() <= 128
+        && request.resource.data.start is int
+        && request.resource.data.start >= 0
+        && request.resource.data.end is int
+        && request.resource.data.end > request.resource.data.start
+        && validText(request.resource.data.body, 2000)
+        && request.resource.data.authorId == request.auth.uid
+        && validText(request.resource.data.authorName, 80)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.resolved == false
+        && request.resource.data.hidden == false;
+    }
+
+    function annotationVisible(articleId, annotationId) {
+      return get(/databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId)).data.hidden == false;
+    }
+
+    function annotationOpen(articleId, annotationId) {
+      let annotation = get(/databases/$(database)/documents/articles/$(articleId)/annotations/$(annotationId));
+      return annotation.data.hidden == false && annotation.data.resolved == false;
+    }
+
+    match /articles/{articleId}/annotations/{annotationId} {
+      allow get, list: if resource.data.hidden == false || isOwner();
+      allow create: if signedIn() && validAnnotation(articleId);
+      allow update: if isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'resolved', 'hidden', 'updatedAt'
+        ])
+        && request.resource.data.resolved is bool
+        && request.resource.data.hidden is bool
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isOwner() || (signedIn() && resource.data.authorId == request.auth.uid);
+
+      match /replies/{replyId} {
+        allow get, list: if (resource.data.hidden == false && annotationVisible(articleId, annotationId)) || isOwner();
+        allow create: if signedIn()
+          && annotationOpen(articleId, annotationId)
+          && request.resource.data.keys().hasOnly([
+            'body', 'authorId', 'authorName', 'createdAt', 'updatedAt', 'hidden'
+          ])
+          && validText(request.resource.data.body, 2000)
+          && request.resource.data.authorId == request.auth.uid
+          && validText(request.resource.data.authorName, 80)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.hidden == false;
+        allow update: if signedIn()
+          && resource.data.authorId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updatedAt'])
+          && validText(request.resource.data.body, 2000)
+          && request.resource.data.updatedAt == request.time;
+        allow delete: if isOwner() || (signedIn() && resource.data.authorId == request.auth.uid);
+      }
+    }
+  }
+}

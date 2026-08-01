@@ -676,6 +676,10 @@ a:focus-visible {
 }
 
 .note-page__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-top: clamp(3rem, 6vw, 4rem);
   padding-top: 1rem;
   border-top: 1px solid var(--rule);
@@ -699,6 +703,290 @@ a:focus-visible {
   color: var(--link);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+::highlight(note-annotations) {
+  background: rgb(255 225 92 / 28%);
+}
+
+::highlight(note-annotation-active) {
+  background: rgb(255 214 10 / 48%);
+}
+
+.annotation-guide,
+.annotation-text-action,
+.annotation-panel__close {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.annotation-guide {
+  min-height: 2.75rem;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.3em;
+}
+
+.annotation-guide:hover,
+.annotation-guide:focus-visible,
+.annotation-text-action:hover,
+.annotation-text-action:focus-visible,
+.annotation-panel__close:hover,
+.annotation-panel__close:focus-visible {
+  color: var(--ink);
+}
+
+.annotation-selection-button,
+.annotation-marker {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--canvas);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.annotation-selection-button {
+  z-index: 7;
+  top: var(--annotation-selection-top);
+  left: var(--annotation-selection-left);
+  width: 2rem;
+  height: 2rem;
+  padding: 0 0 0.125rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.annotation-selection-button:hover,
+.annotation-selection-button:focus-visible,
+.annotation-marker:hover,
+.annotation-marker:focus-visible {
+  background: var(--ink);
+  color: var(--canvas);
+}
+
+.annotation-markers {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.annotation-marker {
+  top: var(--annotation-marker-top);
+  left: calc(50% + 22rem);
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  pointer-events: auto;
+}
+
+.annotation-marker--resolved {
+  border-color: var(--rule);
+  opacity: 0.55;
+}
+
+.annotation-panel,
+.annotation-backdrop {
+  z-index: 20;
+}
+
+.annotation-panel {
+  position: fixed;
+  top: 4rem;
+  right: max(1rem, calc((100vw - 78rem) / 2));
+  width: min(20rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 5rem);
+  padding: 1rem;
+  overflow-y: auto;
+  border: 1px solid var(--rule);
+  background: var(--canvas);
+  overscroll-behavior: contain;
+}
+
+.annotation-panel[hidden],
+.annotation-backdrop[hidden],
+.annotation-selection-button[hidden] {
+  display: none;
+}
+
+.annotation-backdrop {
+  display: none;
+}
+
+.annotation-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.annotation-panel__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.annotation-panel__close {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.75rem -0.75rem -0.75rem 0;
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.annotation-panel__quote {
+  margin: 1rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.annotation-panel__content {
+  margin-top: 1.25rem;
+}
+
+.annotation-comment {
+  padding-block: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.annotation-comment--root {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.annotation-comment__meta,
+.annotation-comment__body {
+  margin: 0;
+}
+
+.annotation-comment__meta {
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.annotation-comment__meta strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.annotation-comment__body {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.annotation-form,
+.annotation-sign-in,
+.annotation-account,
+.annotation-resolved {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.annotation-form__input {
+  display: block;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.75rem;
+  resize: vertical;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.annotation-form__input:focus {
+  border-color: var(--ink);
+  outline: 1px solid var(--ink);
+}
+
+.annotation-form__submit,
+.annotation-primary-action {
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--canvas);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.annotation-form__submit:hover,
+.annotation-primary-action:hover {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.annotation-form__submit:disabled,
+.annotation-primary-action:disabled,
+.annotation-guide:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.annotation-sign-in p,
+.annotation-account,
+.annotation-resolved,
+.annotation-panel__status {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.annotation-sign-in p,
+.annotation-resolved,
+.annotation-panel__status {
+  margin-bottom: 0;
+}
+
+.annotation-account {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.annotation-text-action {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.annotation-panel__status:empty {
+  display: none;
+}
+
 html[lang="ko"] .note-list__title,
 html[lang="ko"] .note-list__dek,
 html[lang="ko"] .note-page h1,
@@ -715,6 +1003,13 @@ html[lang="ko"] .prose {
 
   .cv-hero__photo-frame {
     width: 10.5rem;
+  }
+}
+
+@media (max-width: 78rem) {
+  .annotation-marker {
+    right: 0.25rem;
+    left: auto;
   }
 }
 
@@ -839,12 +1134,45 @@ html[lang="ko"] .prose {
   .evidence dd {
     padding-top: 0;
   }
+
+}
+
+@media (max-width: 64rem) {
+  .annotation-panel {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    width: min(42rem, 100%);
+    max-height: min(75dvh, 42rem);
+    padding: 1rem;
+    transform: translateX(-50%);
+    border-width: 1px 1px 0;
+  }
+
+  .annotation-backdrop {
+    position: fixed;
+    inset: 0;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: rgb(17 17 17 / 18%);
+  }
+
+  body.annotation-panel-open {
+    overflow: hidden;
+  }
 }
 
 @media print {
   .site-header,
   .notes-gateway,
-  .skip-link {
+  .skip-link,
+  .annotation-guide,
+  .annotation-markers,
+  .annotation-selection-button,
+  .annotation-panel,
+  .annotation-backdrop {
     display: none;
   }
 

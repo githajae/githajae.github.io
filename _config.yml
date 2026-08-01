@@ -6,6 +6,20 @@ lang: en
 timezone: Asia/Seoul
 encoding: utf-8
 
+# Inline comments stay completely dormant until a Firebase web app is connected.
+# See docs/annotations.md for setup and security-rule deployment.
+annotations:
+  enabled: false
+  owner_emails:
+    - yshajae@postech.ac.kr
+    - jhha@dblab.postech.ac.kr
+  firebase:
+    apiKey: ""
+    authDomain: ""
+    projectId: ""
+    appId: ""
+    appCheckSiteKey: ""
+
 markdown: kramdown
 permalink: pretty
 strict_front_matter: true

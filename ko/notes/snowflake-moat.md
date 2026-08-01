@@ -11,6 +11,8 @@ body_class: note
 description: "Snowflake가 개방형 데이터 생태계의 중심에 남기 위해 자신의 락인을 약화시켜야 하는 이유."
 alternate_url: /notes/snowflake-moat/
 og_type: article
+annotation_id: snowflake-moat-ko
+annotation_revision: 2026-08-01
 ---
 
 Snowflake의 전략적 긴장은 사업이 성장을 멈췄다는 데 있지 않다. 다음 성장을 위해 필요한 선택들이 기존 사업모델을 강하게 만들었던 두 속성, 소비량과 락인을 약화시킨다는 데 있다.
