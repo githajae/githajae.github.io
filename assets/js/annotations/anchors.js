@@ -1,4 +1,4 @@
-const EXCLUDED_SELECTOR = ".footnotes, .sources-title, sup[role='doc-noteref'], script, style";
+const EXCLUDED_SELECTOR = ".footnotes, .sources-title, .annotation-paragraph-action, sup[role='doc-noteref'], script, style";
 const CONTEXT_LENGTH = 64;
 const MAX_QUOTE_LENGTH = 500;
 
@@ -57,13 +57,7 @@ function trimOffsets(text, start, end) {
   return { start: start + leading, end: end - trailing };
 }
 
-export function captureSelection(root) {
-  const selection = window.getSelection();
-  if (!selection || selection.isCollapsed || selection.rangeCount !== 1) return null;
-
-  const range = selection.getRangeAt(0);
-  if (!root.contains(range.startContainer) || !root.contains(range.endContainer)) return null;
-
+function captureRange(root, range) {
   const snapshot = textSnapshot(root);
   const offsets = rangeOffsets(range, snapshot);
   if (!offsets) return null;
@@ -79,6 +73,16 @@ export function captureSelection(root) {
     start: trimmed.start,
     end: trimmed.end,
   };
+}
+
+export function captureParagraph(root, paragraph) {
+  if (!(paragraph instanceof HTMLElement) || paragraph.tagName !== "P") return null;
+  if (!root.contains(paragraph) || paragraph.closest(".footnotes")) return null;
+
+  const range = document.createRange();
+  range.selectNodeContents(paragraph);
+  const anchor = captureRange(root, range);
+  return anchor ? { ...anchor, anchorType: "paragraph" } : null;
 }
 
 function contextScore(text, index, anchor) {
@@ -135,11 +139,4 @@ export function rangeForAnchor(root, anchor) {
   range.setStart(startPoint.node, startPoint.offset);
   range.setEnd(endPoint.node, endPoint.offset);
   return range;
-}
-
-export function selectionRect() {
-  const selection = window.getSelection();
-  if (!selection || selection.isCollapsed || selection.rangeCount !== 1) return null;
-  const rects = [...selection.getRangeAt(0).getClientRects()].filter((rect) => rect.width || rect.height);
-  return rects.at(-1) || null;
 }

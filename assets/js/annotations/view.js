@@ -7,43 +7,82 @@ function button(className, text, label) {
   return node;
 }
 
-function debounce(callback, wait) {
-  let timer;
-  return (...args) => {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => callback(...args), wait);
-  };
+function excerpt(paragraph) {
+  const text = paragraph.textContent.trim().replace(/\s+/g, " ");
+  return text.length > 96 ? `${text.slice(0, 93)}…` : text;
 }
 
 export class AnnotationView {
   constructor({ language, guide, content }) {
     this.language = language === "ko" ? "ko" : "en";
     this.markerClick = null;
-    this.rangeHover = null;
+    this.paragraphClick = null;
     this.items = [];
+    this.itemsByParagraph = new Map();
+    this.actions = new Map();
+    this.draftParagraph = null;
     this.guide = guide;
     this.content = content;
     this.count = guide?.querySelector("[data-annotation-count]") || null;
+    this.paragraphs = [...(content?.querySelectorAll("p") || [])]
+      .filter((paragraph) => !paragraph.closest(".footnotes"));
 
-    this.markerLayer = document.createElement("div");
-    this.markerLayer.className = "annotation-markers";
-
-    this.selectionButton = button(
-      "annotation-selection-button",
-      "+",
-      this.language === "ko" ? "선택한 문장에 댓글 달기" : "Comment on selected text",
-    );
-    this.selectionButton.hidden = true;
-
+    this.installParagraphActions();
     this.guide?.addEventListener("click", () => this.onGuide?.());
     if (this.guide) this.guide.hidden = false;
+    this.content?.addEventListener("click", (event) => this.openFromParagraph(event));
+  }
 
-    this.content?.addEventListener("pointermove", (event) => this.inspectPointer(event));
-    this.content?.addEventListener("pointerleave", () => this.setHoveredItem(null));
-    this.content?.addEventListener("click", (event) => this.openFromRange(event));
+  installParagraphActions() {
+    this.paragraphs.forEach((paragraph) => {
+      paragraph.classList.add("annotation-commentable");
+      const action = button("annotation-paragraph-action", "", this.actionLabel(paragraph, 0));
+      action.addEventListener("click", (event) => {
+        event.stopPropagation();
+        this.activateParagraph(paragraph);
+      });
+      paragraph.append(action);
+      this.actions.set(paragraph, action);
+    });
+  }
 
-    document.body.append(this.markerLayer, this.selectionButton);
-    window.addEventListener("resize", debounce(() => this.positionMarkers(), 100));
+  actionLabel(paragraph, count) {
+    const quote = excerpt(paragraph);
+    if (this.language === "ko") {
+      return count
+        ? `“${quote}” 문단의 댓글 열기`
+        : `“${quote}” 문단에 댓글 달기`;
+    }
+    return count
+      ? `Open comments on paragraph “${quote}”`
+      : `Comment on paragraph “${quote}”`;
+  }
+
+  paragraphForTarget(target) {
+    const paragraph = target instanceof Element ? target.closest("p") : null;
+    if (!paragraph || !this.paragraphs.includes(paragraph)) return null;
+    return paragraph;
+  }
+
+  paragraphForRange(range) {
+    const start = range.startContainer instanceof Element
+      ? range.startContainer
+      : range.startContainer.parentElement;
+    return this.paragraphForTarget(start);
+  }
+
+  activateParagraph(paragraph) {
+    const item = this.itemsByParagraph.get(paragraph)?.[0];
+    if (item) this.markerClick?.(item.annotation);
+    else this.paragraphClick?.(paragraph);
+  }
+
+  openFromParagraph(event) {
+    if (event.target.closest("a, button, input, textarea, select")) return;
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed) return;
+    const paragraph = this.paragraphForTarget(event.target);
+    if (paragraph) this.activateParagraph(paragraph);
   }
 
   updateCount(count) {
@@ -62,92 +101,42 @@ export class AnnotationView {
     );
   }
 
-  showSelection(rect, onClick) {
-    const compact = window.matchMedia("(max-width: 52rem)").matches;
-    const left = compact
-      ? window.innerWidth - 44
-      : Math.max(8, Math.min(window.innerWidth - 44, rect.right + window.scrollX - 12));
-    this.selectionButton.hidden = false;
-    this.selectionButton.style.setProperty("--annotation-selection-top", `${rect.bottom + window.scrollY + 8}px`);
-    this.selectionButton.style.setProperty("--annotation-selection-left", `${left}px`);
-    this.selectionButton.onclick = onClick;
-  }
-
-  hideSelection() {
-    this.selectionButton.hidden = true;
-    this.selectionButton.onclick = null;
-  }
-
-  renderMarkers(items, onClick) {
+  renderMarkers(items, onClick, activeId = "") {
     this.items = items.filter(({ range }) => range);
     this.markerClick = onClick;
-    this.setHoveredItem(null);
-    this.positionMarkers();
+    this.itemsByParagraph.clear();
+    this.paragraphs.forEach((paragraph) => {
+      paragraph.classList.remove("has-annotation", "is-active");
+      this.actions.get(paragraph)?.setAttribute("aria-label", this.actionLabel(paragraph, 0));
+    });
+
+    this.items.forEach((item) => {
+      const paragraph = this.paragraphForRange(item.range);
+      if (!paragraph) return;
+      const paragraphItems = this.itemsByParagraph.get(paragraph) || [];
+      paragraphItems.push(item);
+      this.itemsByParagraph.set(paragraph, paragraphItems);
+      paragraph.classList.add("has-annotation");
+      if (item.annotation.id === activeId) paragraph.classList.add("is-active");
+    });
+
+    this.itemsByParagraph.forEach((paragraphItems, paragraph) => {
+      this.actions.get(paragraph)?.setAttribute(
+        "aria-label",
+        this.actionLabel(paragraph, paragraphItems.length),
+      );
+    });
+
+    if (!activeId && this.draftParagraph) this.draftParagraph.classList.add("is-active");
   }
 
-  itemAtPoint(x, y) {
-    return this.items.find(({ range }) => (
-      [...range.getClientRects()].some((rect) => (
-        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-      ))
-    )) || null;
+  setDraftParagraph(paragraph) {
+    this.draftParagraph = paragraph;
+    this.paragraphs.forEach((item) => item.classList.toggle("is-active", item === paragraph));
   }
 
-  setHoveredItem(item) {
-    if (this.hoveredItem === item) return;
-    this.hoveredItem = item;
-    this.content?.classList.toggle("annotation-range-hover", Boolean(item));
-    this.rangeHover?.(item?.range || null);
-  }
-
-  inspectPointer(event) {
-    this.setHoveredItem(this.itemAtPoint(event.clientX, event.clientY));
-  }
-
-  openFromRange(event) {
-    if (event.target.closest("a, button, input, textarea, select")) return;
-    const selection = window.getSelection();
-    if (selection && !selection.isCollapsed) return;
-    const item = this.itemAtPoint(event.clientX, event.clientY);
-    if (item) this.markerClick?.(item.annotation);
-  }
-
-  positionMarkers() {
-    this.markerLayer.replaceChildren();
-    let previousTop = -Infinity;
-    const contentRect = this.content?.getBoundingClientRect();
-    const documentRect = this.content?.closest("[data-annotation-root]")?.getBoundingClientRect();
-    const marginWidth = contentRect && documentRect
-      ? Math.max(0, documentRect.right - contentRect.right)
-      : 0;
-    const marginLeft = contentRect
-      ? contentRect.right + window.scrollX + Math.max(4, (marginWidth - 32) / 2)
-      : 0;
-
-    this.items
-      .map((item) => {
-        const rect = item.range.getBoundingClientRect();
-        return {
-          ...item,
-          top: rect.top + window.scrollY + (rect.height / 2) - 16,
-          left: marginLeft,
-        };
-      })
-      .sort((a, b) => a.top - b.top)
-      .forEach((item) => {
-        const top = Math.max(item.top, previousTop + 28);
-        previousTop = top;
-        const marker = button(
-          "annotation-marker",
-          "",
-          this.language === "ko"
-            ? `“${item.annotation.quote}”의 댓글 열기`
-            : `Open comment on “${item.annotation.quote}”`,
-        );
-        marker.style.setProperty("--annotation-marker-top", `${top}px`);
-        marker.style.setProperty("--annotation-marker-left", `${item.left}px`);
-        marker.addEventListener("click", () => this.markerClick?.(item.annotation));
-        this.markerLayer.append(marker);
-      });
+  clearActiveParagraph() {
+    this.draftParagraph = null;
+    this.paragraphs.forEach((paragraph) => paragraph.classList.remove("is-active"));
   }
 }

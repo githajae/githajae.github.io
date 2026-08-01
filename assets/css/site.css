@@ -901,24 +901,62 @@ body.note {
   border: 0;
 }
 
-::highlight(note-annotations) {
-  background: rgb(134 134 139 / 12%);
-}
-
-::highlight(note-annotation-hover) {
-  background: rgb(255 214 10 / 24%);
-}
-
-::highlight(note-annotations-open) {
-  background: rgb(255 214 10 / 22%);
-}
-
-::highlight(note-annotation-active) {
-  background: rgb(255 214 10 / 36%);
-}
-
-.prose.annotation-range-hover {
+.annotation-commentable {
+  position: relative;
   cursor: pointer;
+}
+
+.annotation-paragraph-action {
+  position: absolute;
+  z-index: 3;
+  top: 0.1em;
+  right: -3.25rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.annotation-paragraph-action::after {
+  width: 0.125rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: rgb(134 134 139 / 30%);
+  content: "";
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.annotation-commentable:hover > .annotation-paragraph-action,
+.annotation-paragraph-action:focus-visible,
+.annotation-commentable.has-annotation > .annotation-paragraph-action {
+  opacity: 1;
+}
+
+.annotation-commentable.has-annotation > .annotation-paragraph-action::after {
+  background: rgb(134 134 139 / 48%);
+}
+
+.annotation-panel-open .annotation-commentable.has-annotation > .annotation-paragraph-action::after {
+  background: rgb(134 134 139 / 72%);
+}
+
+.annotation-commentable.is-active > .annotation-paragraph-action::after,
+.annotation-paragraph-action:hover::after,
+.annotation-paragraph-action:focus-visible::after {
+  background: var(--ink);
+  transform: scaleY(1.12);
+}
+
+.annotation-paragraph-action:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -0.25rem;
 }
 
 .annotation-guide,
@@ -970,79 +1008,6 @@ body.note {
   color: var(--ink);
 }
 
-.annotation-selection-button,
-.annotation-marker {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
-  background: var(--canvas);
-  color: var(--ink);
-  font: inherit;
-  cursor: pointer;
-}
-
-.annotation-selection-button {
-  z-index: 7;
-  top: var(--annotation-selection-top);
-  left: var(--annotation-selection-left);
-  width: 2rem;
-  height: 2rem;
-  padding: 0 0 0.125rem;
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.annotation-selection-button:hover,
-.annotation-selection-button:focus-visible,
-.annotation-marker:hover,
-.annotation-marker:focus-visible {
-  background: var(--ink);
-  color: var(--canvas);
-}
-
-.annotation-markers {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.annotation-marker {
-  top: var(--annotation-marker-top);
-  left: var(--annotation-marker-left);
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  pointer-events: auto;
-}
-
-.annotation-marker::after {
-  width: 0.5rem;
-  height: 0.5rem;
-  border: 1px solid var(--muted);
-  border-radius: 50%;
-  background: var(--canvas);
-  content: "";
-}
-
-.annotation-marker:hover,
-.annotation-marker:focus-visible {
-  background: transparent;
-  color: inherit;
-  outline: none;
-}
-
-.annotation-marker:hover::after,
-.annotation-marker:focus-visible::after {
-  border-color: var(--ink);
-  background: var(--ink);
-  box-shadow: 0 0 0 4px rgb(17 17 17 / 8%);
-}
-
 .annotation-panel,
 .annotation-backdrop {
   z-index: 20;
@@ -1065,8 +1030,7 @@ body.note {
 }
 
 .annotation-panel[hidden],
-.annotation-backdrop[hidden],
-.annotation-selection-button[hidden] {
+.annotation-backdrop[hidden] {
   display: none;
 }
 
@@ -1117,8 +1081,8 @@ body.note {
 }
 
 .annotation-thread.is-selected {
-  border-color: rgb(255 204 0 / 72%);
-  box-shadow: 0 0 0 3px rgb(255 214 10 / 13%), 0 6px 24px rgb(17 17 17 / 7%);
+  border-color: rgb(17 17 17 / 24%);
+  box-shadow: 0 0 0 3px rgb(17 17 17 / 4%), 0 6px 24px rgb(17 17 17 / 7%);
 }
 
 .annotation-thread__quote {
@@ -1569,9 +1533,12 @@ html[lang="ko"] .place-page__content {
     box-shadow: none;
   }
 
-  .annotation-marker {
-    right: 0.25rem;
-    left: auto;
+  .annotation-paragraph-action {
+    right: calc(-2rem + 2px);
+  }
+
+  .annotation-panel-open .annotation-paragraph-action {
+    right: calc(-1rem + 1px);
   }
 
   .annotation-panel {
@@ -1619,8 +1586,7 @@ html[lang="ko"] .place-page__content {
   .notes-gateway,
   .skip-link,
   .annotation-guide,
-  .annotation-markers,
-  .annotation-selection-button,
+  .annotation-paragraph-action,
   .annotation-panel,
   .annotation-backdrop {
     display: none;

@@ -1,4 +1,4 @@
-import { captureSelection, rangeForAnchor, selectionRect } from "./anchors.js";
+import { captureParagraph, rangeForAnchor } from "./anchors.js";
 import { AnnotationPanel } from "./panel.js";
 import { AnnotationView } from "./view.js";
 
@@ -83,57 +83,35 @@ if (root && prose && configNode) {
     const linkedCommentId = new URLSearchParams(window.location.search).get("comment");
     let linkedCommentOpened = false;
 
-    const highlightsSupported = Boolean(window.Highlight && window.CSS?.highlights);
-    const annotationHighlights = highlightsSupported ? new Highlight() : null;
-    const hoverHighlight = highlightsSupported ? new Highlight() : null;
-    const openHighlights = highlightsSupported ? new Highlight() : null;
-    const activeHighlight = highlightsSupported ? new Highlight() : null;
-    if (highlightsSupported) {
-      CSS.highlights.set("note-annotations", annotationHighlights);
-      CSS.highlights.set("note-annotation-hover", hoverHighlight);
-      CSS.highlights.set("note-annotations-open", openHighlights);
-      CSS.highlights.set("note-annotation-active", activeHighlight);
-    }
-
     const panel = new AnnotationPanel({
       language,
       mount: annotationRail,
       fallbackFocus: view.guide,
       onClose() {
         activeId = null;
-        hoverHighlight?.clear();
-        openHighlights?.clear();
-        activeHighlight?.clear();
-        requestAnimationFrame(() => view.positionMarkers());
+        view.clearActiveParagraph();
+        renderAnnotations();
       },
       onSignIn: () => store.signIn(),
       onSignOut: () => store.signOut(),
     });
 
     function anchoredItems() {
-      annotationHighlights?.clear();
       return annotations.map((annotation) => {
         const range = rangeForAnchor(prose, annotation);
-        if (range) annotationHighlights?.add(range);
         return { annotation, range };
       });
     }
 
     function renderAnnotations() {
       const items = anchoredItems();
-      view.renderMarkers(items, (annotation) => openComments(annotation.id));
+      view.renderMarkers(
+        items,
+        (annotation) => openComments(annotation.id),
+        panel.isOpen() ? activeId : "",
+      );
       view.updateCount(annotations.length);
       panel.updateComments(threadData());
-
-      openHighlights?.clear();
-      activeHighlight?.clear();
-      if (panel.isOpen()) {
-        items.forEach(({ annotation, range }) => {
-          if (range) openHighlights?.add(range);
-        });
-        const range = items.find(({ annotation }) => annotation.id === activeId)?.range;
-        if (range) activeHighlight?.add(range);
-      }
     }
 
     function threadData() {
@@ -230,6 +208,7 @@ if (root && prose && configNode) {
         return annotationId;
       },
       onCancelDraft() {
+        view.clearActiveParagraph();
         panel.finishDraft(activeId);
       },
       onSelect(annotation) {
@@ -255,40 +234,21 @@ if (root && prose && configNode) {
       openComments();
     }
 
-    function openDraft(anchor, anchorRange) {
-      window.getSelection()?.removeAllRanges();
-      view.hideSelection();
+    function openDraft(anchor, paragraph) {
       activeId = "";
       panel.openComments(threadData(), callbacks, {
-        draft: { anchor, anchorRange },
+        draft: { anchor },
       });
       renderAnnotations();
+      view.setDraftParagraph(paragraph);
       hydrateReplies();
     }
 
-    function inspectSelection() {
-      const selection = window.getSelection();
-      const anchorRange = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
-      const anchor = captureSelection(prose);
-      const rect = anchor ? selectionRect() : null;
-      if (!anchor || !rect) {
-        view.hideSelection();
-        return;
-      }
-      view.showSelection(rect, () => openDraft(anchor, anchorRange));
-    }
-
-    let selectionTimer;
-    document.addEventListener("selectionchange", () => {
-      window.clearTimeout(selectionTimer);
-      selectionTimer = window.setTimeout(inspectSelection, 80);
-    });
-
     view.onGuide = toggleComments;
     if (pendingGuideOpen) toggleComments();
-    view.rangeHover = (range) => {
-      hoverHighlight?.clear();
-      if (range && !activeId) hoverHighlight?.add(range);
+    view.paragraphClick = (paragraph) => {
+      const anchor = captureParagraph(prose, paragraph);
+      if (anchor) openDraft(anchor, paragraph);
     };
 
     store.onAuthStateChange((user) => panel.setUser(user));

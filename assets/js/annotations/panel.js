@@ -16,7 +16,7 @@ const COPY = {
     deleteConfirm: "Delete this comment?",
     signedInAs: "Signed in as",
     signOut: "Sign out",
-    noComments: "No comments yet. Select text to start one.",
+    noComments: "No comments yet. Choose a paragraph to start one.",
     error: "Something went wrong. Please try again.",
   },
   ko: {
@@ -36,7 +36,7 @@ const COPY = {
     deleteConfirm: "이 댓글을 삭제할까요?",
     signedInAs: "로그인",
     signOut: "로그아웃",
-    noComments: "아직 댓글이 없습니다. 문장을 선택해 시작하세요.",
+    noComments: "아직 댓글이 없습니다. 문단을 눌러 시작하세요.",
     error: "오류가 발생했습니다. 다시 시도하세요.",
   },
 };
