@@ -330,7 +330,8 @@ a:focus-visible {
 
 .profile-item {
   display: grid;
-  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  align-items: start;
   gap: 1rem;
   padding-block: 1.5rem;
   border-top: 1px solid var(--rule);
@@ -342,8 +343,8 @@ a:focus-visible {
 }
 
 .profile-item__logo {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 3rem;
+  height: 3rem;
   object-fit: contain;
 }
 
@@ -355,11 +356,16 @@ a:focus-visible {
   font-weight: 650;
 }
 
-.profile-item__logo--wide {
-  width: 3.5rem;
+.profile-item__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  min-width: 0;
 }
 
 .profile-item__body h3 {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -368,6 +374,7 @@ a:focus-visible {
 
 .profile-item__role,
 .profile-item__detail {
+  grid-column: 1 / -1;
   margin: 0.25rem 0 0;
   color: var(--muted);
   font-size: 0.875rem;
@@ -375,6 +382,7 @@ a:focus-visible {
 }
 
 .profile-item__details {
+  grid-column: 1 / -1;
   margin: 0.75rem 0 0;
   padding-left: 1.1rem;
   color: var(--muted);
@@ -383,6 +391,8 @@ a:focus-visible {
 }
 
 .profile-item__date {
+  grid-column: 2;
+  grid-row: 1;
   color: var(--faint);
   font-size: 0.8125rem;
   line-height: 1.5;
@@ -507,7 +517,7 @@ a:focus-visible {
   min-height: 2.75rem;
 }
 
-@media (max-width: 56rem) {
+@media (max-width: 56rem), (hover: none) and (pointer: coarse) and (max-width: 64rem) {
   .shell {
     width: min(calc(100% - 2rem), var(--shell));
   }
@@ -516,16 +526,39 @@ a:focus-visible {
     min-height: 4rem;
   }
 
+  .site-header__inner--end {
+    justify-content: center;
+  }
+
   .cv-hero {
     grid-template-columns: 1fr;
-    align-items: start;
+    align-items: center;
     gap: 1.5rem;
-    padding-block: 3.5rem 4.5rem;
+    padding-block: 2.5rem 4.5rem;
+    text-align: center;
+  }
+
+  .cv-hero__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cv-hero h1 {
+    max-width: none;
+    font-size: clamp(3.25rem, 15vw, 3.75rem);
+    line-height: 0.96;
   }
 
   .cv-hero__photo-frame {
     order: -1;
     width: 7.5rem;
+    justify-self: center;
+  }
+
+  .cv-hero__emails,
+  .cv-hero__links {
+    justify-content: center;
   }
 
   .cv-section {
@@ -554,17 +587,30 @@ a:focus-visible {
   }
 
   .profile-item {
-    grid-template-columns: 3rem minmax(0, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 1rem;
   }
 
-  .profile-item__logo--wide {
-    width: 3rem;
+  .profile-item__logo {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .profile-item__body {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-item__body h3,
+  .profile-item__role,
+  .profile-item__detail,
+  .profile-item__details,
+  .profile-item__date {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .profile-item__date {
-    grid-column: 2;
-    grid-row: 2;
+    margin-top: 0.25rem;
   }
 
   .note-page__header {
