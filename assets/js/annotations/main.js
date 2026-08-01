@@ -1,6 +1,15 @@
-import { captureParagraph, rangeForAnchor } from "./anchors.js";
-import { AnnotationPanel } from "./panel.js";
-import { AnnotationView } from "./view.js";
+const moduleVersion = new URL(import.meta.url).searchParams.get("v");
+const modulePath = (path) => (moduleVersion
+  ? `${path}?v=${encodeURIComponent(moduleVersion)}`
+  : path);
+const [anchorsModule, panelModule, viewModule] = await Promise.all([
+  import(modulePath("./anchors.js")),
+  import(modulePath("./panel.js")),
+  import(modulePath("./view.js")),
+]);
+const { captureParagraph, rangeForAnchor } = anchorsModule;
+const { AnnotationPanel } = panelModule;
+const { AnnotationView } = viewModule;
 
 const root = document.querySelector("[data-annotation-root]");
 const prose = root?.querySelector(".prose");
@@ -28,12 +37,12 @@ function isLocalPreview() {
 
 async function createStore(settings, context) {
   if (isLocalPreview()) {
-    const { createDemoStore } = await import("./demo-store.js");
+    const { createDemoStore } = await import(modulePath("./demo-store.js"));
     return createDemoStore(context);
   }
 
   if (!settings.enabled || !hasFirebaseConfig(settings.firebase)) return null;
-  const { createFirebaseStore } = await import("./firebase-store.js");
+  const { createFirebaseStore } = await import(modulePath("./firebase-store.js"));
   return createFirebaseStore({
     ...context,
     config: settings.firebase,
