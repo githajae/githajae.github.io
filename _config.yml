@@ -9,15 +9,15 @@ encoding: utf-8
 # Inline comments stay completely dormant until a Firebase web app is connected.
 # See docs/annotations.md for setup and security-rule deployment.
 annotations:
-  enabled: false
+  enabled: true
   owner_emails:
     - yshajae@postech.ac.kr
     - jhha@dblab.postech.ac.kr
   firebase:
-    apiKey: ""
-    authDomain: ""
-    projectId: ""
-    appId: ""
+    apiKey: "AIzaSyAc8Y99XyTC6nNfA2tFvd_iCMlGb2OtfbY"
+    authDomain: "githajae-8ec9c.firebaseapp.com"
+    projectId: "githajae-8ec9c"
+    appId: "1:757809839793:web:c02d646ebbe52833062c90"
     appCheckSiteKey: ""
 
 markdown: kramdown
