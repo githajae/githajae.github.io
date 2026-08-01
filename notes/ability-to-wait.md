@@ -43,3 +43,15 @@ We therefore cannot judge the quality of a decision by its result alone. Success
 Waiting does not guarantee success either. It can only improve the odds. If we use the time to build skill, sharpen our judgment, and preserve time and resources, we become more likely to capture the next opportunity.
 
 Waiting is not the ability to predict the future. It is the work of improving the odds that we can seize it when it arrives.
+
+Life is ultimately a game of probabilities. An impatient bet can still succeed if it lands. Impatience therefore cannot always be called wrong.
+
+The more we wager, the more we can gain. We can also lose more. The size of a bet does not guarantee success; it only widens the range of outcomes.
+
+But if life is a game of probabilities, the chance of staying in the game matters as much as the result of any single bet. If one failure can eliminate the next choice, even a bet with a large expected return may not be a good one for me.
+
+Life is too precious for me to make such a bet lightly. Time, especially, cannot be recovered once lost. I also have skills and paths already built, and possibilities I may choose in the future. What I would give up is not small.
+
+Perhaps I am overly risk-averse. I do not yet know whether this is prudence or a rationalization of fear.
+
+But I am not trying to avoid a large bet. I am trying to wait until the odds tilt far enough to justify betting my life on it.
