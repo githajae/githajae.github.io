@@ -1,8 +1,8 @@
 const COPY = {
   en: {
     comments: "Comments",
-    signIn: "Continue with Google",
-    signInHint: "Sign in to join the conversation. Your name will be public.",
+    signIn: "Sign in",
+    signInAria: "Sign in with Google",
     commentPlaceholder: "Write a comment",
     comment: "Comment",
     replyPlaceholder: "Write a reply",
@@ -13,17 +13,15 @@ const COPY = {
     cancel: "Cancel",
     delete: "Delete",
     deleteConfirm: "Delete this comment?",
-    signedInAs: "Signed in as",
     signOut: "Sign out",
-    noComments: "No comments yet.",
     error: "Something went wrong. Please try again.",
     unavailable: "Comments are unavailable.",
     legacyQuote: "Commented on",
   },
   ko: {
     comments: "댓글",
-    signIn: "Google 계정으로 계속",
-    signInHint: "대화에 참여하려면 로그인하세요. 이름은 공개됩니다.",
+    signIn: "로그인",
+    signInAria: "Google 계정으로 로그인",
     commentPlaceholder: "댓글 작성",
     comment: "댓글 달기",
     replyPlaceholder: "답글 작성",
@@ -34,9 +32,7 @@ const COPY = {
     cancel: "취소",
     delete: "삭제",
     deleteConfirm: "이 댓글을 삭제할까요?",
-    signedInAs: "로그인",
     signOut: "로그아웃",
-    noComments: "아직 댓글이 없습니다.",
     error: "오류가 발생했습니다. 다시 시도하세요.",
     unavailable: "댓글을 불러올 수 없습니다.",
     legacyQuote: "이 문단에 남긴 댓글",
@@ -76,7 +72,8 @@ export class CommentSection {
     this.title = element("h2", "comments-section__title", this.copy.comments);
     this.count = element("span", "comments-section__count");
     this.title.append(this.count);
-    this.header.append(this.title);
+    this.session = element("div", "comments-session");
+    this.header.append(this.title, this.session);
     this.content = element("div", "comments-section__content");
     this.status = element("p", "comments-section__status");
     this.status.setAttribute("role", "status");
@@ -145,7 +142,7 @@ export class CommentSection {
         window.setTimeout(() => {
           const focusTarget = this.user
             ? this.mount.querySelector('[data-form-key="new-comment"]')
-            : this.mount.querySelector(".comments-sign-in__button");
+            : this.mount.querySelector("[data-comment-sign-in]");
           focusTarget?.focus({ preventScroll: true });
         }, scroll ? 350 : 0);
       }
@@ -163,20 +160,17 @@ export class CommentSection {
     const fragments = [];
 
     if (this.user) fragments.push(this.newCommentForm());
-    else fragments.push(this.signInBlock());
 
     if (this.threads.length) {
       const list = element("div", "comments-list");
       list.setAttribute("role", "list");
       this.threads.forEach((thread) => list.append(this.thread(thread)));
       fragments.push(list);
-    } else {
-      fragments.push(element("p", "comments-section__empty", this.copy.noComments));
     }
 
-    if (this.user) fragments.push(this.account());
     this.content.replaceChildren(...fragments);
     this.status.textContent = "";
+    this.renderSession();
     this.updateCount();
 
     previousInputs.forEach(({ key, value, focused }) => {
@@ -387,32 +381,31 @@ export class CommentSection {
     return form;
   }
 
-  signInBlock() {
-    const block = element("div", "comments-sign-in");
-    block.append(element("p", "", this.copy.signInHint));
-    const button = element("button", "comments-sign-in__button", this.copy.signIn);
-    button.type = "button";
-    button.addEventListener("click", async () => {
-      button.disabled = true;
+  renderSession() {
+    this.session.replaceChildren();
+    if (this.user) {
+      this.session.append(element("span", "comments-session__user", this.user.displayName));
+      const signOut = element("button", "comment-text-action comments-session__action", this.copy.signOut);
+      signOut.type = "button";
+      signOut.addEventListener("click", () => this.callbacks.onSignOut?.());
+      this.session.append(signOut);
+      return;
+    }
+
+    const signIn = element("button", "comment-text-action comments-session__action", this.copy.signIn);
+    signIn.type = "button";
+    signIn.dataset.commentSignIn = "";
+    signIn.setAttribute("aria-label", this.copy.signInAria);
+    signIn.addEventListener("click", async () => {
+      signIn.disabled = true;
       try {
         await this.callbacks.onSignIn?.();
       } catch {
         this.showError();
       } finally {
-        button.disabled = false;
+        signIn.disabled = false;
       }
     });
-    block.append(button);
-    return block;
-  }
-
-  account() {
-    const account = element("div", "comments-account");
-    account.append(document.createTextNode(`${this.copy.signedInAs} ${this.user.displayName}`));
-    const signOut = element("button", "comment-text-action", this.copy.signOut);
-    signOut.type = "button";
-    signOut.addEventListener("click", () => this.callbacks.onSignOut?.());
-    account.append(signOut);
-    return account;
+    this.session.append(signIn);
   }
 }

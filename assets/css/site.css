@@ -922,7 +922,7 @@ body.note {
 
 .comments-section__header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
@@ -972,11 +972,26 @@ body.note {
   line-height: 1.55;
 }
 
-.comments-section__empty {
-  margin: 2rem 0 0;
-  color: var(--muted);
-  font-size: 0.9375rem;
-  line-height: 1.6;
+.comments-session {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.comments-session__user {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comments-session__action {
+  flex: 0 0 auto;
+  min-height: 2.75rem;
 }
 
 .comment + .comment {
@@ -1082,8 +1097,7 @@ body.note {
   font-size: 0.75rem;
 }
 
-.comment-form__submit,
-.comments-sign-in__button {
+.comment-form__submit {
   min-height: 2.5rem;
   padding: 0.4375rem 1rem;
   border: 1px solid var(--ink);
@@ -1095,43 +1109,20 @@ body.note {
   cursor: pointer;
 }
 
-.comment-form__submit:hover,
-.comments-sign-in__button:hover {
+.comment-form__submit:hover {
   background: var(--canvas);
   color: var(--ink);
 }
 
-.comment-form__submit:disabled,
-.comments-sign-in__button:disabled {
+.comment-form__submit:disabled {
   cursor: default;
   opacity: 0.45;
 }
 
-.comments-sign-in {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.comments-sign-in p,
-.comments-account,
 .comments-section__status {
   color: var(--muted);
   font-size: 0.75rem;
   line-height: 1.55;
-}
-
-.comments-sign-in p {
-  margin: 0;
-}
-
-.comments-account {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  margin-top: 1.5rem;
 }
 
 .comment-text-action {
@@ -1339,12 +1330,6 @@ html[lang="ko"] .place-page__content {
     border: 0;
     border-radius: 0;
     box-shadow: none;
-  }
-
-  .comments-sign-in {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 1rem;
   }
 
   .comment-replies {
