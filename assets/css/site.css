@@ -115,7 +115,7 @@ a:focus-visible {
 
 .header-links {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .header-links a,
