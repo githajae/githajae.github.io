@@ -41,7 +41,7 @@ layout: default
       class="note-page note-document"
       data-annotation-root
       data-annotation-id="{{ annotation_id | escape }}"
-      data-annotation-revision="{{ page.annotation_revision | default: page.date | date: '%Y-%m-%d' }}"
+      data-annotation-revision="{% if page.annotation_revision %}{{ page.annotation_revision | escape }}{% else %}{{ page.date | date: '%Y-%m-%d' }}{% endif %}"
       data-annotation-language="{{ page.lang | default: 'en' }}"
     >
       <header class="note-page__header">
