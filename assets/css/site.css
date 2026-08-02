@@ -1234,6 +1234,27 @@ html[lang="ko"] .place-page__content {
   .cv-hero__photo-frame {
     width: 10.5rem;
   }
+
+  .place-list__link {
+    grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.2rem 0.75rem;
+  }
+
+  .place-list__date {
+    grid-row: 1 / span 2;
+  }
+
+  .place-list__location {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .place-list__link::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
 }
 
 @media (max-width: 44rem) {
