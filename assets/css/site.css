@@ -485,6 +485,10 @@ a:focus-visible {
   padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2rem, 4vw, 3rem);
 }
 
+.archive-page {
+  padding-bottom: calc(clamp(2rem, 4vw, 3rem) + env(safe-area-inset-bottom, 0px));
+}
+
 .notes-hero h1,
 .places-hero h1 {
   margin: 0;
