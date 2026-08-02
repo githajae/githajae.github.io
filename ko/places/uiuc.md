@@ -23,10 +23,10 @@ story:
     text: "어디를 보아도 Illinois였다."
   - image: "/assets/images/places/uiuc/recreation-center.webp"
     alt: "UIUC 체육관의 넓은 웨이트 트레이닝 공간"
-    text: "연구실 밖의 생활."
+    text: "체육관은 어마어마하게 컸다."
   - image: "/assets/images/places/uiuc/group.webp"
-    alt: "일리노이의 호숫가에 모인 사람들"
-    text: "석 달의 마지막에 남은 사람들."
+    alt: "호숫가 바비큐 파티에 모인 컴퓨터공학과 사람들"
+    text: "컴퓨터공학과 사람들과 함께한 바비큐 파티."
 ---
 
-2025년 여름, 방문 연구원으로 석 달간 머물렀다.
+2025년 여름, 방문 연구원으로 석 달간 머물렀다. 포항공대의 미국 버전 같았다. 조용하고 한적하고, 조금은 지루했다. 오히려 그래서 편안했다. 물가는 비쌌지만 정이 들어, 언젠가 다시 찾고 싶다.

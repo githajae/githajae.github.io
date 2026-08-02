@@ -23,10 +23,10 @@ story:
     text: "Illinois was everywhere."
   - image: "/assets/images/places/uiuc/recreation-center.webp"
     alt: "The large weight-training floor at the UIUC recreation center"
-    text: "Life beyond the lab."
+    text: "The recreation center was enormous."
   - image: "/assets/images/places/uiuc/group.webp"
-    alt: "A group gathered beside a lake in Illinois"
-    text: "The people who remained at the end of three months."
+    alt: "People from the computer science department at a barbecue beside a lake"
+    text: "A barbecue with people from the computer science department."
 ---
 
-I spent three months here as a visiting scholar in the summer of 2025.
+I spent three months here as a visiting scholar in the summer of 2025. It felt like the American version of POSTECH: quiet, secluded, and a little dull. That was also what made it comfortable. It was expensive, but I grew attached to it and would like to return someday.

@@ -564,6 +564,10 @@ a:focus-visible {
   line-height: 1.5;
 }
 
+.place-year + .place-year {
+  margin-top: 2.5rem;
+}
+
 .place-list {
   border-bottom: 1px solid var(--rule);
 }
@@ -597,6 +601,7 @@ a:focus-visible {
   line-height: 1.4;
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+  transition: color 160ms ease;
 }
 
 .place-list__link::after {
@@ -607,8 +612,15 @@ a:focus-visible {
   transition: color 160ms ease, transform 160ms ease;
 }
 
-.place-list__link:hover::after {
+.place-list__link:hover .place-list__title,
+.place-list__link:focus-visible .place-list__title,
+.place-list__link:hover::after,
+.place-list__link:focus-visible::after {
   color: var(--link);
+}
+
+.place-list__link:hover::after,
+.place-list__link:focus-visible::after {
   transform: translateX(0.15rem);
 }
 
@@ -632,7 +644,7 @@ a:focus-visible {
 
 .place-page__meta {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: wrap;
   gap: 0.35rem;
   margin: 1.25rem 0 0;
@@ -645,11 +657,17 @@ a:focus-visible {
   display: inline-flex;
   align-items: baseline;
   gap: 0.2rem;
-  min-height: 2.75rem;
-  margin-block: -0.625rem;
+  position: relative;
   color: inherit;
+  line-height: inherit;
   text-decoration: none;
   transition: color 160ms ease;
+}
+
+.place-page__map-link::before {
+  position: absolute;
+  inset: -0.75rem -0.35rem;
+  content: "";
 }
 
 .place-page__map-link:hover,
@@ -679,6 +697,7 @@ a:focus-visible {
 }
 
 .place-page__body {
+  max-width: 39rem;
   padding-block: clamp(2.5rem, 6vw, 4rem);
 }
 
