@@ -762,6 +762,7 @@ body.note {
 }
 
 .note-page {
+  --note-section-space: clamp(2.25rem, 4vw, 3rem);
   min-width: 0;
   padding: 0 6rem clamp(3rem, 5vw, 4rem);
 }
@@ -774,8 +775,8 @@ body.note {
 }
 
 .note-page__header {
-  margin-bottom: clamp(2.5rem, 5vw, 4rem);
-  padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: var(--note-section-space);
+  padding-block: clamp(3.5rem, 7vw, 5rem) var(--note-section-space);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -977,7 +978,7 @@ body.note {
 }
 
 .comments-section {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
+  margin-top: var(--note-section-space);
   padding-top: 0;
   scroll-margin-top: 4.5rem;
 }
