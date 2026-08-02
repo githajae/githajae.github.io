@@ -7,7 +7,7 @@
   --rule: #deded9;
   --link: #0066cc;
   --workspace: #f5f5f7;
-  --shell: 60rem;
+  --shell: 51rem;
   --note: 51rem;
 }
 
@@ -1223,6 +1223,11 @@ html[lang="ko"] .prose,
 html[lang="ko"] .place-list__title,
 html[lang="ko"] .place-page__content {
   word-break: keep-all;
+}
+
+html[lang="ko"] body.cv {
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 53rem) {
