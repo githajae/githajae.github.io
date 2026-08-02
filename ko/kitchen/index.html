@@ -1,0 +1,49 @@
+---
+layout: default
+title: "Kitchen — Jaehyun Ha"
+permalink: /ko/kitchen/
+lang: ko
+alternate_url: /kitchen/
+body_class: kitchen
+description: "하재현이 직접 만든 음식의 기록."
+---
+
+<header class="site-header">
+  <div class="shell shell--note site-header__inner site-header__inner--zoned">
+    <div class="header-zone header-zone--left">
+      <a class="quiet-link" href="{{ '/ko/' | relative_url }}">CV</a>
+    </div>
+    <nav class="header-zone header-zone--center header-links" aria-label="페이지 링크">
+      <a class="quiet-link" href="{{ '/ko/notes/' | relative_url }}">Notes</a>
+      <a class="quiet-link" href="{{ '/ko/places/' | relative_url }}">Places</a>
+      <a class="quiet-link" href="{{ '/ko/kitchen/' | relative_url }}" aria-current="page">Kitchen</a>
+    </nav>
+    <div class="header-zone header-zone--right">
+      <a class="quiet-link" href="{{ '/kitchen/' | relative_url }}" hreflang="en" lang="en">English</a>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="shell shell--note archive-page">
+  <header class="kitchen-hero">
+    <h1>Kitchen</h1>
+  </header>
+
+  {% assign kitchen_pages = site.pages | where: "layout", "kitchen" | where: "lang", "ko" | sort: "date" | reverse %}
+  {% assign kitchen_years = kitchen_pages | group_by_exp: "item", "item.date | date: '%Y'" %}
+  {% for year in kitchen_years %}
+    <section class="place-year" aria-labelledby="kitchen-{{ year.name }}">
+      <h2 id="kitchen-{{ year.name }}">{{ year.name }}</h2>
+      <ol class="place-list kitchen-list">
+        {% for item in year.items %}
+          <li class="place-list__item">
+            <a class="place-list__link" href="{{ item.url | relative_url }}">
+              <time class="place-list__date" datetime="{{ item.date | date: '%Y-%m-%d' }}">{{ item.index_date }}</time>
+              <span class="place-list__title">{{ item.heading }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endfor %}
+</main>

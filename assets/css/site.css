@@ -481,7 +481,8 @@ a:focus-visible {
 }
 
 .notes-hero,
-.places-hero {
+.places-hero,
+.kitchen-hero {
   padding-block: clamp(4.5rem, 9vw, 6.5rem) clamp(2rem, 4vw, 3rem);
 }
 
@@ -490,7 +491,8 @@ a:focus-visible {
 }
 
 .notes-hero h1,
-.places-hero h1 {
+.places-hero h1,
+.kitchen-hero h1 {
   margin: 0;
   font-size: clamp(3.5rem, 9vw, 6rem);
   font-weight: 650;
@@ -628,6 +630,19 @@ a:focus-visible {
   transform: translateX(0.15rem);
 }
 
+.kitchen-list .place-list__link {
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+}
+
+.kitchen-list .place-list__date,
+.kitchen-list .place-list__link::after {
+  grid-row: 1;
+}
+
+.kitchen-list .place-list__link::after {
+  grid-column: 3;
+}
+
 .place-page {
   --place-section-space: clamp(2.25rem, 4vw, 3rem);
   --place-story-space: clamp(2.5rem, 5vw, 3.5rem);
@@ -726,6 +741,17 @@ a:focus-visible {
 
 .place-page__content > :last-child {
   margin-bottom: 0;
+}
+
+.kitchen-page .place-page__content a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.kitchen-page .place-page__content a:hover,
+.kitchen-page .place-page__content a:focus-visible {
+  color: #004d99;
 }
 
 .place-story {
@@ -1229,6 +1255,11 @@ html[lang="ko"] .place-page__content {
   word-break: keep-all;
 }
 
+html[lang="ko"] .kitchen-page h1 {
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
 html[lang="ko"] body.cv {
   word-break: keep-all;
   overflow-wrap: break-word;
@@ -1373,7 +1404,8 @@ html[lang="ko"] body.cv {
   }
 
   .notes-hero,
-  .places-hero {
+  .places-hero,
+  .kitchen-hero {
     padding-top: 3.5rem;
   }
 
@@ -1385,6 +1417,14 @@ html[lang="ko"] body.cv {
     grid-template-columns: 3.75rem minmax(0, 1fr) auto;
     align-items: start;
     gap: 0.2rem 0.75rem;
+  }
+
+  .kitchen-list .place-list__link {
+    grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+  }
+
+  .kitchen-list .place-list__date {
+    grid-row: 1;
   }
 
   .place-list__date {
@@ -1419,6 +1459,12 @@ html[lang="ko"] body.cv {
     padding-top: 0;
   }
 
+}
+
+@media (max-width: 22.5rem) {
+  .header-zone--left .annotation-index-trigger {
+    display: none !important;
+  }
 }
 
 @media (max-width: 52rem) {

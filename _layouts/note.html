@@ -27,6 +27,7 @@ layout: default
     <nav class="header-zone header-zone--center header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
       <a class="quiet-link" href="{{ notes_url | relative_url }}" aria-current="page">Notes</a>
       <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/places/' | relative_url }}{% else %}{{ '/places/' | relative_url }}{% endif %}">Places</a>
+      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/kitchen/' | relative_url }}{% else %}{{ '/kitchen/' | relative_url }}{% endif %}">Kitchen</a>
     </nav>
     <div class="header-zone header-zone--right">
       <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>

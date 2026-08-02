@@ -1,0 +1,109 @@
+---
+layout: default
+---
+
+{% if page.lang == 'ko' %}
+  {% assign kitchen_url = '/ko/kitchen/' %}
+  {% assign language_label = 'English' %}
+  {% assign comments_label = '댓글' %}
+{% else %}
+  {% assign kitchen_url = '/kitchen/' %}
+  {% assign language_label = '한국어' %}
+  {% assign comments_label = 'Comments' %}
+{% endif %}
+
+<header class="site-header">
+  <div class="shell shell--note site-header__inner site-header__inner--zoned">
+    <div class="header-zone header-zone--left">
+      {% if site.annotations.enabled %}
+        <a class="quiet-link annotation-index-trigger" href="#comments" data-comment-index hidden>
+          <span>{{ comments_label }}</span>
+          <span class="annotation-index-trigger__count" data-comment-count aria-hidden="true"></span>
+        </a>
+      {% endif %}
+    </div>
+    <nav class="header-zone header-zone--center header-links" aria-label="{% if page.lang == 'ko' %}페이지 링크{% else %}Page links{% endif %}">
+      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/notes/' | relative_url }}{% else %}{{ '/notes/' | relative_url }}{% endif %}">Notes</a>
+      <a class="quiet-link" href="{% if page.lang == 'ko' %}{{ '/ko/places/' | relative_url }}{% else %}{{ '/places/' | relative_url }}{% endif %}">Places</a>
+      <a class="quiet-link" href="{{ kitchen_url | relative_url }}" aria-current="page">Kitchen</a>
+    </nav>
+    <div class="header-zone header-zone--right">
+      <a class="quiet-link" href="{{ page.alternate_url | relative_url }}" hreflang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}" lang="{% if page.lang == 'ko' %}en{% else %}ko{% endif %}">{{ language_label }}</a>
+    </div>
+  </div>
+</header>
+
+{% assign annotation_id = page.annotation_id | default: page.url %}
+<main
+  id="main-content"
+  class="shell shell--note place-page kitchen-page"
+  data-annotation-root
+  data-annotation-id="{{ annotation_id | escape }}"
+  data-annotation-revision="{% if page.annotation_revision %}{{ page.annotation_revision | escape }}{% else %}{{ page.date | date: '%Y-%m-%d' }}{% endif %}"
+  data-annotation-language="{{ page.lang | default: 'en' }}"
+>
+  <header class="place-page__header">
+    <h1>{{ page.heading | default: page.title }}</h1>
+    <p class="place-page__meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.display_date }}</time>
+    </p>
+  </header>
+
+  {% if page.image %}
+    <figure class="place-page__media{% if page.image_height > page.image_width %} place-page__media--portrait{% endif %}">
+      <img
+        src="{{ page.image | relative_url }}"
+        alt="{{ page.image_alt | default: '' }}"
+        {% if page.image_width %}width="{{ page.image_width }}"{% endif %}
+        {% if page.image_height %}height="{{ page.image_height }}"{% endif %}
+        decoding="async"
+        fetchpriority="high"
+      >
+    </figure>
+  {% endif %}
+
+  <div class="place-page__body">
+    <div class="place-page__content">
+      {{ content }}
+    </div>
+
+    {% if page.story %}
+      <div class="place-story">
+        {% for item in page.story %}
+          <figure class="place-story__item">
+            <img
+              class="place-story__image"
+              src="{{ item.image | relative_url }}"
+              alt="{{ item.alt | default: '' | escape }}"
+              width="{{ item.width | default: 1800 }}"
+              height="{{ item.height | default: 1350 }}"
+              loading="lazy"
+              decoding="async"
+            >
+            {% if item.text %}
+              <figcaption class="place-story__text">{{ item.text | markdownify }}</figcaption>
+            {% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if site.annotations.enabled %}
+      <section id="comments" class="comments-section" data-comment-section aria-label="{{ comments_label }}" hidden></section>
+    {% endif %}
+  </div>
+</main>
+
+{% if site.annotations.enabled %}
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <script id="annotation-config" type="application/json">
+    {
+      "enabled": true,
+      "ownerEmails": {{ site.annotations.owner_emails | jsonify }},
+      "notificationEndpoint": {{ site.annotations.notification_endpoint | default: '' | jsonify }},
+      "firebase": {{ site.annotations.firebase | jsonify }}
+    }
+  </script>
+  <script type="module" src="{{ '/assets/js/annotations/main.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}"></script>
+{% endif %}
