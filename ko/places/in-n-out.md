@@ -14,8 +14,8 @@ annotation_id: "place-in-n-out-ko"
 annotation_revision: "2026-08-01"
 description: "캘리포니아에서 먹은 In-N-Out 더블더블과 애니멀 스타일 프라이."
 image: "/assets/images/places/in-n-out/meal.webp"
-image_width: 1014
-image_height: 1800
+image_width: 1672
+image_height: 940
 image_alt: "쟁반에 놓인 In-N-Out 더블더블과 애니멀 스타일 프라이"
 ---
 

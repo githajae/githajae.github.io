@@ -14,8 +14,8 @@ annotation_id: "place-in-n-out-en"
 annotation_revision: "2026-08-01"
 description: "A Double-Double and Animal Style Fries in California."
 image: "/assets/images/places/in-n-out/meal.webp"
-image_width: 1014
-image_height: 1800
+image_width: 1672
+image_height: 940
 image_alt: "An In-N-Out Double-Double and Animal Style Fries on a tray"
 ---
 
