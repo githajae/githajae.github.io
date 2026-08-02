@@ -697,12 +697,10 @@ a:focus-visible {
 }
 
 .place-page__body {
-  max-width: 39rem;
   padding-block: clamp(2.5rem, 6vw, 4rem);
 }
 
 .place-page__content {
-  max-width: 39rem;
   font-size: 1.0625rem;
   line-height: 1.8;
   letter-spacing: -0.012em;
@@ -734,7 +732,6 @@ a:focus-visible {
 }
 
 .place-story__text {
-  max-width: 39rem;
   margin-top: 0.875rem;
   color: var(--muted);
   font-size: 0.9375rem;
@@ -744,10 +741,6 @@ a:focus-visible {
 
 .place-story__text p {
   margin: 0;
-}
-
-.place-page__body > .comments-section {
-  max-width: 39rem;
 }
 
 body.note {
@@ -809,7 +802,8 @@ body.note {
 }
 
 .prose {
-  font-size: clamp(1.0625rem, 2vw, 1.1875rem);
+  font-family: Arial, "Apple SD Gothic Neo", sans-serif;
+  font-size: 11pt;
   line-height: 1.9;
   letter-spacing: -0.012em;
   overflow-wrap: break-word;
@@ -1392,6 +1386,10 @@ html[lang="ko"] .place-page__content {
 
   .note-page {
     padding-inline: 0;
+  }
+
+  .prose {
+    font-size: 1rem;
   }
 
   .note-document {
