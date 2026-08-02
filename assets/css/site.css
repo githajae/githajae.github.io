@@ -699,6 +699,13 @@ a:focus-visible {
   height: auto;
 }
 
+.place-page__media--portrait img {
+  width: auto;
+  max-width: min(100%, 30rem);
+  max-height: min(82vh, 52rem);
+  margin-inline: auto;
+}
+
 .place-page__body {
   padding-block: var(--place-section-space);
 }

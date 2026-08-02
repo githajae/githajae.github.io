@@ -81,8 +81,15 @@ layout: default
   </header>
 
   {% if page.image %}
-    <figure class="place-page__media">
-      <img src="{{ page.image | relative_url }}" alt="{{ page.image_alt | default: '' }}">
+    <figure class="place-page__media{% if page.image_height > page.image_width %} place-page__media--portrait{% endif %}">
+      <img
+        src="{{ page.image | relative_url }}"
+        alt="{{ page.image_alt | default: '' }}"
+        {% if page.image_width %}width="{{ page.image_width }}"{% endif %}
+        {% if page.image_height %}height="{{ page.image_height }}"{% endif %}
+        decoding="async"
+        fetchpriority="high"
+      >
     </figure>
   {% endif %}
 

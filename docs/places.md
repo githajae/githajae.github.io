@@ -29,6 +29,11 @@ display_date: "Aug – Sep 2026"
 annotation_id: "place-place-slug-en"
 annotation_revision: "2026-08-01"
 description: "One plain sentence for search results."
+# Optional lead photograph. Portrait images are centered at a restrained width.
+image: "/assets/images/places/place-slug/lead.webp"
+image_width: 1200
+image_height: 1800
+image_alt: "A literal description of the lead photograph"
 story:
   - image: "/assets/images/places/place-slug/01.webp"
     alt: "A literal description of the photograph"
