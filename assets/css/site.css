@@ -1225,6 +1225,12 @@ html[lang="ko"] .place-page__content {
   word-break: keep-all;
 }
 
+@media (max-width: 53rem) {
+  .place-list__date {
+    transform: translateY(0.125rem);
+  }
+}
+
 @media (max-width: 53rem) and (min-width: 44.001rem) {
   .cv-hero {
     grid-template-columns: minmax(0, 28.5rem) minmax(0, 1fr);
