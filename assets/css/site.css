@@ -625,11 +625,14 @@ a:focus-visible {
 }
 
 .place-page {
-  padding-block: clamp(4.5rem, 9vw, 6.5rem) 3rem;
+  --place-section-space: clamp(2.25rem, 4vw, 3rem);
+  --place-story-space: clamp(2.5rem, 5vw, 3.5rem);
+  --comments-section-space: var(--place-story-space);
+  padding-block: clamp(3.5rem, 7vw, 5rem) var(--place-section-space);
 }
 
 .place-page__header {
-  padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  padding-bottom: var(--place-section-space);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -697,7 +700,7 @@ a:focus-visible {
 }
 
 .place-page__body {
-  padding-block: clamp(2.5rem, 6vw, 4rem);
+  padding-block: var(--place-section-space);
 }
 
 .place-page__content {
@@ -716,8 +719,8 @@ a:focus-visible {
 
 .place-story {
   display: grid;
-  gap: clamp(3.5rem, 8vw, 5.5rem);
-  margin-top: clamp(3rem, 7vw, 4.5rem);
+  gap: var(--place-story-space);
+  margin-top: var(--place-story-space);
 }
 
 .place-story__item {
@@ -763,6 +766,7 @@ body.note {
 
 .note-page {
   --note-section-space: clamp(2.25rem, 4vw, 3rem);
+  --comments-section-space: var(--note-section-space);
   min-width: 0;
   padding: 0 6rem clamp(3rem, 5vw, 4rem);
 }
@@ -978,7 +982,7 @@ body.note {
 }
 
 .comments-section {
-  margin-top: var(--note-section-space);
+  margin-top: var(--comments-section-space, clamp(2.5rem, 5vw, 4rem));
   padding-top: 0;
   scroll-margin-top: 4.5rem;
 }
