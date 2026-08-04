@@ -1,7 +1,7 @@
 ---
 layout: note
-title: "Branding Strategy — Jaehyun Ha"
-heading: "Branding Strategy"
+title: "YouTube as an Option — Jaehyun Ha"
+heading: "YouTube as an Option"
 date: 2026-08-04
 display_date: "4 Aug 2026"
 permalink: /notes/branding-strategy/
@@ -11,7 +11,7 @@ description: "On building a name and reputation through a research career and a 
 alternate_url: /ko/notes/branding-strategy/
 og_type: article
 annotation_id: branding-strategy-en
-annotation_revision: "2026-08-04-1"
+annotation_revision: "2026-08-04-2"
 ---
 
 The success I want has two parts. One is financial freedom, and the other is social recognition. Neither has a precise threshold. I want to be able to refuse choices I do not want for financial reasons, and to be known and respected for the work I have done.

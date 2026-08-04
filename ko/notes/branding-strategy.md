@@ -1,7 +1,7 @@
 ---
 layout: note
-title: "브랜딩 전략 — Jaehyun Ha"
-heading: "브랜딩 전략"
+title: "유튜브라는 선택지 — Jaehyun Ha"
+heading: "유튜브라는 선택지"
 date: 2026-08-04
 display_date: "2026. 8. 4."
 permalink: /ko/notes/branding-strategy/
@@ -11,7 +11,7 @@ description: "연구자의 경력과 한국어 유튜브를 결합해 이름과 
 alternate_url: /notes/branding-strategy/
 og_type: article
 annotation_id: branding-strategy-ko
-annotation_revision: "2026-08-04-4"
+annotation_revision: "2026-08-04-5"
 ---
 
 내가 원하는 성공은 두 가지다. 하나는 경제적 자유이고, 다른 하나는 사회적 인정이다. 기준이 명확하지는 않지만, 돈 때문에 원하지 않는 선택을 하지 않아도 되고 내가 한 일로 이름이 알려지고 존중받는 상태를 원한다.
