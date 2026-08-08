@@ -8,10 +8,15 @@ permalink: /sitemap.xml
   <url><loc>{{ '/ko/' | absolute_url }}</loc></url>
   <url><loc>{{ '/notes/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/notes/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/notes/ability-to-wait/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/ko/notes/ability-to-wait/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/notes/the-value-of-technology/' | absolute_url }}</loc></url>
-  <url><loc>{{ '/ko/notes/the-value-of-technology/' | absolute_url }}</loc></url>
+  {%- assign note_pages = site.pages | where: 'layout', 'note' -%}
+  {%- for page in note_pages %}
+  <url>
+    <loc>{{ page.url | absolute_url }}</loc>
+    {%- if page.date %}
+    <lastmod>{{ page.date | date_to_xmlschema }}</lastmod>
+    {%- endif %}
+  </url>
+  {%- endfor %}
   <url><loc>{{ '/kitchen/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/kitchen/' | absolute_url }}</loc></url>
   {%- assign kitchen_pages = site.pages | where: 'layout', 'kitchen' -%}
