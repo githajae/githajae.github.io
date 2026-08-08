@@ -1,0 +1,27 @@
+---
+layout: null
+permalink: /feed.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ site.title | xml_escape }}</title>
+    <description>{{ site.description | xml_escape }}</description>
+    <link>{{ '/' | absolute_url }}</link>
+    <language>en</language>
+    <atom:link href="{{ '/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml"/>
+    {% assign note_pages = site.pages | where: 'layout', 'note' | where: 'lang', 'en' %}
+    {% assign place_pages = site.pages | where: 'layout', 'place' | where: 'lang', 'en' %}
+    {% assign kitchen_pages = site.pages | where: 'layout', 'kitchen' | where: 'lang', 'en' %}
+    {% assign entries = note_pages | concat: place_pages | concat: kitchen_pages | sort: 'date' | reverse %}
+    {% for page in entries limit: 30 %}
+      <item>
+        <title>{{ page.heading | default: page.title | xml_escape }}</title>
+        <description>{{ page.description | default: site.description | xml_escape }}</description>
+        <link>{{ page.url | absolute_url }}</link>
+        <guid isPermaLink="true">{{ page.url | absolute_url }}</guid>
+        <pubDate>{{ page.date | date_to_rfc822 }}</pubDate>
+      </item>
+    {% endfor %}
+  </channel>
+</rss>

@@ -3,7 +3,7 @@ layout: null
 permalink: /sitemap.xml
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url><loc>{{ '/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/' | absolute_url }}</loc></url>
   <url><loc>{{ '/notes/' | absolute_url }}</loc></url>
@@ -14,6 +14,14 @@ permalink: /sitemap.xml
     <loc>{{ page.url | absolute_url }}</loc>
     {%- if page.date %}
     <lastmod>{{ page.date | date_to_xmlschema }}</lastmod>
+    {%- endif %}
+    {%- if page.image %}
+    <image:image><image:loc>{{ page.image | absolute_url }}</image:loc></image:image>
+    {%- endif %}
+    {%- if page.story %}
+      {%- for item in page.story %}
+    <image:image><image:loc>{{ item.image | absolute_url }}</image:loc></image:image>
+      {%- endfor %}
     {%- endif %}
   </url>
   {%- endfor %}
@@ -26,6 +34,14 @@ permalink: /sitemap.xml
     {%- if page.date %}
     <lastmod>{{ page.date | date_to_xmlschema }}</lastmod>
     {%- endif %}
+    {%- if page.image %}
+    <image:image><image:loc>{{ page.image | absolute_url }}</image:loc></image:image>
+    {%- endif %}
+    {%- if page.story %}
+      {%- for item in page.story %}
+    <image:image><image:loc>{{ item.image | absolute_url }}</image:loc></image:image>
+      {%- endfor %}
+    {%- endif %}
   </url>
   {%- endfor %}
   <url><loc>{{ '/places/' | absolute_url }}</loc></url>
@@ -36,6 +52,14 @@ permalink: /sitemap.xml
     <loc>{{ page.url | absolute_url }}</loc>
     {%- if page.date %}
     <lastmod>{{ page.date | date_to_xmlschema }}</lastmod>
+    {%- endif %}
+    {%- if page.image %}
+    <image:image><image:loc>{{ page.image | absolute_url }}</image:loc></image:image>
+    {%- endif %}
+    {%- if page.story %}
+      {%- for item in page.story %}
+    <image:image><image:loc>{{ item.image | absolute_url }}</image:loc></image:image>
+      {%- endfor %}
     {%- endif %}
   </url>
   {%- endfor %}
