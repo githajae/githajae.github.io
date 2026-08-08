@@ -20,6 +20,8 @@ permalink: /sitemap.xml
   {%- endfor %}
   <url><loc>{{ '/places/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/places/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/places/tanto-sunnyvale/' | absolute_url }}</loc></url>
+  <url><loc>{{ '/ko/places/tanto-sunnyvale/' | absolute_url }}</loc></url>
   <url><loc>{{ '/places/hong-kong-banjum-san-jose/' | absolute_url }}</loc></url>
   <url><loc>{{ '/ko/places/hong-kong-banjum-san-jose/' | absolute_url }}</loc></url>
   <url><loc>{{ '/places/tarasco-taqueria/' | absolute_url }}</loc></url>
