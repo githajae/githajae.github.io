@@ -7,7 +7,7 @@ timezone: Asia/Seoul
 encoding: utf-8
 
 analytics:
-  google_tag_id: "G-D87TJ9WC8Q"
+  google_tag_id: "G-468ZHH1HBJ"
 
 # Notes, Places, and Kitchen comments stay dormant until a Firebase web app is connected.
 # See docs/annotations.md for setup and security-rule deployment.
