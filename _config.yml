@@ -15,6 +15,7 @@ annotations:
   enabled: true
   notification_endpoint: "https://script.google.com/macros/s/AKfycbwOPx97q-tfD_QXyKB-U4JLto6NLSF5y6Ip9ZrKOkODl0yOtdryNAN_CBI7Vf-s0Cx9/exec"
   owner_emails:
+    - googlhajae@gmail.com
     - yshajae@postech.ac.kr
     - jhha@dblab.postech.ac.kr
   firebase:
