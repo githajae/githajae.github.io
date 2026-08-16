@@ -1,13 +1,13 @@
 ---
 layout: note
-title: "Change in People — Jaehyun Ha"
-heading: "Change in People"
+title: "People, Technology, and Change — Jaehyun Ha"
+heading: "People, Technology, and Change"
 date: 2026-08-15
 display_date: "15 Aug 2026"
 permalink: /notes/people-change/
 lang: en
 body_class: note
-description: "On how changes in human behavior reshape technology and infrastructure."
+description: "On how people and technology create change in one another."
 alternate_url: /ko/notes/people-change/
 og_type: article
 annotation_id: people-change-en

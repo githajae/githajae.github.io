@@ -1,13 +1,13 @@
 ---
 layout: note
-title: "사람의 변화 — Jaehyun Ha"
-heading: "사람의 변화"
+title: "사람, 기술, 변화 — Jaehyun Ha"
+heading: "사람, 기술, 변화"
 date: 2026-08-15
 display_date: "2026. 8. 15."
 permalink: /ko/notes/people-change/
 lang: ko
 body_class: note
-description: "사람의 행동 변화가 기술과 인프라의 변화를 만드는 방식에 대하여."
+description: "사람과 기술이 서로의 변화를 만드는 방식에 대하여."
 alternate_url: /notes/people-change/
 og_type: article
 annotation_id: people-change-ko
