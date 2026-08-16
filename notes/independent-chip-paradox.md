@@ -14,7 +14,9 @@ annotation_id: independent-chip-paradox-en
 annotation_revision: 2026-08-16
 ---
 
-Independent chip companies believe they sell better chips. But customers do not buy a chip. They buy confidence that they can continue using it.
+The fundamental paradox of an independent chip company is that it must build far more than a chip to sell one.
+
+Customers do not buy performance alone. They buy confidence that they can continue using the chip.
 
 Performance and price are only the beginning. Customers also ask whether existing models will run unchanged, how much software must be rewritten, whether supply will remain stable, who will fix failures, and whether the next generation will arrive on time.
 
