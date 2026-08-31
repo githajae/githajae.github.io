@@ -36,7 +36,3 @@ exclude:
   - vendor
   - notifications
   - scripts
-
-# Preserve the Next.js static assets used by the CADENZA VLDB demo.
-include:
-  - cadenza-vldb26/_next
