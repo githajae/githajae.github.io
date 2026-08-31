@@ -29,6 +29,11 @@ jobs:
       - run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
+      - name: Preserve CADENZA Next.js assets
+        run: |
+          mkdir -p _site/cadenza-vldb26
+          cp -R cadenza-vldb26/_next _site/cadenza-vldb26/_next
+          test -f _site/cadenza-vldb26/_next/static/css/db5da1fa7341cfd6.css
       - uses: actions/upload-pages-artifact@v3
 
   deploy:
