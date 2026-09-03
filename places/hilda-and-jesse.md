@@ -8,8 +8,8 @@ alternate_url: /ko/places/hilda-and-jesse/
 body_class: place
 location: "USA, California"
 map_query: "Hilda and Jesse, 701 Union St, San Francisco, CA 94133, USA"
-date: 2026-08-29
-display_date: "29 Aug 2026"
+date: 2026-08-30
+display_date: "30 Aug 2026"
 annotation_id: "place-hilda-and-jesse-en"
 annotation_revision: "2026-09-03"
 description: "The Chef's Adventure Menu and wine pairing at Hilda and Jesse in San Francisco."

@@ -8,8 +8,8 @@ alternate_url: /places/hilda-and-jesse/
 body_class: place
 location: "미국, 캘리포니아"
 map_query: "Hilda and Jesse, 701 Union St, San Francisco, CA 94133, USA"
-date: 2026-08-29
-display_date: "2026. 8. 29."
+date: 2026-08-30
+display_date: "2026. 8. 30."
 annotation_id: "place-hilda-and-jesse-ko"
 annotation_revision: "2026-09-03"
 description: "샌프란시스코 Hilda and Jesse의 Chef's Adventure Menu와 와인 페어링."
