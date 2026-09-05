@@ -33,6 +33,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
+  - cv
   - vendor
   - notifications
   - scripts

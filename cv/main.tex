@@ -1,0 +1,356 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot,
+    top=2cm,
+    bottom=2cm,
+    left=2cm,
+    right=2cm,
+    footskip=1.0cm,
+]{geometry}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{primaryColor}{RGB}{0, 79, 144}
+\usepackage{enumitem}
+% \usepackage{fontawesome5} % not used; commented out for portability
+\usepackage{amsmath}
+\usepackage[
+    pdftitle={JaeHyun Ha's CV},
+    pdfauthor={JaeHyun Ha},
+    pdfcreator={LaTeX with RenderCV},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref}
+\usepackage[pscoord]{eso-pic}
+\usepackage{calc}
+\usepackage{bookmark}
+\usepackage{lastpage}
+\usepackage{changepage}
+\usepackage{paracol}
+\usepackage{ifthen}
+\usepackage{needspace}
+\usepackage{iftex}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{array}
+
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\columnsep}{0cm}
+
+% Section formatting
+\titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
+\titlespacing{\section}{-1pt}{0.3cm}{0.2cm}
+
+% Environments
+\renewcommand\labelitemi{$\circ$}
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.10cm,
+        parsep=0.10cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0.4cm+10pt
+    ]
+}{
+    \end{itemize}
+}
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{0.2cm}{0.2cm}
+}{
+    \end{adjustwidth}
+}
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+}
+
+\begin{document}
+
+\begin{center}
+    {\LARGE \textbf{Jaehyun Ha}} \\[5pt]
+\end{center}
+
+\begin{tabularx}{\textwidth}{X r}
+Department of Artificial Intelligence, POSTECH, South Korea &
+\href{https://dslab.postech.ac.kr/}{Data Systems Lab @ POSTECH}
+\\
+Homepage: \href{https://githajae.github.io}{githajae.github.io} &
+Email: \href{mailto:jhha@dblab.postech.ac.kr}{jhha@dblab.postech.ac.kr}
+\\
+Advisor: \href{https://wscrony.github.io/}{Wook-Shin Han} \\
+\end{tabularx}
+
+\vspace{0.4cm}
+
+\section*{Research Interests}
+
+\vspace{1mm}
+\noindent
+\textbf{Building AI-native database systems for unified analytics and inference on multi-modal data}
+
+\begin{itemize}
+    \itemsep0.5em
+    \item \textbf{Graph Databases:} Architecting a foundational query framework based on a unified graph representation of multi-modal data
+
+    \item \textbf{Semantic Operator:} Embedding Large Language Models (LLMs) into the database to enable context-aware querying of unstructured data
+
+    \item \textbf{Query Optimization:} Designing proxy models and novel cardinality estimation methods to optimize the execution of computationally expensive semantic operators
+\end{itemize}
+
+\section{Education}
+\begin{twocolentry}{Mar. 2022 -- Present \;\; (Expected: Feb. 2028)}
+\textbf{POSTECH}, Graduate School of Artificial Intelligence\\
+M.S./Ph.D. Integrated Program\\
+\textit{Data Systems Lab} \\
+Advisor: Prof. Wook-Shin Han\\
+\end{twocolentry}
+
+\vspace{0.2cm}
+\begin{twocolentry}{Mar. 2018 -- Mar. 2022}
+\textbf{POSTECH}, Dept. of Computer Science and Engineering\\
+B.S. in Computer Science and Engineering\\
+GPA: 4.06 / 4.3\\
+\textit{Graduated with the \textbf{highest} GPA in CS Dept.}
+\end{twocolentry}
+
+\vspace{0.2cm}
+\begin{twocolentry}{Mar. 2016 -- Mar. 2018}
+\textbf{Ulsan Science High School}
+\end{twocolentry}
+
+
+\section{Professional Experiences}
+
+\begin{twocolentry}{Jun 2026 -- Sep 2026}
+\textbf{Google Systems Research Group}, Sunnyvale, CA, USA
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Visiting Student Researcher}
+\begin{highlights}
+    \item Researching hardware-software co-optimization to accelerate semantic queries
+    \item Hosted by Yeounoh Chung
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm}
+
+\begin{twocolentry}{Jun 2025 -- Sep 2025}
+\textbf{University of Illinois Urbana-Champaign (UIUC)}, IL, USA
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Visiting Scholar}
+\begin{highlights}
+    \item Conducted research on semantic operator optimization, resulting in a paper accepted at SIGMOD 2027
+    \item Joint research project under the supervision of Prof. Yongjoo Park
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm}
+
+
+\begin{twocolentry}{Jul 2020 -- Aug 2020}
+\textbf{Digital Platform team}, SK hynix Inc., Korea
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Software Engineer Intern}
+\begin{highlights}
+    \item Developed real-time video comment overlay system for SK hynix's internal video streaming systems
+    \item Won silver prize (2nd) in internship contest
+\end{highlights}
+\end{onecolentry}
+
+\section*{Publications}
+
+\newcommand{\myname}[1]{\textbf{#1}}
+
+\begin{enumerate}[leftmargin=0.6cm, itemsep=1.5ex]
+    \item \myname{Jaehyun Ha}, Yongjoo Park, Wook-Shin Han.
+    \textit{CADENZA: Compiling Natural-Language Intent into Task-Specific Operator DAGs for Semantic Query Processing.} SIGMOD 2027.
+
+    \item \myname{Jaehyun Ha}, Yongjoo Park, Wook-Shin Han.
+    \textit{CADENZA in Action: Breaking the Monolith with Intent-Dependent Plan Spaces for Semantic Queries.} VLDB 2026 (Demo).
+
+    \item Taesung Lee, \myname{Jaehyun Ha}, Byungchul Tak, Wook-Shin Han.
+    \textit{TurboLynx: Schemaless Graph Engine Strikes Back for General-Purpose Analytics.} VLDB 2026.
+
+    \item Taesung Lee, \myname{Jaehyun Ha}, Byungchul Tak, Wook-Shin Han.
+    \textit{TurboLynx in Action: A Schemaless Graph Engine for General-Purpose Analytics.} VLDB 2026 (Demo).
+
+    \item Wonseok Lee\textsuperscript{*}, \myname{Jaehyun Ha}\textsuperscript{*}, Wook-Shin Han, Changgyoo Park, Myunggon Park, Juhyeng Han, Juchang Lee. \textnormal{(\textsuperscript{*}equal contribution)}
+    \textit{DoppelGanger++: Towards Fast Dependency Graph Generation for Database Replay.} SIGMOD 2024.
+
+    \item Wonseok Lee, \myname{Jaehyun Ha}, Wook-Shin Han, Changgyoo Park, Myunggon Park, Juhyeng Han.
+    \textit{DoppelGanger++ in Action: A Database Replay System with Fast Dependency Graph Generation.} VLDB 2024 (Demo).
+
+    \item Kyoungmin Kim, \myname{Jaehyun Ha}, George Fletcher, Wook-Shin Han.
+    \textit{Guaranteeing the O(AGM/OUT) runtime for uniform sampling and size estimation over joins.} PODS 2023.
+\end{enumerate}
+
+\section*{Invited Talks}
+
+\begin{onecolentry}
+\begin{itemize}[leftmargin=0.4cm]
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r r}
+        Optimizing Semantic Queries: Current Work and Open Questions & Cornell University & Sep 2026
+    \end{tabularx}
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r r}
+        CADENZA: Intent-Dependent Planning for Semantic Queries & Google Systems Research Group & Jan 2026
+    \end{tabularx}
+\end{itemize}
+\end{onecolentry}
+
+\section*{Projects}
+
+\begin{twocolentry}{Jun 2025 -- Sep 2025}
+\textbf{Semantic Operator Optimization}
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Visiting Scholar Research at UIUC with Prof. Yongjoo Park}
+\begin{highlights}
+    \item \textbf{Problem:} Semantic operators are prohibitively expensive in latency and dollar cost. Existing optimization methods (i.e., proxy models) present a poor trade-off, forcing a choice between unacceptably low accuracy or still-significant latency and cost, which limits practical adoption
+    \item \textbf{Contribution:} Developed novel methodologies to discover and build high-performance proxies that significantly improve latency and dollar cost while preserving accuracy
+    \item \textbf{Outcome:} Accepted at SIGMOD 2027 and VLDB 2026 (Demo)
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm} % Spacing between projects
+
+\begin{twocolentry}{Jan 2023 -- Jun 2025}
+\textbf{High-Performance Schemaless Graph Database System}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item \textbf{Problem:} The conversion of unstructured data into knowledge graphs produces schemaless graphs, where nodes and edges have their own different schemas. However, existing database systems have significant limitations in performing high-performance analytics on such data
+    \item \textbf{Contribution:} Designed and implemented a full-stack system with a specialized storage, optimizer, and query engine tailored for schemaless graph analytics
+    \item \textbf{Role:} Core developer for a large-scale system (246K+ LOC); authored approx 50\% of commits
+    \item \textbf{GitHub:} \url{https://github.com/postech-dblab-iitp/turbograph-v3}
+    \item \textbf{Outcome:} Accepted at VLDB 2026 and VLDB 2026 (Demo)
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm}
+
+\begin{twocolentry}{Dec 2022 -- Dec 2023}
+\textbf{High-Speed Dependency Graph Generation for Database Replay}
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Industry Collaboration with SAP Labs Korea}
+\begin{highlights}
+    \item \textbf{Problem:} Database replay systems are innovative tools for capturing and replaying real-world workloads for testing purposes. However, their real-world efficiency is severely bottlenecked by the slow process of dependency graph generation
+    \item \textbf{Contribution:} Proposed an efficient algorithm to accelerate dependency graph generation
+    \item \textbf{Impact:} Implemented on the commercial SAP HANA system, demonstrating real-world utility
+    \item \textbf{Outcome:} Accepted at SIGMOD 2024 and VLDB 2024 (Demo)
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm}
+
+\begin{twocolentry}{Mar 2022 -- Nov 2022}
+\textbf{Theoretically Optimal Join Cardinality Estimation Algorithm}
+\end{twocolentry}
+\begin{onecolentry}
+\begin{highlights}
+    \item \textbf{Problem:} Existing sampling-based algorithms for join cardinality estimation lacked a provable optimal O(AGM/OUT) runtime bound
+    \item \textbf{Contribution:} Developed the first algorithm to achieve this theoretical optimal bound
+    \item \textbf{Outcome:} Accepted at PODS 2023
+\end{highlights}
+\end{onecolentry}
+
+
+\section*{Technical Skills}
+\vspace{1mm}
+
+\begin{onecolentry}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{6pt}
+\begin{tabularx}{\textwidth}{
+    >{\raggedright\arraybackslash\bfseries}p{4.6cm}
+    >{\raggedright\arraybackslash}X
+}
+Programming Languages & C/C++ (Advanced), Python (Advanced), SQL (Advanced), CUDA (Intermediate), Java (Intermediate), JavaScript (Intermediate) \\
+Databases \& Data & PostgreSQL, OracleDB, DuckDB, Kuzu, Neo4j, pandas \\
+Systems \& Build Tools & Linux, Git, Docker, Kubernetes, CMake, Bazel, uv \\
+ML/LLM & PyTorch, Hugging Face, OpenAI API, Azure OpenAI API \\
+\end{tabularx}
+\end{onecolentry}
+
+
+\section{Honors and Fellowships}
+\begin{onecolentry}
+\begin{itemize}[leftmargin=0.4cm]
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r}
+        POSTECHIAN Fellowship & 2022,2023
+    \end{tabularx}
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r}
+        Samsung Dream Scholarship Foundation Scholar & 2019-2021
+    \end{tabularx}
+
+\end{itemize}
+\end{onecolentry}
+
+\section{Teaching Experiences}
+\begin{onecolentry}
+\begin{itemize}[leftmargin=0.4cm]
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r}
+        \textbf{Teaching Assistant}, Agentic RAG, Samsung Electronics & Spring 2026
+    \end{tabularx}
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r}
+        \textbf{Teaching Assistant}, AIGS540: Big Data Processing, POSTECH & Spring 2024
+    \end{tabularx}
+
+    \item
+    \begin{tabularx}{0.97\textwidth}{X r}
+        \textbf{Teaching Assistant}, CSED421: Database Systems, POSTECH & Spring 2022
+    \end{tabularx}
+
+\end{itemize}
+\end{onecolentry}
+
+\section{References}
+
+\begin{onecolentry}
+    \begin{tabularx}{\textwidth}{@{} X r @{}}
+        \textbf{Wook-Shin Han} & \href{mailto:wshan@dblab.postech.ac.kr}{wshan@dblab.postech.ac.kr} \\[2pt] % 2pt 정도 띄워줌
+        \multicolumn{2}{@{} l @{}}{POSTECH Distinguished Professor, Pohang University of Science and Technology (POSTECH), Korea}
+    \end{tabularx}
+\end{onecolentry}
+
+\vspace{0.2cm}
+
+\begin{onecolentry}
+    \begin{tabularx}{\textwidth}{@{} X r @{}}
+        \textbf{Yongjoo Park} & \href{mailto:yongjoo@g.illinois.edu}{yongjoo@g.illinois.edu} \\[2pt]
+        \multicolumn{2}{@{} l @{}}{Assistant Professor, Department of Computer Science, University of Illinois Urbana-Champaign (UIUC), USA}
+    \end{tabularx}
+\end{onecolentry}
+
+\end{document}
