@@ -232,7 +232,7 @@ GPA: 4.06 / 4.3\\
 \textit{Visiting Student Research at Google Systems Research Group}
 \begin{highlights}[parsep=0pt]
     \item \textbf{Problem:} Semantic queries combine relational processing with LLM inference, but execution across CPUs and AI accelerators incurs costly data movement. Running both on TPUs requires adapting data-dependent relational operations to a static execution model
-    \item \textbf{Contribution:} NTA introduces TPU-native relational operators and hardware-aware physical planning in JAX/XLA, enabling the first execution of all 22 TPC-H queries entirely on TPUs and laying the groundwork for unified relational and semantic query processing
+    \item \textbf{Contribution:} NTA enables the first execution of all 22 TPC-H queries entirely on TPUs through TPU-native relational operators and hardware-aware planning in JAX/XLA, laying the groundwork for unified relational and semantic query processing
     \item \textbf{Impact:} Achieved geometric-mean speedups over DuckDB of $7.0\times$ at 100GB on one TPU and $68.6\times$ at 1TB on 16 TPUs, excluding compilation and data transfer
     \item \textbf{Outcome:} Submitted to VLDB 2027
 \end{highlights}
