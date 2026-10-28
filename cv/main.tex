@@ -55,13 +55,14 @@
 
 % Environments
 \renewcommand\labelitemi{$\circ$}
-\newenvironment{highlights}{
+\newenvironment{highlights}[1][]{
     \begin{itemize}[
         topsep=0.10cm,
         parsep=0.10cm,
         partopsep=0pt,
         itemsep=0pt,
-        leftmargin=0.4cm+10pt
+        leftmargin=0.4cm+10pt,
+        #1
     ]
 }{
     \end{itemize}
@@ -182,26 +183,29 @@ GPA: 4.06 / 4.3\\
 \newcommand{\myname}[1]{\textbf{#1}}
 
 \begin{enumerate}[leftmargin=0.6cm, itemsep=1.5ex]
-    \item \myname{Jaehyun Ha}, Yongjoo Park, Wook-Shin Han.
-    \textit{CADENZA: Compiling Natural-Language Intent into Task-Specific Operator DAGs for Semantic Query Processing.} SIGMOD 2027.
+    \item \myname{Jaehyun Ha}, Yeounoh Chung, Helena Caminal, Aditya K Kamath, Fatma \"{O}zcan, Arvind Krishnamurthy, Henry M. Levy.
+    \href{https://arxiv.org/abs/2610.22673}{\textit{The Case for TPU-Accelerated Analytical Query Processing.}} Submitted to VLDB 2027.
 
     \item \myname{Jaehyun Ha}, Yongjoo Park, Wook-Shin Han.
-    \textit{CADENZA in Action: Breaking the Monolith with Intent-Dependent Plan Spaces for Semantic Queries.} VLDB 2026 (Demo).
+    \href{https://doi.org/10.1145/3837103}{\textit{CADENZA: Compiling Natural-Language Intent into Task-Specific Operator DAGs for Semantic Query Processing.}} SIGMOD 2027.
+
+    \item \myname{Jaehyun Ha}, Yongjoo Park, Wook-Shin Han.
+    \href{https://doi.org/10.14778/3827998.3828084}{\textit{CADENZA in Action: Breaking the Monolith with Intent-Dependent Plan Spaces for Semantic Queries.}} VLDB 2026 (Demo).
 
     \item Taesung Lee, \myname{Jaehyun Ha}, Byungchul Tak, Wook-Shin Han.
-    \textit{TurboLynx: Schemaless Graph Engine Strikes Back for General-Purpose Analytics.} VLDB 2026.
+    \href{https://doi.org/10.14778/3797919.3797932}{\textit{TurboLynx: Schemaless Graph Engine Strikes Back for General-Purpose Analytics.}} VLDB 2026.
 
     \item Taesung Lee, \myname{Jaehyun Ha}, Byungchul Tak, Wook-Shin Han.
-    \textit{TurboLynx in Action: A Schemaless Graph Engine for General-Purpose Analytics.} VLDB 2026 (Demo).
+    \href{https://doi.org/10.14778/3827998.3828133}{\textit{TurboLynx in Action: A Schemaless Graph Engine for General-Purpose Analytics.}} VLDB 2026 (Demo).
 
     \item Wonseok Lee\textsuperscript{*}, \myname{Jaehyun Ha}\textsuperscript{*}, Wook-Shin Han, Changgyoo Park, Myunggon Park, Juhyeng Han, Juchang Lee. \textnormal{(\textsuperscript{*}equal contribution)}
-    \textit{DoppelGanger++: Towards Fast Dependency Graph Generation for Database Replay.} SIGMOD 2024.
+    \href{https://doi.org/10.1145/3639322}{\textit{DoppelGanger++: Towards Fast Dependency Graph Generation for Database Replay.}} SIGMOD 2024.
 
     \item Wonseok Lee, \myname{Jaehyun Ha}, Wook-Shin Han, Changgyoo Park, Myunggon Park, Juhyeng Han.
-    \textit{DoppelGanger++ in Action: A Database Replay System with Fast Dependency Graph Generation.} VLDB 2024 (Demo).
+    \href{https://doi.org/10.14778/3685800.3685863}{\textit{DoppelGanger++ in Action: A Database Replay System with Fast Dependency Graph Generation.}} VLDB 2024 (Demo).
 
     \item Kyoungmin Kim, \myname{Jaehyun Ha}, George Fletcher, Wook-Shin Han.
-    \textit{Guaranteeing the O(AGM/OUT) runtime for uniform sampling and size estimation over joins.} PODS 2023.
+    \href{https://doi.org/10.1145/3584372.3588676}{\textit{Guaranteeing the O(AGM/OUT) runtime for uniform sampling and size estimation over joins.}} PODS 2023.
 \end{enumerate}
 
 \section*{Invited Talks}
@@ -222,30 +226,48 @@ GPA: 4.06 / 4.3\\
 
 \section*{Projects}
 
+\begin{twocolentry}{Jun 2026 -- Sep 2026}
+\textbf{TPU-Accelerated Analytical Query Processing}
+\end{twocolentry}
+\begin{onecolentry}
+\textit{Visiting Student Research at Google Systems Research Group}
+\begin{highlights}[parsep=0pt]
+    \item \textbf{Problem:} Semantic queries combine relational processing with LLM inference, but execution across CPUs and AI accelerators incurs costly data movement. Running both on TPUs requires adapting data-dependent relational operations to a static execution model
+    \item \textbf{Contribution:} NTA introduces TPU-native relational operators and hardware-aware physical planning in JAX/XLA, enabling the first execution of all 22 TPC-H queries entirely on TPUs and laying the groundwork for unified relational and semantic query processing
+    \item \textbf{Impact:} Achieved geometric-mean speedups over DuckDB of $7.0\times$ at 100GB on one TPU and $68.6\times$ at 1TB on 16 TPUs, excluding compilation and data transfer
+    \item \textbf{Outcome:} Submitted to VLDB 2027
+\end{highlights}
+\end{onecolentry}
+
+\vspace{2mm}
+
 \begin{twocolentry}{Jun 2025 -- Sep 2025}
 \textbf{Intent-Driven Semantic Operator Optimization}
 \end{twocolentry}
 \begin{onecolentry}
-\textit{Visiting Scholar Research at UIUC with Prof. Yongjoo Park}
-\begin{highlights}
-    \item \textbf{Problem:} Semantic operators are prohibitively expensive in latency and dollar cost. Existing optimization methods (i.e., proxy models) present a poor trade-off, forcing a choice between unacceptably low accuracy or still-significant latency and cost, which limits practical adoption
-    \item \textbf{Contribution:} Designed CADENZA to compile natural-language intent into task-specific plans and optimize their physical implementations
+\textit{Visiting Research with Prof. Yongjoo Park, UIUC}
+\begin{highlights}[parsep=0pt]
+    \item \textbf{Problem:} Treating semantic operators as monolithic model calls limits optimization, leaving substantial trade-offs between output quality, inference latency, and monetary cost
+    \item \textbf{Contribution:} CADENZA compiles natural-language intent into task-specific operator DAGs, exposing intermediate results to relational optimization and jointly tuning physical implementations
+    \item \textbf{Impact:} Reduced scenario-average latency and monetary cost by up to $165.7\times$ and $310.3\times$, respectively, against state-of-the-art systems on SemBench
     \item \textbf{Outcome:} Accepted at SIGMOD 2027 and VLDB 2026 (Demo)
 \end{highlights}
 \end{onecolentry}
 
 \vspace{2mm} % Spacing between projects
 
+\needspace{5\baselineskip}
 \begin{twocolentry}{Jan 2023 -- Jun 2025}
 \textbf{High-Performance Schemaless Graph Database System}
 \end{twocolentry}
 \begin{onecolentry}
-\begin{highlights}
-    \item \textbf{Problem:} The conversion of unstructured data into knowledge graphs produces schemaless graphs, where nodes and edges have their own different schemas. However, existing database systems have significant limitations in performing high-performance analytics on such data
-    \item \textbf{Contribution:} Designed and implemented a full-stack system with a specialized storage, optimizer, and query engine tailored for schemaless graph analytics
-    \item \textbf{Role:} Core developer for a large-scale system (246K+ LOC); authored approx 50\% of commits
-    \item \textbf{Website:} \url{https://turbolynx.io/}
+\begin{highlights}[parsep=0pt]
+    \item \textbf{Problem:} Schema heterogeneity in property graphs creates storage, execution, and optimization overheads that limit analytical query performance
+    \item \textbf{Contribution:} TurboLynx integrates graphlet-based columnar storage, schema-aware query execution, and cost-based optimization to efficiently support both graph traversal and analytical workloads
+    \item \textbf{Role:} Core system developer; authored approximately 50\% of commits in a 246K+ LOC codebase. Coded primarily without LLM assistance in 2023--2024
+    \item \textbf{Impact:} Outperformed graph DBMSs by up to $183.9\times$ and relational DBMSs by up to $41.27\times$ across LDBC SNB Interactive, TPC-H, and DBpedia evaluations
     \item \textbf{Outcome:} Accepted at VLDB 2026 and VLDB 2026 (Demo)
+    \item \textbf{Website:} \url{https://turbolynx.io/}
 \end{highlights}
 \end{onecolentry}
 
@@ -255,11 +277,11 @@ GPA: 4.06 / 4.3\\
 \textbf{High-Speed Dependency Graph Generation for Database Replay}
 \end{twocolentry}
 \begin{onecolentry}
-\textit{Industry Collaboration with SAP Labs Korea}
-\begin{highlights}
-    \item \textbf{Problem:} Database replay systems are innovative tools for capturing and replaying real-world workloads for testing purposes. However, their real-world efficiency is severely bottlenecked by the slow process of dependency graph generation
-    \item \textbf{Contribution:} Proposed an efficient algorithm to accelerate dependency graph generation
-    \item \textbf{Impact:} Implemented on the commercial SAP HANA system, demonstrating real-world utility
+\textit{Joint Research with SAP Labs Korea}
+\begin{highlights}[parsep=0pt]
+    \item \textbf{Problem:} Dependency graph generation bottlenecks database replay, limiting efficient testing of system changes on captured production workloads
+    \item \textbf{Contribution:} DoppelGanger++ introduces a stateful single forward scan algorithm and its parallel extension to efficiently construct dependency graphs that preserve replay correctness
+    \item \textbf{Impact:} Implemented in SAP HANA, bringing the research into a commercial database system
     \item \textbf{Outcome:} Accepted at SIGMOD 2024 and VLDB 2024 (Demo)
 \end{highlights}
 \end{onecolentry}
@@ -267,13 +289,14 @@ GPA: 4.06 / 4.3\\
 \vspace{2mm}
 
 \begin{twocolentry}{Mar 2022 -- Nov 2022}
-\textbf{Theoretically Optimal Join Cardinality Estimation Algorithm}
+\textbf{Provably Efficient Join Sampling and Cardinality Estimation}
 \end{twocolentry}
 \begin{onecolentry}
-\begin{highlights}
-    \item \textbf{Problem:} Existing sampling-based algorithms for join cardinality estimation lacked a provable optimal O(AGM/OUT) runtime bound
-    \item \textbf{Contribution:} Developed the first algorithm to achieve this theoretical optimal bound
-    \item \textbf{Outcome:} Accepted at PODS 2023
+\begin{highlights}[parsep=0pt]
+    \item \textbf{Problem:} Generating training samples from relational data can require prohibitively large joins; existing sampling methods incurred additional input-size overheads for general joins
+    \item \textbf{Contribution:} Degree-based rejection sampling (DRS) achieves $\widetilde{O}(\mathrm{AGM}/\mathrm{OUT})$ time for uniform sampling and cardinality estimation over arbitrary joins after linear-time index construction
+    \item \textbf{Impact:} Resolves an open problem in join sampling and estimation by eliminating the extra input-size factor, supporting training-data generation without materializing full join results
+    \item \textbf{Outcome:} Accepted at PODS 2023; the first PODS paper with authors affiliated with a Korean institution
 \end{highlights}
 \end{onecolentry}
 
